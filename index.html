@@ -424,13 +424,107 @@ const RIS_REWARDS=[
 ];
 function familyPoints(){return data.kids.reduce((s,k)=>s+(+k.familyPoints||0),0)}
 function rewardGoal(k){return RIS_REWARDS.find(r=>r.id===(k.rewardGoal||"movie"))||RIS_REWARDS[0]}
-function rewards(){
- let fp=familyPoints(), familyGoal=RIS_REWARDS[RIS_REWARDS.length-1];
- return header()+`<div class="card"><h2 style="margin-top:0">🌳 Risser Family — Working Together</h2><p class="muted">Every approved responsibility and Level Up helps the whole family. Family progress does not take away anyone's individual Points.</p>
- <div class="goalCard"><div class="row wrap"><b>${familyGoal.icon} Family Goal: ${familyGoal.name}</b><b>${fp} / ${familyGoal.cost*4} pts</b></div><div class="goalBar"><div class="goalFill" style="width:${Math.min(100,fp/(familyGoal.cost*4)*100)}%"></div></div><div class="tiny muted" style="margin-top:8px">${data.kids.map(k=>`${theme(k)[1]} ${k.name} +${+k.familyPoints||0}`).join(" · ")}</div></div></div>
- <div class="card"><h2 style="margin-top:0">🏆 Individual Progress</h2><div class="scoreGrid">${data.kids.map((k,i)=>{let g=rewardGoal(k),p=+k.rewardPoints||0;return `<div class="goalCard"><div class="row"><div><div style="font-size:34px">${theme(k)[1]}</div><b>${k.name}</b></div><div style="text-align:right"><b>⭐ ${p} pts</b><div class="tiny muted">🔥 ${k.xp||0} XP · 🎯 ${reliability(k)}%</div></div></div><div style="margin-top:10px"><label>Working toward</label><select data-goal="${k.id}">${RIS_REWARDS.map(r=>`<option value="${r.id}" ${g.id===r.id?"selected":""}>${r.icon} ${r.name} — ${r.cost} pts</option>`).join("")}</select></div><div class="goalBar"><div class="goalFill" style="width:${Math.min(100,p/g.cost*100)}%"></div></div><div class="tiny muted" style="margin-top:6px">${p>=g.cost?`🎉 Goal earned! Ask a parent to redeem it.`:`${Math.max(0,g.cost-p)} points to go`}</div><div style="margin-top:10px">${RIS_REWARDS.map(r=>`<div class="approval"><div><b>${r.icon} ${r.name}</b><div class="tiny muted">${r.cost} pts</div></div><button class="btn small" data-rredeem="${r.id}" data-rkid="${k.id}" ${p<r.cost?"disabled":""}>Redeem</button></div>`).join("")}</div></div>`}).join("")}</div></div>`;
+function dayStartMs(){
+  let d=new Date(); d.setHours(0,0,0,0); return d.getTime();
+}
+function pointEarnRows(kidId){
+  return (data.ledger||[]).filter(x=>x.kidId===kidId && ["earning","levelup_earning","points_earning"].includes(x.type));
+}
+function pointsEarnedSince(kidId,since){
+  return pointEarnRows(kidId).filter(x=>(x.at||0)>=since).reduce((s,x)=>s+(+x.points||0),0);
+}
+function xpEarnedSince(kidId,since){
+  return pointEarnRows(kidId).filter(x=>(x.at||0)>=since).reduce((s,x)=>s+(+x.xp||0),0);
+}
+function cashEarnedSince(kidId,since){
+  return (data.ledger||[]).filter(x=>x.type==="earning"&&x.kidId===kidId&&(x.at||0)>=since)
+    .reduce((s,x)=>s+(+x.cash||0),0);
+}
+function lifetimeCashEarned(kidId){
+  // k.cash is the authoritative lifetime Spend Now amount after behavior deductions.
+  // For "earned" history, sum earning rows so payouts don't reduce it.
+  const rows=(data.ledger||[]).filter(x=>x.type==="earning"&&x.kidId===kidId);
+  const total=rows.reduce((s,x)=>s+(+x.cash||0),0);
+  return total || (+kidById(kidId)?.cash||0);
 }
 
+function rewards(){
+ let fp=familyPoints(), familyGoal={icon:"🎟️",name:"Family Fun Center",cost:4800};
+ let ds=dayStartMs(), ws=weekStartMs();
+
+ return header()+`
+ <div class="card">
+   <h2 style="margin-top:0">🌳 Risser Family — Working Together</h2>
+   <div class="goalCard">
+     <div class="row wrap"><b>${familyGoal.icon} ${familyGoal.name}</b><b>${fp} / ${familyGoal.cost} pts</b></div>
+     <div class="goalBar"><div class="goalFill" style="width:${Math.min(100,fp/familyGoal.cost*100)}%"></div></div>
+     <div class="tiny muted" style="margin-top:8px">${data.kids.map(k=>`${theme(k)[1]} ${k.name} +${+k.familyPoints||0}`).join(" · ")}</div>
+   </div>
+ </div>
+
+ <div class="card">
+   <h2 style="margin-top:0">🏆 Scoreboard</h2>
+   <div class="scoreGrid">
+   ${data.kids.map(k=>{
+     let g=rewardGoal(k), p=+k.rewardPoints||0;
+     let todayPts=pointsEarnedSince(k.id,ds), weekPts=pointsEarnedSince(k.id,ws);
+     let todayXp=xpEarnedSince(k.id,ds), weekXp=xpEarnedSince(k.id,ws);
+     let todayCash=cashEarnedSince(k.id,ds), weekCash=cashEarnedSince(k.id,ws);
+     let lifeCash=lifetimeCashEarned(k.id), paid=paidTotal(k.id), owed=cashOwed(k);
+
+     return `<div class="goalCard">
+       <div class="row">
+         <div><div style="font-size:34px">${theme(k)[1]}</div><b>${k.name}</b></div>
+         <div style="text-align:right"><b>⭐ ${p} Points</b><div class="tiny muted">🔥 ${k.xp||0} XP</div></div>
+       </div>
+
+       <div style="margin-top:12px;border-top:1px solid var(--line);padding-top:10px">
+         <div class="tiny muted"><b>TODAY</b></div>
+         <div class="row wrap" style="justify-content:flex-start;margin-top:4px">
+           <span class="badge">⭐ +${todayPts} pts</span>
+           <span class="badge">🔥 +${todayXp} XP</span>
+           <span class="badge">💵 ${money(todayCash)}</span>
+         </div>
+       </div>
+
+       <div style="margin-top:10px">
+         <div class="tiny muted"><b>THIS WEEK</b></div>
+         <div class="row wrap" style="justify-content:flex-start;margin-top:4px">
+           <span class="badge">⭐ +${weekPts} pts</span>
+           <span class="badge">🔥 +${weekXp} XP</span>
+           <span class="badge">💵 ${money(weekCash)}</span>
+         </div>
+       </div>
+
+       <div style="margin-top:10px">
+         <div class="tiny muted"><b>ALL TIME</b></div>
+         <div class="tiny" style="line-height:1.8">
+           ⭐ <b>${p}</b> available Points · 🔥 <b>${k.xp||0}</b> XP<br>
+           💵 Earned <b>${money(lifeCash)}</b> · Paid <b>${money(paid)}</b> · Owed <b>${money(owed)}</b><br>
+           🏦 Future Fund <b>${money(k.car||0)}</b>
+         </div>
+       </div>
+
+       <div style="margin-top:12px">
+         <label>Working toward</label>
+         <select data-goal="${k.id}">
+           ${RIS_REWARDS.map(r=>`<option value="${r.id}" ${g.id===r.id?"selected":""}>${r.icon} ${r.name} — ${r.cost} pts</option>`).join("")}
+         </select>
+         <div class="goalBar"><div class="goalFill" style="width:${Math.min(100,p/g.cost*100)}%"></div></div>
+         <div class="tiny muted" style="margin-top:6px">${p>=g.cost?`🎉 Goal earned!`:`${Math.max(0,g.cost-p)} points to go`}</div>
+       </div>
+
+       <div style="margin-top:10px">
+         ${RIS_REWARDS.map(r=>`<div class="approval">
+           <div><b>${r.icon} ${r.name}</b><div class="tiny muted">${r.cost} pts</div></div>
+           <button class="btn small" data-rredeem="${r.id}" data-rkid="${k.id}" ${p<r.cost?"disabled":""}>Redeem</button>
+         </div>`).join("")}
+       </div>
+     </div>`;
+   }).join("")}
+   </div>
+ </div>`;
+}
 function parent(){
  let lib=rawLibrary();
  return header()+`<div class="card"><div class="row wrap"><h2 style="margin:0">👍 Waiting for Approval</h2><button id="bulkBasics" class="btn secondary small">Approve Daily Basics</button></div>${pending().length?pending().map(t=>{let k=kidById(t.kidId);return `<div class="approval"><div><b>${t.icon} ${k?.name} — ${t.name}</b><div class="reward">${t.type==="golf"?`${t.count} balls · `:""}💵 ${money(t.cash)} + 🚗 ${money(t.car)}</div></div><div class="actions"><button data-app="${t.id}" class="btn small">Approve</button><button data-back="${t.id}" class="btn red small">Send Back</button></div></div>`}).join(""):`<p class="muted">Nothing waiting 🎉</p>`}</div>
@@ -508,8 +602,8 @@ function bind(){
  let weekRows=(d.ledger||[]).filter(x=>x.type==="earning"&&x.kidId===t.kidId&&(x.at||0)>=ws),usedGross=weekRows.reduce((s,x)=>s+(+x.gross||(+x.cash||0)+(+x.car||0)),0),usedCash=weekRows.reduce((s,x)=>s+(+x.cash||0),0);
  let gross=+Math.min(rawGross,Math.max(0,totalCap-usedGross)).toFixed(2),pct=Math.min(100,Math.max(0,+d.cashSplitPct||60)),desiredCash=+(gross*pct/100).toFixed(2),cash=+Math.min(desiredCash,Math.max(0,cashCap-usedCash)).toFixed(2),car=+(gross-cash).toFixed(2),xp=+c.xp||10;
  let pts=c.required?3:5; let kids=d.kids.map(k=>k.id===t.kidId?{...k,cash:+((k.cash||0)+cash).toFixed(2),car:+((k.car||0)+car).toFixed(2),xp:(k.xp||0)+xp,rewardPoints:(+k.rewardPoints||0)+pts,familyPoints:(+k.familyPoints||0)+pts,requiredDone:(k.requiredDone||0)+(c.required?1:0),requiredDue:(k.requiredDue||0)+(c.required?1:0)}:k);
- let tasks=d.tasks.map(x=>x.id===tid?{...x,gross,cash,car,xp,status:"approved",approvedBy:user.email,approvedAt:now,capLimited:gross<rawGross||cash<desiredCash}:x);
- let ledger=[...(d.ledger||[]),{id:newId(),type:"earning",taskId:t.id,kidId:t.kidId,label:c.name,gross,cash,car,rawGross,capLimited:gross<rawGross||cash<desiredCash,by:user.email,at:now}].slice(-300);
+ let tasks=d.tasks.map(x=>x.id===tid?{...x,gross,cash,car,xp,points:pts,status:"approved",approvedBy:user.email,approvedAt:now,capLimited:gross<rawGross||cash<desiredCash}:x);
+ let ledger=[...(d.ledger||[]),{id:newId(),type:"earning",taskId:t.id,kidId:t.kidId,label:c.name,gross,cash,car,xp,points:pts,rawGross,capLimited:gross<rawGross||cash<desiredCash,by:user.email,at:now}].slice(-300);
  tr.update(familyRef,{kids,tasks,ledger})})});
  $("#saveMoneyRules")?.addEventListener("click",async()=>{let cashCap=Math.max(0,+$("#weeklyCashCap").value||15),totalCap=Math.max(cashCap,+$("#weeklyTotalCap").value||25),pct=Math.min(100,Math.max(0,+$("#cashPct").value||60));await patch({weeklyCashCap:cashCap,weeklyTotalCap:totalCap,cashSplitPct:pct});alert("Weekly earning rules saved.")});
 
@@ -535,10 +629,10 @@ function bind(){
  });$("#deductNote").value=""})});
  $$("[data-undoapproval]").forEach(b=>b.onclick=()=>{let tid=b.dataset.undoapproval,t=data.tasks.find(x=>x.id===tid);if(!t||t.status!=="approved")return;askConfirm("Undo this approval?",`This will reverse ${money(t.cash||0)} cash, ${money(t.car||0)} Future Fund and ${t.xp||0} XP, then return ${t.name} to Waiting for Approval.`,"Undo Approval",async()=>{await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),cur=d.tasks.find(x=>x.id===tid);if(!cur||cur.status!=="approved")return;
  let cash=+cur.cash||0,car=+cur.car||0,xp=+cur.xp||0;
- let kids=d.kids.map(k=>k.id===cur.kidId?{...k,cash:+Math.max(0,(+k.cash||0)-cash).toFixed(2),car:+Math.max(0,(+k.car||0)-car).toFixed(2),xp:Math.max(0,(+k.xp||0)-xp),rewardPoints:Math.max(0,(+k.rewardPoints||0)-xp),requiredDone:Math.max(0,(+k.requiredDone||0)-(cur.required?1:0)),requiredDue:Math.max(0,(+k.requiredDue||0)-(cur.required?1:0))}:k);
+ let kids=d.kids.map(k=>k.id===cur.kidId?{...k,cash:+Math.max(0,(+k.cash||0)-cash).toFixed(2),car:+Math.max(0,(+k.car||0)-car).toFixed(2),xp:Math.max(0,(+k.xp||0)-xp),rewardPoints:Math.max(0,(+k.rewardPoints||0)-(+cur.points|| (cur.required?3:5))),familyPoints:Math.max(0,(+k.familyPoints||0)-(+cur.points|| (cur.required?3:5))),requiredDone:Math.max(0,(+k.requiredDone||0)-(cur.required?1:0)),requiredDue:Math.max(0,(+k.requiredDue||0)-(cur.required?1:0))}:k);
  let tasks=d.tasks.map(x=>x.id===tid?{...x,status:"pending",approvedBy:null,approvedAt:null,undoneBy:user.email,undoneAt:Date.now()}:x);
  let ledger=(d.ledger||[]).filter(x=>!(x.type==="earning"&&((x.taskId&&x.taskId===tid)||(!x.taskId&&x.kidId===cur.kidId&&x.label===cur.name&&Math.abs((+x.cash||0)-cash)<0.001&&Math.abs((+x.car||0)-car)<0.001))));
- ledger.push({id:newId(),type:"reversal",taskId:tid,kidId:cur.kidId,label:`Undo approval — ${cur.name}`,cash:-cash,car:-car,xp:-xp,by:user.email,at:Date.now()});
+ let pts=+cur.points||(cur.required?3:5);ledger.push({id:newId(),type:"reversal",taskId:tid,kidId:cur.kidId,label:`Undo approval — ${cur.name}`,cash:-cash,car:-car,xp:-xp,points:-pts,by:user.email,at:Date.now()});
  tr.update(familyRef,{kids,tasks,ledger:ledger.slice(-300)});
  })})});
  $("#addParent")?.addEventListener("click",async()=>{let e=$("#parentEmail").value.trim().toLowerCase();if(!e.includes("@"))return alert("Enter a valid Google email.");await patch({parentEmails:arrayUnion(e)});$("#parentEmail").value=""});
@@ -551,11 +645,11 @@ function bind(){
  $("#undoClaim")?.addEventListener("click",async()=>{if(!lastClaimId||Date.now()-lastClaimAt>60000)return;let t=(data.tasks||[]).find(x=>x.id===lastClaimId);if(!t||t.status!=="open")return;let tasks=data.tasks.filter(x=>x.id!==lastClaimId);lastClaimId=null;lastClaimAt=0;await patch({tasks});render()});
  $$("[data-pay]").forEach(b=>b.onclick=async()=>{let kidId=b.dataset.pay,k=kidById(kidId),input=$(`[data-payamount="${kidId}"]`),amount=Math.max(0,+input.value||0),owed=cashOwed(k);if(amount<=0)return;if(amount>owed+0.001)return alert("That is more than currently owed.");let payment={id:newId(),kidId,amount,by:user.email,at:Date.now()};let ledger=[...(data.ledger||[]),{...payment,type:"payment",label:"Cash payout"}].slice(-300);await patch({payments:arrayUnion(payment),ledger})});
 
- $("#bulkBasics")?.addEventListener("click",async()=>{let basics=pending().filter(t=>t.required&&(+t.cash||0)===0&&(+t.car||0)===0);if(!basics.length)return alert("No unpaid required basics are waiting.");if(!confirm(`Approve ${basics.length} required basics?`))return;for(const t of basics){await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),cur=d.tasks.find(x=>x.id===t.id);if(!cur||cur.status!=="pending")return;let kids=d.kids.map(k=>k.id===cur.kidId?{...k,xp:(k.xp||0)+(cur.xp||10),rewardPoints:(+k.rewardPoints||0)+3,familyPoints:(+k.familyPoints||0)+3,requiredDone:(k.requiredDone||0)+1,requiredDue:(k.requiredDue||0)+1}:k);let tasks=d.tasks.map(x=>x.id===cur.id?{...x,status:"approved",approvedBy:user.email,approvedAt:Date.now()}:x);tr.update(familyRef,{kids,tasks})})}});
+ $("#bulkBasics")?.addEventListener("click",async()=>{let basics=pending().filter(t=>t.required&&(+t.cash||0)===0&&(+t.car||0)===0);if(!basics.length)return alert("No unpaid required basics are waiting.");if(!confirm(`Approve ${basics.length} required basics?`))return;for(const t of basics){await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),cur=d.tasks.find(x=>x.id===t.id);if(!cur||cur.status!=="pending")return;let now=Date.now(),xp=cur.xp||10,pts=3;let kids=d.kids.map(k=>k.id===cur.kidId?{...k,xp:(k.xp||0)+xp,rewardPoints:(+k.rewardPoints||0)+pts,familyPoints:(+k.familyPoints||0)+pts,requiredDone:(k.requiredDone||0)+1,requiredDue:(k.requiredDue||0)+1}:k);let tasks=d.tasks.map(x=>x.id===cur.id?{...x,xp,points:pts,status:"approved",approvedBy:user.email,approvedAt:now}:x);let ledger=[...(d.ledger||[]),{id:newId(),type:"points_earning",taskId:cur.id,kidId:cur.kidId,label:cur.name,xp,points:pts,cash:0,car:0,by:user.email,at:now}].slice(-300);tr.update(familyRef,{kids,tasks,ledger})})}});
  $$("[data-challenge]").forEach(b=>b.onclick=async()=>{let cid=b.dataset.challenge,k=data.kids[kid],c=challengeLibrary().find(x=>x.id===cid);if(!c||challengeHit(k.id,cid)||challengePending(k.id,cid))return;let log={id:newId(),kidId:k.id,challengeId:cid,date:todayKey(),status:"pending",createdAt:Date.now()};await patch({challengeLogs:arrayUnion(log)})});
- $$("[data-chapp]").forEach(b=>b.onclick=async()=>{let id=b.dataset.chapp;await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),logs=d.challengeLogs||[],log=logs.find(x=>x.id===id);if(!log||log.status!=="pending")return;let c=(d.challenges||DEFAULT_CHALLENGES).find(x=>x.id===log.challengeId);if(!c)return;let kids=d.kids.map(k=>k.id===log.kidId?{...k,xp:(k.xp||0)+(c.xp||10)}:k);logs=logs.map(x=>x.id===id?{...x,status:"approved",approvedBy:user.email,approvedAt:Date.now()}:x);tr.update(familyRef,{kids,challengeLogs:logs})})});
+ $$("[data-chapp]").forEach(b=>b.onclick=async()=>{let id=b.dataset.chapp;await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),logs=d.challengeLogs||[],log=logs.find(x=>x.id===id);if(!log||log.status!=="pending")return;let c=(d.challenges||DEFAULT_CHALLENGES).find(x=>x.id===log.challengeId);if(!c)return;let now=Date.now(),xp=c.xp||10,pts=10;let kids=d.kids.map(k=>k.id===log.kidId?{...k,xp:(k.xp||0)+xp,rewardPoints:(+k.rewardPoints||0)+pts,familyPoints:(+k.familyPoints||0)+pts}:k);logs=logs.map(x=>x.id===id?{...x,xp,points:pts,status:"approved",approvedBy:user.email,approvedAt:now}:x);let ledger=[...(d.ledger||[]),{id:newId(),type:"levelup_earning",challengeLogId:id,kidId:log.kidId,label:c.name,xp,points:pts,cash:0,car:0,by:user.email,at:now}].slice(-300);tr.update(familyRef,{kids,challengeLogs:logs,ledger})})});
  $$("[data-chreject]").forEach(b=>b.onclick=async()=>{let logs=challengeLogs().map(x=>x.id===b.dataset.chreject?{...x,status:"rejected",approvedBy:user.email,approvedAt:Date.now()}:x);await patch({challengeLogs:logs})});
- $("#giveAward")?.addEventListener("click",async()=>{let kidId=$("#awardKid").value,cid=$("#awardType").value,c=challengeLibrary().find(x=>x.id===cid);if(!c)return;if(challengeHit(kidId,cid))return alert("Already awarded today.");await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),logs=d.challengeLogs||[];if(logs.some(x=>x.kidId===kidId&&x.challengeId===cid&&x.date===todayKey()&&x.status==="approved"))return;let kids=d.kids.map(k=>k.id===kidId?{...k,xp:(k.xp||0)+(c.xp||10)}:k);logs.push({id:newId(),kidId,challengeId:cid,date:todayKey(),status:"approved",approvedBy:user.email,approvedAt:Date.now(),createdAt:Date.now()});tr.update(familyRef,{kids,challengeLogs:logs.slice(-1000)})})});
+ $("#giveAward")?.addEventListener("click",async()=>{let kidId=$("#awardKid").value,cid=$("#awardType").value,c=challengeLibrary().find(x=>x.id===cid);if(!c)return;if(challengeHit(kidId,cid))return alert("Already awarded today.");await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),logs=d.challengeLogs||[];if(logs.some(x=>x.kidId===kidId&&x.challengeId===cid&&x.date===todayKey()&&x.status==="approved"))return;let now=Date.now(),xp=c.xp||10,pts=10;let kids=d.kids.map(k=>k.id===kidId?{...k,xp:(k.xp||0)+xp,rewardPoints:(+k.rewardPoints||0)+pts,familyPoints:(+k.familyPoints||0)+pts}:k);let lid=newId();logs.push({id:lid,kidId,challengeId:cid,date:todayKey(),xp,points:pts,status:"approved",approvedBy:user.email,approvedAt:now,createdAt:now});let ledger=[...(d.ledger||[]),{id:newId(),type:"levelup_earning",challengeLogId:lid,kidId,label:c.name,xp,points:pts,cash:0,car:0,by:user.email,at:now}].slice(-300);tr.update(familyRef,{kids,challengeLogs:logs.slice(-1000),ledger})})});
 }
 onAuthStateChanged(auth,async u=>{user=u;if(u?.isAnonymous){if(["parent","paid","home"].includes(view))view="week";}else if(u){if(["home"].includes(view)||view==="week")view="parent";}if(unsub){unsub();unsub=null}if(!u){data=null;render();return}let snap=await getDoc(familyRef);if(!snap.exists()){data=false;render();return}unsub=onSnapshot(familyRef,s=>{data=s.exists()?s.data():false;render()})});
 getRedirectResult(auth).catch(()=>{});
