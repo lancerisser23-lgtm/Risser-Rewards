@@ -29,7 +29,7 @@ label{font-size:13px;font-weight:850}input,select{width:100%;min-height:45px;bor
 .chores{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px}.chore{border:2px solid #edf0e8;background:#fff;border-radius:20px;padding:12px 8px;text-align:center}.chore:disabled{opacity:.48}.icon{font-size:50px}.name{font-weight:900;font-size:14px;margin-top:5px}
 .pill{display:inline-flex;padding:5px 8px;border-radius:999px;font-size:11px;font-weight:900}.req{background:#f7ded9;color:#843328}.due{background:#fff0ca;color:#7e5a10}.opt{background:#e7f2e8;color:#27613c}
 .login{text-align:center;max-width:520px;margin:50px auto}.google{background:#fff;color:#222;border:1px solid #d8ddd8}
-.confirmBox{position:fixed;inset:0;background:rgba(12,20,16,.55);display:grid;place-items:center;padding:18px;z-index:999}.confirmCard{max-width:420px;width:100%;background:#fff;border-radius:22px;padding:18px;box-shadow:0 20px 50px rgba(0,0,0,.25)}.undoToast{margin:14px auto 0;max-width:520px;background:#173c2b;color:#fff;padding:12px 14px;border-radius:16px;font-weight:900;display:flex;justify-content:space-between;align-items:center;gap:12px}.counter{display:flex;justify-content:center;align-items:center;gap:15px;margin:16px}.counter button{width:58px;height:58px;border-radius:50%;border:0;background:var(--g);color:#fff;font-size:28px}.count{font-size:48px;font-weight:950}
+.confirmBox{position:fixed;inset:0;background:rgba(12,20,16,.55);display:grid;place-items:center;padding:18px;z-index:999}.confirmCard{max-width:420px;width:100%;background:#fff;border-radius:22px;padding:18px;box-shadow:0 20px 50px rgba(0,0,0,.25)}.undoToast{margin:14px auto 0;max-width:520px;background:#173c2b;color:#fff;padding:12px 14px;border-radius:16px;font-weight:900;display:flex;justify-content:space-between;align-items:center;gap:12px}.kidChooser{margin:10px 0 18px}.kidChooserTitle{font-size:22px;font-weight:950;margin-bottom:10px}.kidChoices{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.kidChoice{border:2px solid rgba(0,0,0,.10);background:#fff;border-radius:20px;padding:12px 8px;min-height:104px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-weight:950;font-size:15px;cursor:pointer;box-shadow:0 5px 14px rgba(0,0,0,.06)}.kidChoice .kidEmoji{font-size:42px;line-height:1}.kidChoice.on{border-color:#173c2b;box-shadow:0 0 0 3px rgba(23,60,43,.12)}@media(max-width:650px){.kidChoices{grid-template-columns:repeat(2,1fr)}.kidChoice{min-height:96px}}.counter{display:flex;justify-content:center;align-items:center;gap:15px;margin:16px}.counter button{width:58px;height:58px;border-radius:50%;border:0;background:var(--g);color:#fff;font-size:28px}.count{font-size:48px;font-weight:950}
 
 /* Individual kid worlds */
 .world{position:relative;overflow:hidden;border-radius:28px;padding:22px;margin-bottom:14px;min-height:235px;box-shadow:0 14px 34px rgba(25,55,35,.13)}
@@ -171,6 +171,9 @@ function splitGross(gross,kidId){
 }
 function reliability(k){let d=+k.requiredDue||0,c=+k.requiredDone||0;return d?Math.round(c/d*100):100}
 function relClass(r){return r>=90?"good":r>=75?"mid":"low"}
+function kidChooser(){
+ return `<div class="kidChooser"><div class="kidChooserTitle">👋 Who are you?</div><div class="kidChoices">${data.kids.map((x,i)=>{let th=theme(x);return `<button class="kidChoice ${i===kid?"on":""}" data-kidpick="${i}"><span class="kidEmoji">${th.icon}</span><span>${x.name}</span>${i===kid?`<span class="tiny muted">That's me!</span>`:""}</button>`}).join("")}</div></div>`
+}
 function frequencyLabel(c){
   if(c.frequency==="needed")return "when necessary";
   if(c.frequency==="everyx")return `every ${Math.max(1,+c.intervalDays||7)} days`;
@@ -266,7 +269,7 @@ function home(){
 }
 function pick(){
  let k=data.kids[kid],lib=library().filter(c=>eligible(c,k.id));
- return header()+world(k)+`<div class="card"><div class="row wrap"><div><h2 style="margin:0">🎯 Pick a Mission</h2><div class="muted">Only chores assigned to ${k.name} appear.</div></div><select id="kidSel" style="width:auto;min-width:150px">${data.kids.map((x,i)=>`<option value="${i}" ${i===kid?"selected":""}>${x.name}</option>`).join("")}</select></div><div class="chores" style="margin-top:15px">${lib.map(c=>{let allowed=canClaim(c,k.id),owner=c.exclusive?sharedLive(c):null,done=(c.frequency!=="anytime")&&(c.exclusive?sharedApproved(c):approved(c,k.id));return `<button class="chore" data-c="${c.id}" ${allowed?"":"disabled"}><div class="icon">${c.icon}</div><div class="name">${c.name}</div><div class="reward">${c.paid?`💵 ${money(c.cash)} · 🚗 ${money(c.car)}`:"🏠 responsibility"}</div><div style="margin-top:5px">${c.required?`<span class="pill req">Required</span>`:`<span class="pill opt">Optional</span>`} <span class="pill due">${frequencyLabel(c)}</span></div>${owner?`<div class="tiny" style="margin-top:6px">🔒 ${kidById(owner.kidId)?.name} claimed it</div>`:done?`<div class="tiny" style="margin-top:6px">✅ Done this period</div>`:""}</button>`}).join("")}</div></div>`;
+ return header()+world(k)+`<div class="card"><div class="row wrap"><div><h2 style="margin:0">🎯 Pick a Mission</h2><div class="muted">Only chores assigned to ${k.name} appear.</div></div>${kidChooser()}</div><div class="chores" style="margin-top:15px">${lib.map(c=>{let allowed=canClaim(c,k.id),owner=c.exclusive?sharedLive(c):null,done=(c.frequency!=="anytime")&&(c.exclusive?sharedApproved(c):approved(c,k.id));return `<button class="chore" data-c="${c.id}" ${allowed?"":"disabled"}><div class="icon">${c.icon}</div><div class="name">${c.name}</div><div class="reward">${c.paid?`💵 ${money(c.cash)} · 🚗 ${money(c.car)}`:"🏠 responsibility"}</div><div style="margin-top:5px">${c.required?`<span class="pill req">Required</span>`:`<span class="pill opt">Optional</span>`} <span class="pill due">${frequencyLabel(c)}</span></div>${owner?`<div class="tiny" style="margin-top:6px">🔒 ${kidById(owner.kidId)?.name} claimed it</div>`:done?`<div class="tiny" style="margin-top:6px">✅ Done this period</div>`:""}</button>`}).join("")}</div></div>`;
 }
 function week(){
  let k=data.kids[kid];
@@ -297,15 +300,11 @@ function week(){
  });
 
  return header()+world(k)+`<div class="card">
-   <div class="row wrap">
-     <div>
-       <h2 style="margin:0">✅ My Missions</h2>
-       <div class="muted">Everything ${k.name} needs to handle right now.</div>
-     </div>
-     <select id="kidSel" style="width:auto;min-width:150px">
-       ${data.kids.map((x,i)=>`<option value="${i}" ${i===kid?"selected":""}>${x.name}</option>`).join("")}
-     </select>
+   <div>
+     <h2 style="margin:0">✅ My Missions</h2>
+     <div class="muted">Tap your animal, then handle what's yours.</div>
    </div>
+   ${kidChooser()}
 
    ${due.length?`
    <div class="notice warn" style="margin-top:13px">
@@ -386,6 +385,7 @@ function bind(){
  $$("[data-v]").forEach(b=>b.onclick=()=>{view=b.dataset.v;render()});
  $$("[data-k]").forEach(b=>b.onclick=()=>{kid=+b.dataset.k;view="week";render()});
  $("#kidSel")?.addEventListener("change",e=>{kid=+e.target.value;render()});
+ $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;render()});
  $("#createFamily")?.addEventListener("click",async()=>setDoc(familyRef,{ownerUid:user.uid,ownerEmail:user.email,parentEmails:[user.email.toLowerCase()],kids:KIDS,tasks:[],payments:[],ledger:[],choreLibrary:DEFAULTS,challenges:DEFAULT_CHALLENGES,challengeLogs:[],golfCash:.05,golfCar:.10,weeklyCashCap:15,weeklyTotalCap:25,cashSplitPct:60,createdAt:serverTimestamp()}));
 
  $$("[data-c]").forEach(b=>b.onclick=()=>{let c=library().find(x=>x.id===b.dataset.c),k=data.kids[kid];if(!c||!canClaim(c,k.id))return;askConfirm(`Claim ${c.icon} ${c.name}?`,`This adds the mission to ${k.name}'s list.${c.exclusive?" Other kids will not be able to claim it while it is active.":""}`,"Yes, Claim It",async()=>{let t={id:newId(),choreId:c.id,kidId:k.id,icon:c.icon,name:c.name,cash:isKidSession()?0:(c.paid?+c.cash||0:0),car:isKidSession()?0:(c.paid?+c.car||0:0),xp:isKidSession()?0:(+c.xp||10),exclusive:!!c.exclusive,required:!!c.required,frequency:c.frequency,periodKey:periodKey(c),status:"open",type:c.id==="golf"?"golf":"normal",count:0,createdAt:Date.now()};await patch({tasks:arrayUnion(t)});lastClaimId=t.id;lastClaimAt=Date.now();view="week";render()})});
