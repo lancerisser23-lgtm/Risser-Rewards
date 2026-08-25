@@ -98,15 +98,15 @@ const DEFAULTS=[
 ["fold","👕🧺","Fold clothes",1,2,true,"Laundry","weekly",false,true],
 ["putclothes","👚📦","Put clothes away",1,2,false,"Laundry","weekly",false,true],
 ["laundry","🧺🫧","Full laundry load",3,5,true,"Laundry","weekly",false,true],
-["pets","🐶🐱🥣","Feed dog & cat",.5,1,true,"Animals","daily",true,true],
+["pets","🐶🐱🥣","Feed dog & cat",0,0,true,"Animals","daily",true,false],
 ["dogwater","🐶💧","Clean dog water bowl",1,2,true,"Animals","weekly",true,true],
 ["catwater","🐱💧","Clean cat water bowl",1,2,true,"Animals","weekly",true,true],
 ["litter","🐱🧹","Clean litter box",1.5,2.5,true,"Animals","daily",true,true],
-["goats","🐐🌾","Feed goats",1.5,2.5,true,"Animals","daily",true,true],
-["eggs","🥚🧺","Collect eggs",1,1.5,true,"Animals","daily",true,true],
-["duck","🦆💦","Clean duck pond",5,8,true,"Animals","weekly",true,true],
-["poop","🐶💩","Pick up dog poop",3,5,true,"Animals","weekly",true,true],
-["snake","🐍🧼","Clean snake cages",4,6,true,"Animals","weekly",true,true],
+["goats","🐐🌾","Feed goats",0,0,true,"Animals","daily",true,false],
+["eggs","🥚🧺","Collect eggs",0,0,true,"Animals","daily",true,false],
+["duck","🦆💦","Clean duck pond",5,8,true,"Animals","weekly",false,true],
+["poop","🐶💩","Pick up dog poop",3,5,true,"Animals","weekly",false,true],
+["snake","🐍🧼","Clean snake cages",4,6,true,"Animals","weekly",false,true],
 ["patio","🪑🧹","Clean patio",2,3,true,"Outside","weekly",false,true],
 ["towels","🏊🧺","Pool towels reset",1,2,true,"Pool","anytime",false,true],
 ["pool","🏖️🧺","Clean pool toys",2,3,true,"Pool","weekly",false,true],
@@ -265,7 +265,23 @@ function levelProgress(k){
 function world(k){let t=theme(k),r=reliability(k),pct=Math.min(100,(+k.car||0)/(+k.target||7500)*100);return `<div class="world ${t[0]}"><div class="wicon">${t[1]}</div><h2>${k.name} — ${t[2]}</h2><div class="wsub">${t[3]}</div><div class="worldBadges"><span class="worldBadge">💵 Owed ${money(cashOwed(k))}</span><span class="worldBadge">🏦 Future Fund ${money(k.car||0)}</span><span class="worldBadge">💰 Week ${money(weeklyGross(k.id))}/${money(weeklyTotalCap())}</span><span class="worldBadge">💵 Cash ${money(weeklyCash(k.id))}/${money(weeklyCashCap())}</span><span class="worldBadge">⭐ ${k.xp||0} XP · ⭐ ${k.rewardPoints||0} Points</span><span class="worldBadge">🎯 ${r}% reliable</span></div><div class="progress" style="margin-top:13px;background:rgba(255,255,255,.45)"><div class="bar" style="width:${pct}%"></div></div><div class="worldBadge" style="margin-top:9px;display:inline-flex">🔥 Weekly Level Up ${levelProgress(k).earned}/${levelProgress(k).goal}</div></div>`}
 function weeklyVerse(){const week=Math.floor(Date.now()/(7*24*60*60*1000));return WEEKLY_VERSES[week%WEEKLY_VERSES.length]}
 function verseBanner(){const v=weeklyVerse();return `<div class="verseBanner"><div class="tiny muted">📖 VERSE OF THE WEEK</div><div style="font-size:17px;font-weight:850;line-height:1.45;margin-top:4px">“${v.text}”</div><div class="verseRef">${v.ref} · KJV</div></div>`}
-function header(){return `<div class="top"><div><div class="brand">🚙 Risser Rewards</div><div class="sub">Responsibility → hard work → choices.</div></div><div class="actions"><span class="badge">${modeLabel()}</span>${isKidSession()?`<button id="parentLogin" class="btn secondary">Parent Sign In</button>`:`<span class="tiny muted">${user?.email||""}</span><button id="logout" class="btn secondary">Sign out</button>`}</div></div>${verseBanner()}<div class="tabs">${isKidSession()?`<button data-v="week" class="tab ${view==="week"?"on":""}">✅ My Missions</button><button data-v="pick" class="tab ${view==="pick"?"on":""}">🎯 Chores</button><button data-v="level" class="tab ${view==="level"?"on":""}">🔥 Level Up</button><button data-v="rewards" class="tab ${view==="rewards"?"on":""}">🎁 Rewards</button>`:`<button data-v="parent" class="tab ${view==="parent"?"on":""}">🔒 Parent ${pending().length?`(${pending().length})`:""}</button><button data-v="paid" class="tab ${view==="paid"?"on":""}">💵 Paid</button><button data-v="week" class="tab ${view==="week"?"on":""}">✅ Kids View</button><button data-v="pick" class="tab ${view==="pick"?"on":""}">🎯 Chores</button><button data-v="level" class="tab ${view==="level"?"on":""}">🔥 Level Up</button><button data-v="rewards" class="tab ${view==="rewards"?"on":""}">🎁 Rewards</button>`}</div>`}
+function header(){
+ return `<div class="top"><div><div class="brand">🚙 Risser Rewards</div><div class="sub">Responsibility → hard work → choices.</div></div><div class="actions"><span class="badge">${modeLabel()}</span>${isKidSession()?`<button id="parentLogin" class="btn secondary">Parent Sign In</button>`:`<span class="tiny muted">${user?.email||""}</span><button id="logout" class="btn secondary">Sign out</button>`}</div></div>
+ ${verseBanner()}
+ <div class="tabs">
+ ${isKidSession()
+   ? `<button data-v="week" class="tab ${view==="week"?"on":""}">✅ My Missions</button>
+      <button data-v="pick" class="tab ${view==="pick"?"on":""}">🎯 Chores</button>
+      <button data-v="level" class="tab ${view==="level"?"on":""}">🔥 Level Up</button>
+      <button data-v="rewards" class="tab ${view==="rewards"?"on":""}">🎁 Rewards</button>`
+   : `<button data-v="parent" class="tab ${view==="parent"?"on":""}">🔒 Parent ${pending().length?`(${pending().length})`:""}</button>
+      <button data-v="paid" class="tab ${view==="paid"?"on":""}">💵 Paid</button>
+      <button data-v="week" class="tab ${view==="week"?"on":""}">✅ Kids View</button>
+      <button data-v="pick" class="tab ${view==="pick"?"on":""}">🎯 Chores</button>
+      <button data-v="level" class="tab ${view==="level"?"on":""}">🔥 Level Up</button>
+      <button data-v="rewards" class="tab ${view==="rewards"?"on":""}">🎁 Rewards</button>`}
+ </div>`;
+}
 function login(){return `<div class="login card"><div style="font-size:68px">🐺 🦁 🐍 🦄</div><h1>Risser Rewards</h1><p class="muted">Choose how this device will be used.</p><div class="actions" style="justify-content:center;margin-top:16px"><button id="kidLogin" class="btn">🏠 Family iPad — Kid Mode</button><button id="google" class="btn google">G&nbsp; Parent Sign In</button></div><div class="notice" style="margin-top:14px"><b>Kid Mode:</b> chores, missions and Level Up only. No Parent tab, Paid tab, approvals, payouts or settings.</div></div>`}
 function setup(){return `<div class="login card"><h2>🏡 Create Risser Family</h2><button id="createFamily" class="btn">Create Family</button></div>`}
 
@@ -445,7 +461,7 @@ function bind(){
  $$("[data-back]").forEach(b=>b.onclick=async()=>{let tasks=data.tasks.map(x=>x.id===b.dataset.back?{...x,status:"open"}:x);await patch({tasks})});
 
  $$("[data-app]").forEach(b=>b.onclick=async()=>{let tid=b.dataset.app;await runTransaction(db,async tr=>{let snap=await tr.get(familyRef),d=snap.data(),t=d.tasks.find(x=>x.id===tid);if(!t||t.status!=="pending")return;let lib=(Array.isArray(d.choreLibrary)&&d.choreLibrary.length?d.choreLibrary:DEFAULTS).map(normalize),c=lib.find(x=>x.id===t.choreId);if(!c)return;
- let rawGross=t.type==="golf"?Math.max(0,Math.min(100,+t.count||0))*((d.golfCash||.05)+(d.golfCar||.10)):(c.paid?(+c.cash||0)+(+c.car||0):0);
+ let rawGross=c.required?0:(t.type==="golf"?Math.max(0,Math.min(100,+t.count||0))*((d.golfCash||.05)+(d.golfCar||.10)):(c.paid?(+c.cash||0)+(+c.car||0):0));
  let totalCap=Math.max(0,+d.weeklyTotalCap||25),cashCap=Math.max(0,+d.weeklyCashCap||15),now=Date.now(),dd=new Date(),day=(dd.getDay()+6)%7;dd.setHours(0,0,0,0);dd.setDate(dd.getDate()-day);let ws=dd.getTime();
  let weekRows=(d.ledger||[]).filter(x=>x.type==="earning"&&x.kidId===t.kidId&&(x.at||0)>=ws),usedGross=weekRows.reduce((s,x)=>s+(+x.gross||(+x.cash||0)+(+x.car||0)),0),usedCash=weekRows.reduce((s,x)=>s+(+x.cash||0),0);
  let gross=+Math.min(rawGross,Math.max(0,totalCap-usedGross)).toFixed(2),pct=Math.min(100,Math.max(0,+d.cashSplitPct||60)),desiredCash=+(gross*pct/100).toFixed(2),cash=+Math.min(desiredCash,Math.max(0,cashCap-usedCash)).toFixed(2),car=+(gross-cash).toFixed(2),xp=+c.xp||10;
