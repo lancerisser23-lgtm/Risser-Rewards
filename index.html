@@ -32,7 +32,7 @@ import {initializeApp} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-
 import {getAuth,GoogleAuthProvider,signInWithPopup,signInWithRedirect,getRedirectResult,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 import {getFirestore,doc,getDoc,setDoc,onSnapshot,updateDoc,arrayUnion,runTransaction,serverTimestamp} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
-const cfg={"apiKey": "AIzaSyANYgm-DS1jn-l800em4oz2Kp7a9etH2Bg", "authDomain": "risser-rewards-8b625.firebaseapp.com", "projectId": "risser-rewards-8b625", "storageBucket": "risser-rewards-8b625.firebasestorage.app", "messagingSenderId": "291989692455", "appId": "1:291989692455:web:6e84987e8a2dba5d8f2e02"};
+const cfg={"apiKey": "AIzaSyANYgm-DS1jn-l8Q0em4oz2Kp7a9etH2Bg", "authDomain": "risser-rewards-8b625.firebaseapp.com", "projectId": "risser-rewards-8b625", "storageBucket": "risser-rewards-8b625.firebasestorage.app", "messagingSenderId": "291989692455", "appId": "1:291989692455:web:6e84987e8a2dba5d8f2e02"};
 const fb=initializeApp(cfg), auth=getAuth(fb), db=getFirestore(fb), provider=new GoogleAuthProvider();
 const FAMILY="risser", familyRef=doc(db,"families",FAMILY);
 const themes={Noah:["🐺","Wolf Pack","noah"],Eli:["🦁","Lion Kingdom","eli"],Shepherd:["🐍","Snake Quest","shepherd"],Juniper:["🦄🌈","Rainbow Unicorn World","juniper"]};
