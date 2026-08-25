@@ -144,11 +144,53 @@ function isParent(){return !!(user&&!user.isAnonymous&&data&&(data.ownerUid===us
 function isKidSession(){return !!(user&&user.isAnonymous)}
 function modeLabel(){return isKidSession()?"🏠 Kid Mode":"👨‍👩‍👧 Parent"}
 function theme(k){return {Noah:["noahWorld","🐺","Wolf Forest","Run with the pack. Own your missions."],Eli:["eliWorld","🦁","Lion Kingdom","Lead the pride. Earn your crown."],Shepherd:["shepherdWorld","🐍","Jungle Quest","Track it. Own it. Strike with focus."],Juniper:["juniperWorld","🦄🌈","Rainbow Unicorn World","Sparkle through your missions!"]}[k.name]}
-const SCHOOL_CHORE_IDS=["backpack","homework","study","homeworkaway","lunchbox","lunchwash","lunchstuff"];
-function isSchoolChore(c){let n=(c.name||"").toLowerCase();return SCHOOL_CHORE_IDS.includes(c.id)||["backpack","homework","study","homework away","lunch box","lunchbox","lunch stuff washed","lunch stuff"].some(x=>n.includes(x))}
-function summerMode(){return !!data.summerMode}
-function normalize(c){return {frequency:"anytime",intervalDays:7,required:false,paid:(+c.cash||0)>0||(+c.car||0)>0,xp:10,missXp:5,assignedTo:["noah","eli","shepherd","juniper"],active:true,...c}}
-function library(){let saved=Array.isArray(data?.choreLibrary)&&data.choreLibrary.length?data.choreLibrary:[];if(!saved.length)return DEFAULTS.map(normalize);let map=new Map(saved.map(c=>[c.id,c]));let merged=DEFAULTS.map(d=>normalize({...d,...(map.get(d.id)||{})}));saved.filter(c=>!DEFAULTS.some(d=>d.id===c.id)).forEach(c=>merged.push(normalize(c)));return merged}
+const SCHOOL_CHORE_IDS=["lunch","lunchd","backpack","homework","completehomework","study"];
+function isSchoolChore(c){
+  return SCHOOL_CHORE_IDS.includes(c.id);
+}
+function summerMode(){return !!data?.summerMode}
+function normalize(c){
+  return {frequency:"anytime",intervalDays:7,required:false,paid:(+c.cash||0)>0||(+c.car||0)>0,xp:10,missXp:5,assignedTo:["noah","eli","shepherd","juniper"],active:true,...c}
+}
+
+// Enforce the family rules requested for the known built-in chores.
+// Parents can still customize all other chores normally.
+function applyBuiltInPolicy(c){
+  const x={...c};
+
+  // Daily animal care = responsibility, not a paid job.
+  if(["pets","goats","eggs"].includes(x.id)){
+    x.required=true;
+    x.paid=false;
+    x.cash=0;
+    x.car=0;
+    x.frequency="daily";
+  }
+
+  // Larger weekly chores = optional paid jobs.
+  if(["duck","poop","snake","patio","pool"].includes(x.id)){
+    x.required=false;
+    x.paid=true;
+    x.frequency="weekly";
+  }
+
+  return x;
+}
+
+function rawLibrary(){
+  const saved=Array.isArray(data?.choreLibrary)&&data.choreLibrary.length?data.choreLibrary:[];
+  if(!saved.length) return DEFAULTS.map(d=>applyBuiltInPolicy(normalize(d)));
+
+  const map=new Map(saved.map(c=>[c.id,c]));
+  const merged=DEFAULTS.map(d=>applyBuiltInPolicy(normalize({...d,...(map.get(d.id)||{})})));
+  saved.filter(c=>!DEFAULTS.some(d=>d.id===c.id))
+       .forEach(c=>merged.push(normalize(c)));
+  return merged;
+}
+
+function library(){
+  return rawLibrary().map(c=>summerMode()&&isSchoolChore(c)?{...c,active:false}:c);
+}
 function kidById(id){return data.kids.find(k=>k.id===id)}
 function paidTotal(id){return (data.payments||[]).filter(p=>p.kidId===id).reduce((s,p)=>s+(+p.amount||0),0)}
 function cashOwed(k){return Math.max(0,(+k.cash||0)-paidTotal(k.id))}
@@ -390,7 +432,7 @@ function rewards(){
 }
 
 function parent(){
- let lib=(data.choreLibrary||DEFAULT_CHORES).map(normalize);
+ let lib=rawLibrary();
  return header()+`<div class="card"><div class="row wrap"><h2 style="margin:0">👍 Waiting for Approval</h2><button id="bulkBasics" class="btn secondary small">Approve Daily Basics</button></div>${pending().length?pending().map(t=>{let k=kidById(t.kidId);return `<div class="approval"><div><b>${t.icon} ${k?.name} — ${t.name}</b><div class="reward">${t.type==="golf"?`${t.count} balls · `:""}💵 ${money(t.cash)} + 🚗 ${money(t.car)}</div></div><div class="actions"><button data-app="${t.id}" class="btn small">Approve</button><button data-back="${t.id}" class="btn red small">Send Back</button></div></div>`}).join(""):`<p class="muted">Nothing waiting 🎉</p>`}</div>
  <div class="card"><h2 style="margin-top:0">🔥 Level Up Review</h2>
  ${(challengeLogs().filter(x=>x.status==="pending").length)?challengeLogs().filter(x=>x.status==="pending").map(x=>{let c=challengeLibrary().find(c=>c.id===x.challengeId),k=kidById(x.kidId);return `<div class="approval"><div><b>${c?.icon||"⭐"} ${k?.name} — ${c?.name||"Challenge"}</b><div class="reward">+${c?.xp||10} XP · no cash</div></div><div class="actions"><button class="btn small" data-chapp="${x.id}">Approve</button><button class="btn red small" data-chreject="${x.id}">Reject</button></div></div>`}).join(""):`<p class="muted">No challenge requests waiting.</p>`}
