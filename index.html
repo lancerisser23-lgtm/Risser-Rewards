@@ -264,10 +264,72 @@ function pick(){
  return header()+world(k)+`<div class="card"><div class="row wrap"><div><h2 style="margin:0">🎯 Pick a Mission</h2><div class="muted">Only chores assigned to ${k.name} appear.</div></div><select id="kidSel" style="width:auto;min-width:150px">${data.kids.map((x,i)=>`<option value="${i}" ${i===kid?"selected":""}>${x.name}</option>`).join("")}</select></div><div class="chores" style="margin-top:15px">${lib.map(c=>{let allowed=canClaim(c,k.id),owner=c.exclusive?sharedLive(c):null,done=(c.frequency!=="anytime")&&(c.exclusive?sharedApproved(c):approved(c,k.id));return `<button class="chore" data-c="${c.id}" ${allowed?"":"disabled"}><div class="icon">${c.icon}</div><div class="name">${c.name}</div><div class="reward">${c.paid?`💵 ${money(c.cash)} · 🚗 ${money(c.car)}`:"🏠 responsibility"}</div><div style="margin-top:5px">${c.required?`<span class="pill req">Required</span>`:`<span class="pill opt">Optional</span>`} <span class="pill due">${frequencyLabel(c)}</span></div>${owner?`<div class="tiny" style="margin-top:6px">🔒 ${kidById(owner.kidId)?.name} claimed it</div>`:done?`<div class="tiny" style="margin-top:6px">✅ Done this period</div>`:""}</button>`}).join("")}</div></div>`;
 }
 function week(){
- let k=data.kids[kid],active=(data.tasks||[]).filter(t=>t.kidId===k.id&&["open","pending"].includes(t.status));
- return header()+world(k)+`<div class="card"><div class="row wrap"><h2 style="margin:0">✅ My Missions</h2><select id="kidSel" style="width:auto;min-width:150px">${data.kids.map((x,i)=>`<option value="${i}" ${i===kid?"selected":""}>${x.name}</option>`).join("")}</select></div>${active.length?active.map(t=>`<div class="task"><div><b>${t.icon} ${t.name}</b><div class="reward">${t.type==="golf"?`${t.count||0} balls · `:""}💵 ${money(t.cash)} · 🚗 ${money(t.car)}</div><div class="status ${t.status}">${t.status==="open"?"READY":"WAITING FOR PARENT"}</div></div>${t.status==="open"?`<button data-done="${t.id}" class="btn">${t.type==="golf"?"Count Balls":"I Did It!"}</button>`:`<span class="pill due">Submitted</span>`}</div>`).join(""):`<p class="muted">Nothing active right now.</p>`}${undoBanner()}</div>`;
-}
+ let k=data.kids[kid];
+ let active=(data.tasks||[]).filter(t=>t.kidId===k.id&&["open","pending"].includes(t.status));
 
+ // Every required chore that is due now and not already active/completed.
+ let due=library().filter(c=>{
+   if(!c.required || !eligible(c,k.id)) return false;
+
+   // "When Necessary" is not automatically due; kid can still find it in Chores.
+   if(c.frequency==="needed" || c.frequency==="anytime") return false;
+
+   // One-time disappears once approved; otherwise it is due.
+   if(c.frequency==="once"){
+     return !approved(c,k.id) && !live(c,k.id);
+   }
+
+   // Daily / weekdays / weekly / every X days:
+   if(c.exclusive){
+     if(sharedLive(c) || sharedApproved(c)) return false;
+     if(c.frequency==="everyx" && !everyXReady(c,k.id)) return false;
+     return true;
+   }else{
+     if(live(c,k.id) || approved(c,k.id)) return false;
+     if(c.frequency==="everyx" && !everyXReady(c,k.id)) return false;
+     return true;
+   }
+ });
+
+ return header()+world(k)+`<div class="card">
+   <div class="row wrap">
+     <div>
+       <h2 style="margin:0">✅ My Missions</h2>
+       <div class="muted">Everything ${k.name} needs to handle right now.</div>
+     </div>
+     <select id="kidSel" style="width:auto;min-width:150px">
+       ${data.kids.map((x,i)=>`<option value="${i}" ${i===kid?"selected":""}>${x.name}</option>`).join("")}
+     </select>
+   </div>
+
+   ${due.length?`
+   <div class="notice warn" style="margin-top:13px">
+     <b>⏰ Due Now</b>
+     ${due.map(c=>`<div class="task">
+       <div>
+         <b>${c.icon} ${c.name}</b>
+         <div class="reward">${frequencyLabel(c)} · ${c.paid?`paid job`:`responsibility`}</div>
+       </div>
+       <button class="btn small" data-quick="${c.id}">Start</button>
+     </div>`).join("")}
+   </div>`:""}
+
+   <div style="margin-top:12px">
+   ${active.length?active.map(t=>`<div class="task">
+     <div>
+       <b>${t.icon} ${t.name}</b>
+       <div class="reward">${t.type==="golf"?`${t.count||0} balls · `:""}${isKidSession()?"Parent sets reward":`💵 ${money(t.cash)} · 🚗 ${money(t.car)}`}</div>
+       <div class="status ${t.status}">${t.status==="open"?"IN PROGRESS":"WAITING FOR PARENT"}</div>
+     </div>
+     ${t.status==="open"
+       ?`<button data-done="${t.id}" class="btn">${t.type==="golf"?"Count Balls":"I Did It!"}</button>`
+       :`<span class="pill due">Submitted</span>`}
+   </div>`).join(""):`${due.length?"":`<p class="muted">Nothing due right now. 🎉</p>`}`}
+   </div>
+
+   ${undoBanner()}
+ </div>`;
+}
 function level(){
  let k=data.kids[kid],dates=weekDates(),cs=challengeLibrary(),lp=levelProgress(k);
  return header()+world(k)+`<div class="card"><div class="row wrap"><div><h2 style="margin:0">🔥 Level Up</h2><div class="muted">Habits build XP and streaks — not cash.</div></div><select id="kidSel" style="width:auto;min-width:150px">${data.kids.map((x,i)=>`<option value="${i}" ${i===kid?"selected":""}>${x.name}</option>`).join("")}</select></div>
@@ -321,6 +383,8 @@ function bind(){
  $("#createFamily")?.addEventListener("click",async()=>setDoc(familyRef,{ownerUid:user.uid,ownerEmail:user.email,parentEmails:[user.email.toLowerCase()],kids:KIDS,tasks:[],payments:[],ledger:[],choreLibrary:DEFAULTS,challenges:DEFAULT_CHALLENGES,challengeLogs:[],golfCash:.05,golfCar:.10,weeklyCashCap:15,weeklyTotalCap:25,cashSplitPct:60,createdAt:serverTimestamp()}));
 
  $$("[data-c]").forEach(b=>b.onclick=()=>{let c=library().find(x=>x.id===b.dataset.c),k=data.kids[kid];if(!c||!canClaim(c,k.id))return;askConfirm(`Claim ${c.icon} ${c.name}?`,`This adds the mission to ${k.name}'s list.${c.exclusive?" Other kids will not be able to claim it while it is active.":""}`,"Yes, Claim It",async()=>{let t={id:newId(),choreId:c.id,kidId:k.id,icon:c.icon,name:c.name,cash:isKidSession()?0:(c.paid?+c.cash||0:0),car:isKidSession()?0:(c.paid?+c.car||0:0),xp:isKidSession()?0:(+c.xp||10),exclusive:!!c.exclusive,required:!!c.required,frequency:c.frequency,periodKey:periodKey(c),status:"open",type:c.id==="golf"?"golf":"normal",count:0,createdAt:Date.now()};await patch({tasks:arrayUnion(t)});lastClaimId=t.id;lastClaimAt=Date.now();view="week";render()})});
+
+ $$("[data-quick]").forEach(b=>b.onclick=()=>{let c=library().find(x=>x.id===b.dataset.quick),k=data.kids[kid];if(!c||!canClaim(c,k.id))return;askConfirm(`Start ${c.icon} ${c.name}?`,`This adds the mission to ${k.name}'s active list.${c.exclusive?" Other kids will not be able to claim it while it is active.":""}`,"Yes, Start It",async()=>{let t={id:newId(),choreId:c.id,kidId:k.id,icon:c.icon,name:c.name,cash:isKidSession()?0:(c.paid?+c.cash||0:0),car:isKidSession()?0:(c.paid?+c.car||0:0),xp:isKidSession()?0:(+c.xp||10),exclusive:!!c.exclusive,required:!!c.required,frequency:c.frequency,periodKey:periodKey(c),status:"open",type:c.id==="golf"?"golf":"normal",count:0,createdAt:Date.now()};await patch({tasks:arrayUnion(t)});lastClaimId=t.id;lastClaimAt=Date.now();view="week";render()})});
 
  $$("[data-done]").forEach(b=>b.onclick=()=>{let t=data.tasks.find(x=>x.id===b.dataset.done);if(t.type==="golf"){golfCount=t.count||0;view="golf";render();return}askConfirm("Send this to Parent?",`${t.icon} ${t.name} will be marked complete and sent for approval.`,"Submit",async()=>{let tasks=data.tasks.map(x=>x.id===t.id?{...x,status:"pending",submittedAt:Date.now()}:x);await patch({tasks})})});
  $$("[data-n]").forEach(b=>b.onclick=()=>{golfCount=Math.max(0,Math.min(100,golfCount+(+b.dataset.n)));render()});
