@@ -85,13 +85,15 @@ const DEFAULTS=[
 ["completehomework","✏️📘","Complete homework",0,0,false,"School","daily",true,false],
 ["study","🧠📚","Study / review schoolwork",0,0,false,"School","daily",true,false],
 ["color","🖍️📦","Coloring stuff away",0,0,false,"Daily","daily",true,false],
+["legos","🧱📦","Legos away",0,0,false,"Daily","daily",true,false],
+["books","📚🧺","Books away",0,0,false,"Daily","daily",true,false],
 ["living","🛋️✨","Keep living room clean",0,0,false,"House","daily",true,false],
 ["counters","🧽✨","Living room counters & tables",1,2,true,"House","weekly",false,true],
 ["ktable","🧽🍽️","Clean kitchen table",1,2,true,"Kitchen","daily",false,true],
 ["load","🍽️⬇️","Load dishwasher",1,2,true,"Kitchen","anytime",false,true],
 ["unload","🍽️⬆️","Unload dishwasher",1,2,true,"Kitchen","anytime",false,true],
 ["dishes","🫧🍽️","Hand wash dishes",2,3,true,"Kitchen","anytime",false,true],
-["trash","🗑️➡️","Take out trash if full",1,2,true,"House","anytime",false,true],
+["trash","🗑️➡️","Take out trash if full",1,2,true,"House","needed",false,true],
 ["cardboard","📦♻️","Cardboard to recycle",1,2,true,"House","weekly",false,true],
 ["fold","👕🧺","Fold clothes",1,2,true,"Laundry","weekly",false,true],
 ["putclothes","👚📦","Put clothes away",1,2,false,"Laundry","weekly",false,true],
@@ -139,13 +141,20 @@ const $=q=>document.querySelector(q),$$=q=>[...document.querySelectorAll(q)],mon
 
 function isParent(){return !!(user&&data&&(data.ownerUid===user.uid||(data.parentEmails||[]).map(x=>x.toLowerCase()).includes((user.email||"").toLowerCase())))}
 function theme(k){return {Noah:["noahWorld","🐺","Wolf Forest","Run with the pack. Own your missions."],Eli:["eliWorld","🦁","Lion Kingdom","Lead the pride. Earn your crown."],Shepherd:["shepherdWorld","🐍","Jungle Quest","Track it. Own it. Strike with focus."],Juniper:["juniperWorld","🦄🌈","Rainbow Unicorn World","Sparkle through your missions!"]}[k.name]}
-function normalize(c){return {frequency:"anytime",required:false,paid:(+c.cash||0)>0||(+c.car||0)>0,xp:10,missXp:5,assignedTo:["noah","eli","shepherd","juniper"],active:true,...c}}
+function normalize(c){return {frequency:"anytime",intervalDays:7,required:false,paid:(+c.cash||0)>0||(+c.car||0)>0,xp:10,missXp:5,assignedTo:["noah","eli","shepherd","juniper"],active:true,...c}}
 function library(){let saved=Array.isArray(data?.choreLibrary)&&data.choreLibrary.length?data.choreLibrary:[];if(!saved.length)return DEFAULTS.map(normalize);let map=new Map(saved.map(c=>[c.id,c]));let merged=DEFAULTS.map(d=>normalize({...d,...(map.get(d.id)||{})}));saved.filter(c=>!DEFAULTS.some(d=>d.id===c.id)).forEach(c=>merged.push(normalize(c)));return merged}
 function kidById(id){return data.kids.find(k=>k.id===id)}
 function paidTotal(id){return (data.payments||[]).filter(p=>p.kidId===id).reduce((s,p)=>s+(+p.amount||0),0)}
 function cashOwed(k){return Math.max(0,(+k.cash||0)-paidTotal(k.id))}
 function reliability(k){let d=+k.requiredDue||0,c=+k.requiredDone||0;return d?Math.round(c/d*100):100}
 function relClass(r){return r>=90?"good":r>=75?"mid":"low"}
+function frequencyLabel(c){
+  if(c.frequency==="needed")return "when necessary";
+  if(c.frequency==="everyx")return `every ${Math.max(1,+c.intervalDays||7)} days`;
+  if(c.frequency==="weekdays")return "weekdays";
+  if(c.frequency==="once")return "one-time";
+  return c.frequency;
+}
 
 function todayKey(d=new Date()){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
 function mondayKey(d=new Date()){let x=new Date(d),day=(x.getDay()+6)%7;x.setHours(12,0,0,0);x.setDate(x.getDate()-day);return todayKey(x)}
@@ -154,8 +163,26 @@ function periodKey(c){
   if(c.frequency==="daily")return todayKey();
   if(c.frequency==="weekdays")return isWeekend()?"weekend-off":todayKey();
   if(c.frequency==="weekly")return mondayKey();
+  if(c.frequency==="everyx")return "everyx";
   if(c.frequency==="once")return "once";
+  if(c.frequency==="needed")return "needed";
   return "any";
+}
+function lastApprovedFor(c,kidId){
+  let arr=(data.tasks||[]).filter(t=>t.choreId===c.id&&t.kidId===kidId&&t.status==="approved");
+  arr.sort((a,b)=>(b.approvedAt||0)-(a.approvedAt||0));
+  return arr[0]||null;
+}
+function lastSharedApproved(c){
+  let arr=(data.tasks||[]).filter(t=>t.choreId===c.id&&t.status==="approved");
+  arr.sort((a,b)=>(b.approvedAt||0)-(a.approvedAt||0));
+  return arr[0]||null;
+}
+function everyXReady(c,kidId){
+  let days=Math.max(1,+c.intervalDays||7);
+  let t=c.exclusive?lastSharedApproved(c):lastApprovedFor(c,kidId);
+  if(!t)return true;
+  return (Date.now()-(t.approvedAt||0)) >= days*86400000;
 }
 function eligible(c,kidId){return c.active!==false&&(c.assignedTo||[]).includes(kidId)&&!(c.frequency==="weekdays"&&isWeekend())}
 function live(c,kidId){let p=periodKey(c);return (data.tasks||[]).find(t=>t.choreId===c.id&&t.kidId===kidId&&["open","pending"].includes(t.status)&&(c.frequency==="anytime"||t.periodKey===p))}
@@ -164,6 +191,7 @@ function sharedLive(c){let p=periodKey(c);return (data.tasks||[]).find(t=>t.chor
 function sharedApproved(c){let p=periodKey(c);return (data.tasks||[]).some(t=>t.choreId===c.id&&t.status==="approved"&&(c.frequency==="anytime"||t.periodKey===p))}
 function canClaim(c,kidId){
   if(!eligible(c,kidId))return false;
+  if(c.frequency==="everyx" && !everyXReady(c,kidId))return false;
   if(c.exclusive){
     if(sharedLive(c)||((c.frequency==="daily"||c.frequency==="weekdays"||c.frequency==="weekly"||c.frequency==="once")&&sharedApproved(c)))return false;
   }else{
@@ -173,10 +201,10 @@ function canClaim(c,kidId){
 }
 function pending(){return (data.tasks||[]).filter(t=>t.status==="pending")}
 function needsSomeone(){
-  return library().filter(c=>c.required&&c.exclusive&&["daily","weekdays","weekly"].includes(c.frequency)&&(c.assignedTo||[]).length&&canClaim(c,c.assignedTo[0])&&!sharedLive(c)&&!sharedApproved(c))
+  return library().filter(c=>c.required&&c.exclusive&&["daily","weekdays","weekly","everyx"].includes(c.frequency)&&(c.assignedTo||[]).length&&canClaim(c,c.assignedTo[0])&&!sharedLive(c)&&!sharedApproved(c))
 }
 function requiredLeft(k){
-  let chores=library().filter(c=>c.required&&eligible(c,k.id)&&["daily","weekdays","weekly"].includes(c.frequency));
+  let chores=library().filter(c=>c.required&&eligible(c,k.id)&&["daily","weekdays","weekly","everyx"].includes(c.frequency));
   let left=0;chores.forEach(c=>{if(c.exclusive&&(c.assignedTo||[]).length>1){if(!sharedApproved(c))left++}else if(!approved(c,k.id))left++});return left
 }
 function challengeLibrary(){return Array.isArray(data?.challenges)&&data.challenges.length?data.challenges:DEFAULT_CHALLENGES}
@@ -205,12 +233,12 @@ function setup(){return `<div class="login card"><h2>🏡 Create Risser Family</
 
 function home(){
  let needs=needsSomeone();
- return header()+(needs.length?`<div class="card attention"><h2 style="margin-top:0">🚨 Needs Someone</h2>${needs.map(c=>`<div class="task"><div><b>${c.icon} ${c.name}</b><div class="reward">${(c.frequency==="daily"||c.frequency==="weekdays")?"Due today":"Due this week"} · ${(c.assignedTo||[]).map(id=>kidById(id)?.name).filter(Boolean).join(", ")}</div></div><span class="pill due">Unclaimed</span></div>`).join("")}</div>`:"")
+ return header()+(needs.length?`<div class="card attention"><h2 style="margin-top:0">🚨 Needs Someone</h2>${needs.map(c=>`<div class="task"><div><b>${c.icon} ${c.name}</b><div class="reward">${(c.frequency==="daily"||c.frequency==="weekdays")?"Due today":c.frequency==="weekly"?"Due this week":"Due now"} · ${(c.assignedTo||[]).map(id=>kidById(id)?.name).filter(Boolean).join(", ")}</div></div><span class="pill due">Unclaimed</span></div>`).join("")}</div>`:"")
  +`<div class="card notice"><b>📵 Family Screen Goal</b><div class="muted">Weekdays: no recreational screens while the sun is out + 20 minutes or less total. Weekends can be more flexible and are parent-judged.</div></div><div class="grid">${data.kids.map((k,i)=>{let r=reliability(k),left=requiredLeft(k),t=theme(k),pct=Math.min(100,(+k.car||0)/(+k.target||7500)*100);return `<div class="card half"><div class="row"><div><div style="font-size:36px">${t[1]}</div><b>${k.name}</b><div class="tiny ${relClass(r)}">🎯 ${r}% reliability</div></div><button data-k="${i}" class="btn secondary">Open</button></div><div class="row wrap" style="margin-top:12px"><span>💵 Owed <b>${money(cashOwed(k))}</b></span><span>🚗 <b>${money(k.car||0)}</b></span><span>⭐ <b>${k.xp||0}</b></span></div><div class="progress" style="margin-top:12px"><div class="bar" style="width:${pct}%"></div></div><div class="tiny muted" style="margin-top:7px">${left?`⚠️ ${left} required mission${left===1?"":"s"} still due`:"✅ Required missions current"}</div></div>`}).join("")}</div>`;
 }
 function pick(){
  let k=data.kids[kid],lib=library().filter(c=>eligible(c,k.id));
- return header()+world(k)+`<div class="card"><div class="row wrap"><div><h2 style="margin:0">🎯 Pick a Mission</h2><div class="muted">Only chores assigned to ${k.name} appear.</div></div><select id="kidSel" style="width:auto;min-width:150px">${data.kids.map((x,i)=>`<option value="${i}" ${i===kid?"selected":""}>${x.name}</option>`).join("")}</select></div><div class="chores" style="margin-top:15px">${lib.map(c=>{let allowed=canClaim(c,k.id),owner=c.exclusive?sharedLive(c):null,done=(c.frequency!=="anytime")&&(c.exclusive?sharedApproved(c):approved(c,k.id));return `<button class="chore" data-c="${c.id}" ${allowed?"":"disabled"}><div class="icon">${c.icon}</div><div class="name">${c.name}</div><div class="reward">${c.paid?`💵 ${money(c.cash)} · 🚗 ${money(c.car)}`:"🏠 responsibility"}</div><div style="margin-top:5px">${c.required?`<span class="pill req">Required</span>`:`<span class="pill opt">Optional</span>`} <span class="pill due">${c.frequency}</span></div>${owner?`<div class="tiny" style="margin-top:6px">🔒 ${kidById(owner.kidId)?.name} claimed it</div>`:done?`<div class="tiny" style="margin-top:6px">✅ Done this period</div>`:""}</button>`}).join("")}</div></div>`;
+ return header()+world(k)+`<div class="card"><div class="row wrap"><div><h2 style="margin:0">🎯 Pick a Mission</h2><div class="muted">Only chores assigned to ${k.name} appear.</div></div><select id="kidSel" style="width:auto;min-width:150px">${data.kids.map((x,i)=>`<option value="${i}" ${i===kid?"selected":""}>${x.name}</option>`).join("")}</select></div><div class="chores" style="margin-top:15px">${lib.map(c=>{let allowed=canClaim(c,k.id),owner=c.exclusive?sharedLive(c):null,done=(c.frequency!=="anytime")&&(c.exclusive?sharedApproved(c):approved(c,k.id));return `<button class="chore" data-c="${c.id}" ${allowed?"":"disabled"}><div class="icon">${c.icon}</div><div class="name">${c.name}</div><div class="reward">${c.paid?`💵 ${money(c.cash)} · 🚗 ${money(c.car)}`:"🏠 responsibility"}</div><div style="margin-top:5px">${c.required?`<span class="pill req">Required</span>`:`<span class="pill opt">Optional</span>`} <span class="pill due">${frequencyLabel(c)}</span></div>${owner?`<div class="tiny" style="margin-top:6px">🔒 ${kidById(owner.kidId)?.name} claimed it</div>`:done?`<div class="tiny" style="margin-top:6px">✅ Done this period</div>`:""}</button>`}).join("")}</div></div>`;
 }
 function week(){
  let k=data.kids[kid],active=(data.tasks||[]).filter(t=>t.kidId===k.id&&["open","pending"].includes(t.status));
@@ -233,7 +261,7 @@ function parent(){
  </div>
  <div class="card"><div class="row wrap"><div><h2 style="margin:0">🧰 Master Chore List</h2><p class="muted">Assign all four daily chores, or specific kids on any cadence.</p></div><div class="actions"><button id="addCustom" class="btn">＋ New Chore</button><button id="saveChores" class="btn secondary">Save Changes</button></div></div>
  <div id="customForm" class="notice" style="display:none;margin-top:12px"><div class="settingsGrid"><div><label>Name</label><input id="newName" placeholder="Clean mudroom"></div><div><label>Emoji</label><input id="newIcon" value="⭐"></div><div><label>Cash</label><input id="newCash" type="number" step=".25" value="1"></div><div><label>Car fund</label><input id="newCar" type="number" step=".25" value="2"></div></div><div class="actions" style="margin-top:10px"><button id="createCustom" class="btn">Add</button><button id="cancelCustom" class="btn secondary">Cancel</button></div></div>
- <div style="display:grid;gap:10px;margin-top:13px">${lib.map((c,i)=>`<div class="card masterCard"><div class="row wrap"><div><b>${c.icon} ${c.name}</b><div class="tiny muted">${c.category} · ${c.paid?`💵 ${money(c.cash)} · 🚗 ${money(c.car)}`:"unpaid responsibility"}</div></div><label class="badge"><input data-active="${i}" type="checkbox" ${c.active!==false?"checked":""}> Active</label></div><div class="assignments">${data.kids.map(k=>`<label><input data-assign="${i}|${k.id}" type="checkbox" ${(c.assignedTo||[]).includes(k.id)?"checked":""}> ${theme(k)[1]} ${k.name}</label>`).join("")}</div><div class="settingsGrid"><div><label>Frequency</label><select data-frequency="${i}"><option value="anytime" ${c.frequency==="anytime"?"selected":""}>Anytime</option><option value="daily" ${c.frequency==="daily"?"selected":""}>Daily</option><option value="weekdays" ${c.frequency==="weekdays"?"selected":""}>Weekdays Only</option><option value="weekly" ${c.frequency==="weekly"?"selected":""}>Weekly</option><option value="once" ${c.frequency==="once"?"selected":""}>One-time</option></select></div><div><label>Required?</label><select data-required="${i}"><option value="0" ${!c.required?"selected":""}>Optional</option><option value="1" ${c.required?"selected":""}>Required</option></select></div><div><label>Completion rule</label><select data-exclusive="${i}"><option value="0" ${!c.exclusive?"selected":""}>Each assigned kid</option><option value="1" ${c.exclusive?"selected":""}>One kid only</option></select></div><div><label>Miss penalty</label><select data-miss="${i}"><option value="0" ${+c.missXp===0?"selected":""}>None</option><option value="5" ${+c.missXp===5?"selected":""}>-5 XP</option><option value="10" ${+c.missXp===10?"selected":""}>-10 XP</option></select></div></div>${c.custom?`<button data-delete="${i}" class="btn red small" style="margin-top:8px">Delete</button>`:""}</div>`).join("")}</div></div>
+ <div style="display:grid;gap:10px;margin-top:13px">${lib.map((c,i)=>`<div class="card masterCard"><div class="row wrap"><div><b>${c.icon} ${c.name}</b><div class="tiny muted">${c.category} · ${c.paid?`💵 ${money(c.cash)} · 🚗 ${money(c.car)}`:"unpaid responsibility"}</div></div><label class="badge"><input data-active="${i}" type="checkbox" ${c.active!==false?"checked":""}> Active</label></div><div class="assignments">${data.kids.map(k=>`<label><input data-assign="${i}|${k.id}" type="checkbox" ${(c.assignedTo||[]).includes(k.id)?"checked":""}> ${theme(k)[1]} ${k.name}</label>`).join("")}</div><div class="settingsGrid"><div><label>Frequency</label><select data-frequency="${i}"><option value="anytime" ${c.frequency==="anytime"?"selected":""}>Anytime</option><option value="needed" ${c.frequency==="needed"?"selected":""}>When Necessary</option><option value="daily" ${c.frequency==="daily"?"selected":""}>Daily</option><option value="weekdays" ${c.frequency==="weekdays"?"selected":""}>Weekdays Only</option><option value="weekly" ${c.frequency==="weekly"?"selected":""}>Weekly</option><option value="everyx" ${c.frequency==="everyx"?"selected":""}>Every X Days</option><option value="once" ${c.frequency==="once"?"selected":""}>One-time</option></select></div><div data-interval-wrap="${i}" style="${c.frequency==="everyx"?"":"display:none"}"><label>Every how many days?</label><input data-interval="${i}" type="number" min="1" max="365" value="${Math.max(1,+c.intervalDays||7)}"></div><div><label>Required?</label><select data-required="${i}"><option value="0" ${!c.required?"selected":""}>Optional</option><option value="1" ${c.required?"selected":""}>Required</option></select></div><div><label>Completion rule</label><select data-exclusive="${i}"><option value="0" ${!c.exclusive?"selected":""}>Each assigned kid</option><option value="1" ${c.exclusive?"selected":""}>One kid only</option></select></div><div><label>Miss penalty</label><select data-miss="${i}"><option value="0" ${+c.missXp===0?"selected":""}>None</option><option value="5" ${+c.missXp===5?"selected":""}>-5 XP</option><option value="10" ${+c.missXp===10?"selected":""}>-10 XP</option></select></div></div>${c.custom?`<button data-delete="${i}" class="btn red small" style="margin-top:8px">Delete</button>`:""}</div>`).join("")}</div></div>
  <div class="card"><h2>👨‍👩‍👧 Add Parent</h2><div class="row wrap"><input id="parentEmail" style="flex:1;min-width:220px" placeholder="Google email"><button id="addParent" class="btn">Authorize</button></div><div class="tiny muted" style="margin-top:7px">Authorized: ${(data.parentEmails||[]).join(", ")}</div></div>`;
 }
 function paid(){
@@ -263,8 +291,9 @@ function bind(){
  $("#addParent")?.addEventListener("click",async()=>{let e=$("#parentEmail").value.trim().toLowerCase();if(!e.includes("@"))return alert("Enter a valid Google email.");await patch({parentEmails:arrayUnion(e)});$("#parentEmail").value=""});
  $("#addCustom")?.addEventListener("click",()=>$("#customForm").style.display="block");
  $("#cancelCustom")?.addEventListener("click",()=>$("#customForm").style.display="none");
+ $$("[data-frequency]").forEach(e=>e.addEventListener("change",()=>{let w=document.querySelector(`[data-interval-wrap="${e.dataset.frequency}"]`);if(w)w.style.display=e.value==="everyx"?"block":"none"}));
  $("#createCustom")?.addEventListener("click",async()=>{let name=$("#newName").value.trim();if(!name)return alert("Give the chore a name.");let lib=library().map(x=>({...x,assignedTo:[...(x.assignedTo||[])]}));lib.push({id:"custom-"+Date.now(),icon:$("#newIcon").value.trim()||"⭐",name,cash:+$("#newCash").value||0,car:+$("#newCar").value||0,exclusive:false,category:"Custom",frequency:"anytime",required:false,paid:true,xp:10,missXp:5,assignedTo:data.kids.map(k=>k.id),active:true,custom:true});await patch({choreLibrary:lib})});
- $("#saveChores")?.addEventListener("click",async()=>{let lib=library().map(c=>({...c,assignedTo:[]}));$$("[data-active]").forEach(e=>lib[+e.dataset.active].active=e.checked);$$("[data-frequency]").forEach(e=>lib[+e.dataset.frequency].frequency=e.value);$$("[data-required]").forEach(e=>lib[+e.dataset.required].required=e.value==="1");$$("[data-exclusive]").forEach(e=>lib[+e.dataset.exclusive].exclusive=e.value==="1");$$("[data-miss]").forEach(e=>lib[+e.dataset.miss].missXp=+e.value);$$("[data-assign]").forEach(e=>{if(e.checked){let [i,kidId]=e.dataset.assign.split("|");lib[+i].assignedTo.push(kidId)}});await patch({choreLibrary:lib});alert("Chore settings saved!")});
+ $("#saveChores")?.addEventListener("click",async()=>{let lib=library().map(c=>({...c,assignedTo:[]}));$$("[data-active]").forEach(e=>lib[+e.dataset.active].active=e.checked);$$("[data-frequency]").forEach(e=>lib[+e.dataset.frequency].frequency=e.value);$$("[data-interval]").forEach(e=>lib[+e.dataset.interval].intervalDays=Math.max(1,+e.value||7));$$("[data-required]").forEach(e=>lib[+e.dataset.required].required=e.value==="1");$$("[data-exclusive]").forEach(e=>lib[+e.dataset.exclusive].exclusive=e.value==="1");$$("[data-miss]").forEach(e=>lib[+e.dataset.miss].missXp=+e.value);$$("[data-assign]").forEach(e=>{if(e.checked){let [i,kidId]=e.dataset.assign.split("|");lib[+i].assignedTo.push(kidId)}});await patch({choreLibrary:lib});alert("Chore settings saved!")});
  $$("[data-delete]").forEach(e=>e.onclick=async()=>{let i=+e.dataset.delete;if(confirm("Delete this custom chore?"))await patch({choreLibrary:library().filter((_,idx)=>idx!==i)})});
  $$("[data-pay]").forEach(b=>b.onclick=async()=>{let kidId=b.dataset.pay,k=kidById(kidId),input=$(`[data-payamount="${kidId}"]`),amount=Math.max(0,+input.value||0),owed=cashOwed(k);if(amount<=0)return;if(amount>owed+0.001)return alert("That is more than currently owed.");let payment={id:newId(),kidId,amount,by:user.email,at:Date.now()};let ledger=[...(data.ledger||[]),{...payment,type:"payment",label:"Cash payout"}].slice(-300);await patch({payments:arrayUnion(payment),ledger})});
 
