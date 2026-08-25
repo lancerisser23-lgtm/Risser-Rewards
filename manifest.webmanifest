@@ -7,14 +7,16 @@
   "theme_color": "#174c38",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "risser-rewards-192-v17.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "icon-512.png",
+      "src": "risser-rewards-512-v17.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }
