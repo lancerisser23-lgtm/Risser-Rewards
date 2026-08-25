@@ -172,7 +172,8 @@ function splitGross(gross,kidId){
 function reliability(k){let d=+k.requiredDue||0,c=+k.requiredDone||0;return d?Math.round(c/d*100):100}
 function relClass(r){return r>=90?"good":r>=75?"mid":"low"}
 function kidChooser(){
- return `<div class="kidChooser"><div class="kidChooserTitle">👋 Who are you?</div><div class="kidChoices">${data.kids.map((x,i)=>{let th=theme(x);return `<button class="kidChoice ${i===kid?"on":""}" data-kidpick="${i}"><span class="kidEmoji">${th.icon}</span><span>${x.name}</span>${i===kid?`<span class="tiny muted">That's me!</span>`:""}</button>`}).join("")}</div></div>`
+ const icons={noah:"🐺",eli:"🦁",shepherd:"🐍",juniper:"🦄"};
+ return `<div class="kidChooser"><div class="kidChooserTitle">👋 Who are you?</div><div class="kidChoices">${data.kids.map((x,i)=>`<button class="kidChoice ${i===kid?"on":""}" data-kidpick="${i}"><span class="kidEmoji">${icons[x.id]||"⭐"}</span><span>${x.name}</span>${i===kid?`<span class="tiny muted">That's me!</span>`:""}</button>`).join("")}</div></div>`
 }
 function frequencyLabel(c){
   if(c.frequency==="needed")return "when necessary";
@@ -269,7 +270,7 @@ function home(){
 }
 function pick(){
  let k=data.kids[kid],lib=library().filter(c=>eligible(c,k.id));
- return header()+world(k)+`<div class="card"><div class="row wrap"><div><h2 style="margin:0">🎯 Pick a Mission</h2><div class="muted">Only chores assigned to ${k.name} appear.</div></div>${kidChooser()}</div><div class="chores" style="margin-top:15px">${lib.map(c=>{let allowed=canClaim(c,k.id),owner=c.exclusive?sharedLive(c):null,done=(c.frequency!=="anytime")&&(c.exclusive?sharedApproved(c):approved(c,k.id));return `<button class="chore" data-c="${c.id}" ${allowed?"":"disabled"}><div class="icon">${c.icon}</div><div class="name">${c.name}</div><div class="reward">${c.paid?`💵 ${money(c.cash)} · 🚗 ${money(c.car)}`:"🏠 responsibility"}</div><div style="margin-top:5px">${c.required?`<span class="pill req">Required</span>`:`<span class="pill opt">Optional</span>`} <span class="pill due">${frequencyLabel(c)}</span></div>${owner?`<div class="tiny" style="margin-top:6px">🔒 ${kidById(owner.kidId)?.name} claimed it</div>`:done?`<div class="tiny" style="margin-top:6px">✅ Done this period</div>`:""}</button>`}).join("")}</div></div>`;
+ return header()+`<div class="card" style="margin-bottom:12px">${kidChooser()}</div>`+world(k)+`<div class="card"><div class="row wrap"><div><h2 style="margin:0">🎯 Pick a Mission</h2><div class="muted">Only chores assigned to ${k.name} appear.</div></div></div><div class="chores" style="margin-top:15px">${lib.map(c=>{let allowed=canClaim(c,k.id),owner=c.exclusive?sharedLive(c):null,done=(c.frequency!=="anytime")&&(c.exclusive?sharedApproved(c):approved(c,k.id));return `<button class="chore" data-c="${c.id}" ${allowed?"":"disabled"}><div class="icon">${c.icon}</div><div class="name">${c.name}</div><div class="reward">${c.paid?`💵 ${money(c.cash)} · 🚗 ${money(c.car)}`:"🏠 responsibility"}</div><div style="margin-top:5px">${c.required?`<span class="pill req">Required</span>`:`<span class="pill opt">Optional</span>`} <span class="pill due">${frequencyLabel(c)}</span></div>${owner?`<div class="tiny" style="margin-top:6px">🔒 ${kidById(owner.kidId)?.name} claimed it</div>`:done?`<div class="tiny" style="margin-top:6px">✅ Done this period</div>`:""}</button>`}).join("")}</div></div>`;
 }
 function week(){
  let k=data.kids[kid];
@@ -299,12 +300,11 @@ function week(){
    }
  });
 
- return header()+world(k)+`<div class="card">
+ return header()+`<div class="card" style="margin-bottom:12px">${kidChooser()}</div>`+world(k)+`<div class="card">
    <div>
      <h2 style="margin:0">✅ My Missions</h2>
-     <div class="muted">Tap your animal, then handle what's yours.</div>
+     <div class="muted">Everything ${k.name} needs to handle right now.</div>
    </div>
-   ${kidChooser()}
 
    ${due.length?`
    <div class="notice warn" style="margin-top:13px">
