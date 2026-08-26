@@ -151,7 +151,7 @@ function isSchoolChore(c){
 }
 function summerMode(){return !!data?.summerMode}
 function normalize(c){
-  return {frequency:"anytime",intervalDays:7,required:false,paid:(+c.cash||0)>0||(+c.car||0)>0,xp:10,missXp:5,assignedTo:["noah","eli","shepherd","juniper"],active:true,...c}
+  return {frequency:"anytime",intervalDays:7,intervalHours:1,required:false,paid:(+c.cash||0)>0||(+c.car||0)>0,xp:10,missXp:5,assignedTo:["noah","eli","shepherd","juniper"],active:true,...c}
 }
 
 // Enforce the family rules requested for the known built-in chores.
@@ -159,7 +159,7 @@ function normalize(c){
 function applyBuiltInPolicy(c){
   const x={...c};
 
-  // Daily animal care/basic responsibilities = points only.
+  // Daily/basic responsibilities = points only.
   if(["pets","goats","eggs","litter","ktable","load","unload","dishes","trash","towels","sports"].includes(x.id)){
     x.paid=false; x.cash=0; x.car=0;
   }
@@ -167,15 +167,24 @@ function applyBuiltInPolicy(c){
     x.required=true; x.frequency="daily";
   }
 
-  // Shared living room responsibility:
-  // one kid claims it, then it cools down for 60 minutes.
+  // Shared chores that naturally rebuild throughout the day.
+  if(["load","unload","dishes"].includes(x.id)){
+    x.exclusive=true;
+    x.required=false;
+    x.paid=false;
+    x.cash=0; x.car=0;
+    x.frequency="everyhours";
+    x.intervalHours=4;
+    x.points=2;
+  }
+
   if(x.id==="living"){
     x.exclusive=true;
     x.required=false;
     x.paid=false;
     x.cash=0; x.car=0;
-    x.frequency="anytime";
-    x.cooldownMinutes=60;
+    x.frequency="everyhours";
+    x.intervalHours=1;
     x.points=2;
     x.maxRewardedClaimsPerDay=3;
   }
@@ -242,13 +251,15 @@ function kidChooser(){
  return `<div class="kidChooser"><div class="kidChooserTitle">👋 Who are you?</div><div class="kidChoices">${data.kids.map((x,i)=>`<button class="kidChoice ${i===kid?"on":""}" data-kidpick="${i}"><span class="kidEmoji">${icons[x.id]||"⭐"}</span><span>${x.name}</span>${i===kid?`<span class="tiny muted">That's me!</span>`:""}</button>`).join("")}</div></div>`
 }
 function frequencyLabel(c){
-  if(c.frequency==="needed")return "when necessary";
+  if(c.frequency==="needed")return "when needed";
+  if(c.frequency==="everyhours")return `every ${Math.max(1,+c.intervalHours||1)} hours`;
   if(c.frequency==="everyx")return `every ${Math.max(1,+c.intervalDays||7)} days`;
   if(c.frequency==="weekdays")return "weekdays";
   if(c.frequency==="once")return "one-time";
-  return c.frequency;
+  if(c.frequency==="daily")return "once a day";
+  if(c.frequency==="weekly")return "once a week";
+  return "anytime";
 }
-
 function todayKey(d=new Date()){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
 function mondayKey(d=new Date()){let x=new Date(d),day=(x.getDay()+6)%7;x.setHours(12,0,0,0);x.setDate(x.getDate()-day);return todayKey(x)}
 function isWeekend(d=new Date()){let day=d.getDay();return day===0||day===6}
@@ -256,6 +267,7 @@ function periodKey(c){
   if(c.frequency==="daily")return todayKey();
   if(c.frequency==="weekdays")return isWeekend()?"weekend-off":todayKey();
   if(c.frequency==="weekly")return mondayKey();
+  if(c.frequency==="everyhours")return "everyhours";
   if(c.frequency==="everyx")return "everyx";
   if(c.frequency==="once")return "once";
   if(c.frequency==="needed")return "needed";
@@ -276,6 +288,12 @@ function everyXReady(c,kidId){
   let t=c.exclusive?lastSharedApproved(c):lastApprovedFor(c,kidId);
   if(!t)return true;
   return (Date.now()-(t.approvedAt||0)) >= days*86400000;
+}
+function everyHoursReady(c,kidId){
+  let hours=Math.max(1,+c.intervalHours||1);
+  let t=c.exclusive?lastSharedApproved(c):lastApprovedFor(c,kidId);
+  if(!t)return true;
+  return (Date.now()-(t.approvedAt||0)) >= hours*3600000;
 }
 function eligible(c,kidId){return c.active!==false&&(c.assignedTo||[]).includes(kidId)&&!(c.frequency==="weekdays"&&isWeekend())}
 function live(c,kidId){let p=periodKey(c);return (data.tasks||[]).find(t=>t.choreId===c.id&&t.kidId===kidId&&["open","pending"].includes(t.status)&&(c.frequency==="anytime"||t.periodKey===p))}
@@ -301,15 +319,14 @@ function rewardedClaimsToday(c){
 }
 function canClaim(c,kidId){
   if(!eligible(c,kidId))return false;
-  if(c.frequency==="everyx" && !everyXReady(c,kidId))return false;
 
-  // Repeatable shared chores (ex: living room): only one kid at a time,
-  // then a cooldown before anyone can claim it again.
-  if(c.cooldownMinutes){
-    if(sharedLive(c))return false;
-    if(!cooldownReady(c))return false;
-    return true;
+  if(c.frequency==="everyhours"){
+    if(c.exclusive&&sharedLive(c))return false;
+    if(!c.exclusive&&live(c,kidId))return false;
+    return everyHoursReady(c,kidId);
   }
+
+  if(c.frequency==="everyx" && !everyXReady(c,kidId))return false;
 
   if(c.exclusive){
     if(sharedLive(c)||((c.frequency==="daily"||c.frequency==="weekdays"||c.frequency==="weekly"||c.frequency==="once")&&sharedApproved(c)))return false;
@@ -325,13 +342,21 @@ function recentApprovals(){
     .slice(0,20)
 }
 function needsSomeone(){
-  return library().filter(c=>c.required&&c.exclusive&&["daily","weekdays","weekly","everyx"].includes(c.frequency)&&(c.assignedTo||[]).length&&canClaim(c,c.assignedTo[0])&&!sharedLive(c)&&!sharedApproved(c))
+  return library().filter(c=>c.required&&c.exclusive&&["daily","weekdays","weekly","everyx","everyhours"].includes(c.frequency)&&(c.assignedTo||[]).length&&canClaim(c,c.assignedTo[0])&&!sharedLive(c)&&!sharedApproved(c))
 }
 function requiredLeft(k){
-  let chores=library().filter(c=>c.required&&eligible(c,k.id)&&["daily","weekdays","weekly","everyx"].includes(c.frequency));
+  let chores=library().filter(c=>c.required&&eligible(c,k.id)&&["daily","weekdays","weekly","everyx","everyhours"].includes(c.frequency));
   let left=0;chores.forEach(c=>{if(c.exclusive&&(c.assignedTo||[]).length>1){if(!sharedApproved(c))left++}else if(!approved(c,k.id))left++});return left
 }
-function challengeLibrary(){return Array.isArray(data?.challenges)&&data.challenges.length?data.challenges:DEFAULT_CHALLENGES}
+function challengeLibrary(){
+  const saved=Array.isArray(data?.challenges)?data.challenges:[];
+  const map=new Map(saved.map(c=>[c.id,c]));
+  return DEFAULT_CHALLENGES.map(c=>{
+    let x={frequency:"daily",intervalHours:4,intervalDays:1,claimType:"each",...c,...(map.get(c.id)||{})};
+    if(x.id==="outside"){x.frequency=x.frequency||"everyhours"; if(!map.has(x.id)){x.frequency="everyhours";x.intervalHours=4}}
+    return x;
+  });
+}
 function challengeLogs(){return Array.isArray(data?.challengeLogs)?data.challengeLogs:[]}
 function weekDates(){
  let d=new Date(),day=(d.getDay()+6)%7,m=new Date(d);m.setDate(d.getDate()-day);
@@ -339,6 +364,41 @@ function weekDates(){
 }
 function challengeHit(kidId,cid,date=todayKey()){return challengeLogs().some(x=>x.kidId===kidId&&x.challengeId===cid&&x.date===date&&x.status==="approved")}
 function challengePending(kidId,cid,date=todayKey()){return challengeLogs().some(x=>x.kidId===kidId&&x.challengeId===cid&&x.date===date&&x.status==="pending")}
+function lastChallengeApproval(cid,kidId=null){
+  let arr=challengeLogs().filter(x=>x.challengeId===cid&&x.status==="approved"&&(!kidId||x.kidId===kidId));
+  arr.sort((a,b)=>(b.approvedAt||0)-(a.approvedAt||0));
+  return arr[0]||null;
+}
+function liveChallenge(cid,kidId=null){
+  return challengeLogs().some(x=>x.challengeId===cid&&x.status==="pending"&&(!kidId||x.kidId===kidId));
+}
+function challengeAvailabilityLabel(c){
+  if(c.frequency==="everyhours")return `Every ${Math.max(1,+c.intervalHours||1)} hours`;
+  if(c.frequency==="everyx")return `Every ${Math.max(1,+c.intervalDays||1)} days`;
+  return ({anytime:"Anytime",daily:"Once a day",weekdays:"Weekdays",weekly:"Once a week",once:"One-time"}[c.frequency]||"Once a day");
+}
+function challengeAvailable(c,kidId){
+  let shared=c.claimType==="shared";
+  if(liveChallenge(c.id,shared?null:kidId))return false;
+  let last=lastChallengeApproval(c.id,shared?null:kidId);
+
+  if(c.frequency==="everyhours"){
+    return !last || Date.now()-(last.approvedAt||0) >= Math.max(1,+c.intervalHours||1)*3600000;
+  }
+  if(c.frequency==="everyx"){
+    return !last || Date.now()-(last.approvedAt||0) >= Math.max(1,+c.intervalDays||1)*86400000;
+  }
+  if(c.frequency==="weekly"){
+    return !last || (last.approvedAt||0)<weekStartMs();
+  }
+  if(c.frequency==="weekdays"){
+    if(isWeekend())return false;
+    return !last || todayKey(new Date(last.approvedAt))!==todayKey();
+  }
+  if(c.frequency==="once")return !last;
+  if(c.frequency==="anytime")return true;
+  return !last || todayKey(new Date(last.approvedAt))!==todayKey();
+}
 function pushupPoints(count){return Math.floor(Math.max(0,Math.min(100,+count||0))/20)*5}
 function pushupPending(kidId){return challengePending(kidId,"pushups")}
 function pushupDone(kidId){return challengeHit(kidId,"pushups")}
@@ -465,7 +525,7 @@ function level(){
          <button id="submitPushups" class="btn small" style="margin-top:9px" ${pushupCount<20?"disabled":""}>Submit ${pushupCount} Pushups</button>`}
    </div>`;
  }
- return `<div class="challenge"><div class="big">${c.icon}</div><h3>${c.name}</h3><div class="tiny muted">${c.desc}</div>${c.target?`<div style="margin-top:7px"><b>${hits}/${c.target} this week</b></div>`:""}<div class="weekTrack">${dates.map((d,i)=>`<span class="dayDot ${challengeHit(k.id,c.id,d)?"hit":""}">${["M","T","W","T","F","S","S"][i]}</span>`).join("")}</div>${st?`<div class="streak">🔥 ${st}-day streak</div>`:""}<div style="margin-top:9px">${hit?`<span class="pill opt">Done today</span>`:pend?`<span class="pill due">Waiting for parent</span>`:c.parentOnly?`<span class="pill due">Parent verifies</span>`:`<button class="btn small" data-challenge="${c.id}">I Did It</button>`}</div></div>`}).join("")}</div>
+ return `<div class="challenge"><div class="big">${c.icon}</div><h3>${c.name}</h3><div class="tiny muted">${c.desc}</div><div class="tiny muted" style="margin-top:4px">⏱️ ${challengeAvailabilityLabel(c)}${c.claimType==="shared"?" · one kid only":""}</div>${c.target?`<div style="margin-top:7px"><b>${hits}/${c.target} this week</b></div>`:""}<div class="weekTrack">${dates.map((d,i)=>`<span class="dayDot ${challengeHit(k.id,c.id,d)?"hit":""}">${["M","T","W","T","F","S","S"][i]}</span>`).join("")}</div>${st?`<div class="streak">🔥 ${st}-day streak</div>`:""}<div style="margin-top:9px">${pend?`<span class="pill due">Waiting for parent</span>`:c.parentOnly?`<span class="pill due">Parent verifies</span>`:challengeAvailable(c,k.id)?`<button class="btn small" data-challenge="${c.id}">I Did It</button>`:`<span class="pill opt">Done for now</span>`}</div></div>`}).join("")}</div>
  </div>`;
 }
 
@@ -584,12 +644,15 @@ function parent(){
  return header()+`<div class="card"><div class="row wrap"><h2 style="margin:0">👍 Waiting for Approval</h2><button id="bulkBasics" class="btn secondary small">Approve Daily Basics</button></div>${pending().length?pending().map(t=>{let k=kidById(t.kidId);return `<div class="approval"><div><b>${t.icon} ${k?.name} — ${t.name}</b><div class="reward">${t.type==="golf"?`${t.count} balls · `:""}💵 ${money(t.cash)} + 🚗 ${money(t.car)}</div></div><div class="actions"><button data-app="${t.id}" class="btn small">Approve</button><button data-back="${t.id}" class="btn red small">Send Back</button></div></div>`}).join(""):`<p class="muted">Nothing waiting 🎉</p>`}</div>
  <div class="card"><h2 style="margin-top:0">🔥 Level Up Review</h2>
  ${(challengeLogs().filter(x=>x.status==="pending").length)?challengeLogs().filter(x=>x.status==="pending").map(x=>{let c=challengeLibrary().find(c=>c.id===x.challengeId),k=kidById(x.kidId);return `<div class="approval"><div><b>${c?.icon||"⭐"} ${k?.name} — ${c?.name||"Challenge"}</b><div class="reward">${x.challengeId==="pushups"?`${x.count||0} pushups · ⭐ ${pushupPoints(x.count||0)} Points · no cash`:`+${c?.xp||10} XP · no cash`}</div></div><div class="actions"><button class="btn small" data-chapp="${x.id}">Approve</button><button class="btn red small" data-chreject="${x.id}">Reject</button></div></div>`}).join(""):`<p class="muted">No challenge requests waiting.</p>`}
- <div class="notice parentAward" style="margin-top:10px"><b>⭐ Parent Awards</b><div class="settingsGrid" style="grid-template-columns:1fr 1fr 1fr"><div><label>Kid</label><select id="awardKid">${data.kids.map(k=>`<option value="${k.id}">${k.name}</option>`).join("")}</select></div><div><label>Award</label><select id="awardType"><option value="help">🤝 Help Without Being Asked</option><option value="awesome">❤️ Caught Being Awesome</option><option value="screen">📵 Screen Boss</option></select></div><div style="display:flex;align-items:end"><button id="giveAward" class="btn" style="width:100%">Award Today</button></div></div></div>
+ <div class="card"><h2 style="margin-top:0">⏱️ Level Up Availability</h2><p class="muted">Choose how often each Level Up can be completed. “First kid only” is available for shared family challenges, but most Level Ups should stay “Each kid.”</p>
+${challengeLibrary().filter(c=>!c.parentOnly).map((c,i)=>`<div class="card masterCard"><div class="row wrap"><div><b>${c.icon} ${c.name}</b><div class="tiny muted">${challengeAvailabilityLabel(c)}</div></div></div><div class="settingsGrid"><div><label>Availability</label><select data-cfreq="${i}"><option value="anytime" ${c.frequency==="anytime"?"selected":""}>Anytime</option><option value="daily" ${c.frequency==="daily"?"selected":""}>Once a day</option><option value="weekdays" ${c.frequency==="weekdays"?"selected":""}>Weekdays</option><option value="weekly" ${c.frequency==="weekly"?"selected":""}>Once a week</option><option value="everyhours" ${c.frequency==="everyhours"?"selected":""}>Every X hours</option><option value="everyx" ${c.frequency==="everyx"?"selected":""}>Every X days</option><option value="once" ${c.frequency==="once"?"selected":""}>One-time</option></select></div><div data-chours-wrap="${i}" style="${c.frequency==="everyhours"?"":"display:none"}"><label>Hours</label><input data-chours="${i}" type="number" min="1" max="24" value="${Math.max(1,+c.intervalHours||4)}"></div><div data-cdays-wrap="${i}" style="${c.frequency==="everyx"?"":"display:none"}"><label>Days</label><input data-cdays="${i}" type="number" min="1" max="365" value="${Math.max(1,+c.intervalDays||1)}"></div><div><label>Claim type</label><select data-cclaim="${i}"><option value="each" ${c.claimType!=="shared"?"selected":""}>Each kid</option><option value="shared" ${c.claimType==="shared"?"selected":""}>First kid only / Shared</option></select></div></div></div>`).join("")}
+<button id="saveLevelAvailability" class="btn" style="margin-top:10px">Save Level Up Availability</button></div>
+<div class="notice parentAward" style="margin-top:10px"><b>⭐ Parent Awards</b><div class="settingsGrid" style="grid-template-columns:1fr 1fr 1fr"><div><label>Kid</label><select id="awardKid">${data.kids.map(k=>`<option value="${k.id}">${k.name}</option>`).join("")}</select></div><div><label>Award</label><select id="awardType"><option value="help">🤝 Help Without Being Asked</option><option value="awesome">❤️ Caught Being Awesome</option><option value="screen">📵 Screen Boss</option></select></div><div style="display:flex;align-items:end"><button id="giveAward" class="btn" style="width:100%">Award Today</button></div></div></div>
  </div>
  <div class="card"><div class="row wrap"><div><h2 style="margin:0">☀️ Summer Mode</h2><p class="muted">Temporarily hide school responsibilities without deleting assignments or settings.</p></div><button id="summerToggle" class="btn ${summerMode()?"summerOn":"secondary"}">${summerMode()?"☀️ Summer Mode ON":"Turn Summer Mode On"}</button></div><div class="tiny muted">Hides: Backpack · Homework · Study · Homework Away · Lunch Box · Lunch Stuff Washed</div></div>
  <div class="card"><div class="row wrap"><div><h2 style="margin:0">🧰 Master Chore List</h2><p class="muted">Assign all four daily chores, or specific kids on any cadence.</p></div><div class="actions"><button id="addCustom" class="btn">＋ New Chore</button><button id="saveChores" class="btn secondary">Save Changes</button></div></div>
  <div id="customForm" class="notice" style="display:none;margin-top:12px"><div class="settingsGrid"><div><label>Name</label><input id="newName" placeholder="Clean mudroom"></div><div><label>Emoji</label><input id="newIcon" value="⭐"></div><div><label>Cash</label><input id="newCash" type="number" step=".25" value="1"></div><div><label>Car fund</label><input id="newCar" type="number" step=".25" value="2"></div></div><div class="actions" style="margin-top:10px"><button id="createCustom" class="btn">Add</button><button id="cancelCustom" class="btn secondary">Cancel</button></div></div>
- <div style="display:grid;gap:10px;margin-top:13px">${lib.map((c,i)=>`<div class="card masterCard"><div class="row wrap"><div><b>${c.icon} ${c.name}</b><div class="tiny muted">${c.category} · ${c.paid?`💵 ${money(c.cash)} · 🚗 ${money(c.car)}`:"unpaid responsibility"}</div></div><label class="badge"><input data-active="${i}" type="checkbox" ${c.active!==false?"checked":""}> Active</label></div><div class="assignments">${data.kids.map(k=>`<label><input data-assign="${i}|${k.id}" type="checkbox" ${(c.assignedTo||[]).includes(k.id)?"checked":""}> ${theme(k)[1]} ${k.name}</label>`).join("")}</div><div class="settingsGrid"><div><label>Frequency</label><select data-frequency="${i}"><option value="anytime" ${c.frequency==="anytime"?"selected":""}>Anytime</option><option value="needed" ${c.frequency==="needed"?"selected":""}>When Necessary</option><option value="daily" ${c.frequency==="daily"?"selected":""}>Daily</option><option value="weekdays" ${c.frequency==="weekdays"?"selected":""}>Weekdays Only</option><option value="weekly" ${c.frequency==="weekly"?"selected":""}>Weekly</option><option value="everyx" ${c.frequency==="everyx"?"selected":""}>Every X Days</option><option value="once" ${c.frequency==="once"?"selected":""}>One-time</option></select></div><div data-interval-wrap="${i}" style="${c.frequency==="everyx"?"":"display:none"}"><label>Every how many days?</label><input data-interval="${i}" type="number" min="1" max="365" value="${Math.max(1,+c.intervalDays||7)}"></div><div><label>Required?</label><select data-required="${i}"><option value="0" ${!c.required?"selected":""}>Optional</option><option value="1" ${c.required?"selected":""}>Required</option></select></div><div><label>Completion rule</label><select data-exclusive="${i}"><option value="0" ${!c.exclusive?"selected":""}>Each assigned kid</option><option value="1" ${c.exclusive?"selected":""}>One kid only</option></select></div><div><label>Miss penalty</label><select data-miss="${i}"><option value="0" ${+c.missXp===0?"selected":""}>None</option><option value="5" ${+c.missXp===5?"selected":""}>-5 XP</option><option value="10" ${+c.missXp===10?"selected":""}>-10 XP</option></select></div></div>${c.custom?`<button data-delete="${i}" class="btn red small" style="margin-top:8px">Delete</button>`:""}</div>`).join("")}</div></div>
+ <div style="display:grid;gap:10px;margin-top:13px">${lib.map((c,i)=>`<div class="card masterCard"><div class="row wrap"><div><b>${c.icon} ${c.name}</b><div class="tiny muted">${c.category} · ${c.paid?`💵 ${money(c.cash)} · 🚗 ${money(c.car)}`:"unpaid responsibility"}</div></div><label class="badge"><input data-active="${i}" type="checkbox" ${c.active!==false?"checked":""}> Active</label></div><div class="assignments">${data.kids.map(k=>`<label><input data-assign="${i}|${k.id}" type="checkbox" ${(c.assignedTo||[]).includes(k.id)?"checked":""}> ${theme(k)[1]} ${k.name}</label>`).join("")}</div><div class="settingsGrid"><div><label>Frequency</label><select data-frequency="${i}"><option value="anytime" ${c.frequency==="anytime"?"selected":""}>Anytime</option><option value="needed" ${c.frequency==="needed"?"selected":""}>When needed</option><option value="daily" ${c.frequency==="daily"?"selected":""}>Once a day</option><option value="weekdays" ${c.frequency==="weekdays"?"selected":""}>Weekdays</option><option value="weekly" ${c.frequency==="weekly"?"selected":""}>Once a week</option><option value="everyhours" ${c.frequency==="everyhours"?"selected":""}>Every X hours</option><option value="everyx" ${c.frequency==="everyx"?"selected":""}>Every X days</option><option value="once" ${c.frequency==="once"?"selected":""}>One-time</option></select></div><div data-hours-wrap="${i}" style="${c.frequency==="everyhours"?"":"display:none"}"><label>Reopens after how many hours?</label><input data-hours="${i}" type="number" min="1" max="24" value="${Math.max(1,+c.intervalHours||1)}"></div><div data-interval-wrap="${i}" style="${c.frequency==="everyx"?"":"display:none"}"><label>Every how many days?</label><input data-interval="${i}" type="number" min="1" max="365" value="${Math.max(1,+c.intervalDays||7)}"></div><div><label>Required?</label><select data-required="${i}"><option value="0" ${!c.required?"selected":""}>Optional</option><option value="1" ${c.required?"selected":""}>Required</option></select></div><div><label>Claim type</label><select data-exclusive="${i}"><option value="0" ${!c.exclusive?"selected":""}>Each kid</option><option value="1" ${c.exclusive?"selected":""}>First kid only / Shared job</option></select></div><div><label>Miss penalty</label><select data-miss="${i}"><option value="0" ${+c.missXp===0?"selected":""}>None</option><option value="5" ${+c.missXp===5?"selected":""}>-5 XP</option><option value="10" ${+c.missXp===10?"selected":""}>-10 XP</option></select></div></div>${c.custom?`<button data-delete="${i}" class="btn red small" style="margin-top:8px">Delete</button>`:""}</div>`).join("")}</div></div>
  <div class="card"><h2 style="margin-top:0">💰 Weekly Earnings Rules</h2><div class="notice" style="margin-bottom:10px"><b>New earning balance:</b> daily/basic responsibilities earn Points, not money. Cash/Future Fund comes mostly from bigger weekly jobs.</div><p class="muted">Each kid has two limits: a cash limit and a total limit including Future Fund.</p><div class="settingsGrid" style="grid-template-columns:1fr 1fr 1fr 1fr"><div><label>Cash max / week</label><input id="weeklyCashCap" type="number" min="0" step="1" value="${weeklyCashCap()}"></div><div><label>Total max / week</label><input id="weeklyTotalCap" type="number" min="0" step="1" value="${weeklyTotalCap()}"></div><div><label>Spend Now %</label><input id="cashPct" type="number" min="0" max="100" step="1" value="${Math.round(cashPct())}"></div><div><label>Future Fund %</label><input disabled value="${Math.round(futurePct())}%"></div></div><button id="saveMoneyRules" class="btn" style="margin-top:10px">Save Money Rules</button><div class="tiny muted" style="margin-top:8px">Default: up to $15 cash + $10 Future Fund = $25 total per kid per week. XP, responsibilities and Level Up do not use these money caps.</div></div>
  <div class="card"><h2 style="margin-top:0">🎁 Risser Reward Shop</h2><p class="muted">Kids see point targets, never a dollar value. Required chores earn small Points but no money.</p>
  ${RIS_REWARDS.map(r=>`<div class="approval"><div><b>${r.icon} ${r.name}</b><div class="reward">${r.cost} Points</div></div><span class="badge">Family Reward</span></div>`).join("")}
@@ -690,11 +753,18 @@ function bind(){
  tr.update(familyRef,{kids,tasks,ledger:ledger.slice(-300)});
  })})});
  $("#addParent")?.addEventListener("click",async()=>{let e=$("#parentEmail").value.trim().toLowerCase();if(!e.includes("@"))return alert("Enter a valid Google email.");await patch({parentEmails:arrayUnion(e)});$("#parentEmail").value=""});
+
+ let challengeDraft=challengeLibrary().map(c=>({...c}));
+ $$("[data-cfreq]").forEach(e=>e.addEventListener("change",()=>{let i=+e.dataset.cfreq,c=challengeDraft[i],h=document.querySelector(`[data-chours-wrap="${i}"]`),d=document.querySelector(`[data-cdays-wrap="${i}"]`);if(c)c.frequency=e.value;if(h)h.style.display=e.value==="everyhours"?"block":"none";if(d)d.style.display=e.value==="everyx"?"block":"none"}));
+ $$("[data-chours]").forEach(e=>e.addEventListener("change",()=>{let c=challengeDraft[+e.dataset.chours];if(c)c.intervalHours=Math.max(1,+e.value||4)}));
+ $$("[data-cdays]").forEach(e=>e.addEventListener("change",()=>{let c=challengeDraft[+e.dataset.cdays];if(c)c.intervalDays=Math.max(1,+e.value||1)}));
+ $$("[data-cclaim]").forEach(e=>e.addEventListener("change",()=>{let c=challengeDraft[+e.dataset.cclaim];if(c)c.claimType=e.value}));
+ $("#saveLevelAvailability")?.addEventListener("click",async()=>{await patch({challenges:challengeDraft});alert("Level Up availability saved!")});
  $("#addCustom")?.addEventListener("click",()=>$("#customForm").style.display="block");
  $("#cancelCustom")?.addEventListener("click",()=>$("#customForm").style.display="none");
- $$("[data-frequency]").forEach(e=>e.addEventListener("change",()=>{let w=document.querySelector(`[data-interval-wrap="${e.dataset.frequency}"]`);if(w)w.style.display=e.value==="everyx"?"block":"none"}));
+ $$("[data-frequency]").forEach(e=>e.addEventListener("change",()=>{let i=e.dataset.frequency,w=document.querySelector(`[data-interval-wrap="${i}"]`),h=document.querySelector(`[data-hours-wrap="${i}"]`);if(w)w.style.display=e.value==="everyx"?"block":"none";if(h)h.style.display=e.value==="everyhours"?"block":"none"}));
  $("#createCustom")?.addEventListener("click",async()=>{let name=$("#newName").value.trim();if(!name)return alert("Give the chore a name.");let lib=library().map(x=>({...x,assignedTo:[...(x.assignedTo||[])]}));lib.push({id:"custom-"+Date.now(),icon:$("#newIcon").value.trim()||"⭐",name,cash:+$("#newCash").value||0,car:+$("#newCar").value||0,exclusive:false,category:"Custom",frequency:"anytime",required:false,paid:true,xp:10,missXp:5,assignedTo:data.kids.map(k=>k.id),active:true,custom:true});await patch({choreLibrary:lib})});
- $("#saveChores")?.addEventListener("click",async()=>{let lib=library().map(c=>({...c,assignedTo:[]}));$$("[data-active]").forEach(e=>lib[+e.dataset.active].active=e.checked);$$("[data-frequency]").forEach(e=>lib[+e.dataset.frequency].frequency=e.value);$$("[data-interval]").forEach(e=>lib[+e.dataset.interval].intervalDays=Math.max(1,+e.value||7));$$("[data-required]").forEach(e=>lib[+e.dataset.required].required=e.value==="1");$$("[data-exclusive]").forEach(e=>lib[+e.dataset.exclusive].exclusive=e.value==="1");$$("[data-miss]").forEach(e=>lib[+e.dataset.miss].missXp=+e.value);$$("[data-assign]").forEach(e=>{if(e.checked){let [i,kidId]=e.dataset.assign.split("|");lib[+i].assignedTo.push(kidId)}});await patch({choreLibrary:lib});alert("Chore settings saved!")});
+ $("#saveChores")?.addEventListener("click",async()=>{let lib=library().map(c=>({...c,assignedTo:[]}));$$("[data-active]").forEach(e=>lib[+e.dataset.active].active=e.checked);$$("[data-frequency]").forEach(e=>lib[+e.dataset.frequency].frequency=e.value);$$("[data-hours]").forEach(e=>lib[+e.dataset.hours].intervalHours=Math.max(1,+e.value||1));$$("[data-interval]").forEach(e=>lib[+e.dataset.interval].intervalDays=Math.max(1,+e.value||7));$$("[data-required]").forEach(e=>lib[+e.dataset.required].required=e.value==="1");$$("[data-exclusive]").forEach(e=>lib[+e.dataset.exclusive].exclusive=e.value==="1");$$("[data-miss]").forEach(e=>lib[+e.dataset.miss].missXp=+e.value);$$("[data-assign]").forEach(e=>{if(e.checked){let [i,kidId]=e.dataset.assign.split("|");lib[+i].assignedTo.push(kidId)}});await patch({choreLibrary:lib});alert("Chore settings saved!")});
  $$("[data-delete]").forEach(e=>e.onclick=async()=>{let i=+e.dataset.delete;if(confirm("Delete this custom chore?"))await patch({choreLibrary:library().filter((_,idx)=>idx!==i)})});
  $("#undoClaim")?.addEventListener("click",async()=>{if(!lastClaimId||Date.now()-lastClaimAt>60000)return;let t=(data.tasks||[]).find(x=>x.id===lastClaimId);if(!t||t.status!=="open")return;let tasks=data.tasks.filter(x=>x.id!==lastClaimId);lastClaimId=null;lastClaimAt=0;await patch({tasks});render()});
  $$("[data-pay]").forEach(b=>b.onclick=async()=>{let kidId=b.dataset.pay,k=kidById(kidId),input=$(`[data-payamount="${kidId}"]`),amount=Math.max(0,+input.value||0),owed=cashOwed(k);if(amount<=0)return;if(amount>owed+0.001)return alert("That is more than currently owed.");let payment={id:newId(),kidId,amount,by:user.email,at:Date.now()};let ledger=[...(data.ledger||[]),{...payment,type:"payment",label:"Cash payout"}].slice(-300);await patch({payments:arrayUnion(payment),ledger})});
@@ -710,7 +780,7 @@ function bind(){
    pushupCount=0;
    render();
  });
- $$("[data-challenge]").forEach(b=>b.onclick=async()=>{let cid=b.dataset.challenge,k=data.kids[kid],c=challengeLibrary().find(x=>x.id===cid);if(!c||challengeHit(k.id,cid)||challengePending(k.id,cid))return;let log={id:newId(),kidId:k.id,challengeId:cid,date:todayKey(),status:"pending",createdAt:Date.now()};await patch({challengeLogs:arrayUnion(log)})});
+ $$("[data-challenge]").forEach(b=>b.onclick=async()=>{let cid=b.dataset.challenge,k=data.kids[kid],c=challengeLibrary().find(x=>x.id===cid);if(!c||!challengeAvailable(c,k.id))return;let log={id:newId(),kidId:k.id,challengeId:cid,date:todayKey(),status:"pending",createdAt:Date.now()};await patch({challengeLogs:arrayUnion(log)})});
  $$("[data-chapp]").forEach(b=>b.onclick=async()=>{let id=b.dataset.chapp;await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),logs=d.challengeLogs||[],log=logs.find(x=>x.id===id);if(!log||log.status!=="pending")return;let c=(d.challenges||DEFAULT_CHALLENGES).find(x=>x.id===log.challengeId);if(!c)return;let now=Date.now();
  let isPush=log.challengeId==="pushups",xp=isPush?0:(c.xp||10),pts=isPush?pushupPoints(log.count||0):10;
  let kids=d.kids.map(k=>k.id===log.kidId?{...k,xp:(k.xp||0)+xp,rewardPoints:(+k.rewardPoints||0)+pts,familyPoints:(+k.familyPoints||0)+pts}:k);
