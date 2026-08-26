@@ -722,6 +722,7 @@ function rewards(){
          <select data-goal="${k.id}">
            ${individualRewards().map(r=>`<option value="${r.id}" ${g.id===r.id?"selected":""}>${r.icon} ${r.name} — ${r.cost} pts</option>`).join("")}
          </select>
+         <div class="tiny muted" style="margin-top:6px"><b>Goal:</b> ${g.cost} Points</div>
          <div class="goalBar"><div class="goalFill" style="width:${Math.min(100,p/g.cost*100)}%"></div></div>
          <div class="tiny muted" style="margin-top:6px">${p>=g.cost?`🎉 Goal earned!`:`${Math.max(0,g.cost-p)} points to go`}</div>
        </div>
@@ -920,13 +921,22 @@ function bind(){
  $("#summerToggle")?.addEventListener("click",async()=>{await patch({summerMode:!summerMode()})});
  $$("[data-goal]").forEach(e=>e.onchange=async()=>{
    let kidId=e.dataset.goal,goalId=e.value;
-   // Save only this kid's selected goal in a transaction so another live update
-   // cannot overwrite the choice with an older kids array.
-   await runTransaction(db,async tr=>{
-     let s=await tr.get(familyRef),d=s.data();
-     let kids=(d.kids||[]).map(k=>k.id===kidId?{...k,rewardGoal:goalId}:k);
-     tr.update(familyRef,{kids});
-   });
+
+   // Update the screen immediately so the new target/cost/progress is visible
+   // without waiting for Firestore's snapshot round-trip.
+   data={...data,kids:(data.kids||[]).map(k=>k.id===kidId?{...k,rewardGoal:goalId}:k)};
+   render();
+
+   try{
+     await runTransaction(db,async tr=>{
+       let s=await tr.get(familyRef),d=s.data();
+       let kids=(d.kids||[]).map(k=>k.id===kidId?{...k,rewardGoal:goalId}:k);
+       tr.update(familyRef,{kids});
+     });
+   }catch(err){
+     console.error("Could not save reward goal",err);
+     alert("Could not save that reward goal. Please try again.");
+   }
  });
  $$("[data-rredeem]").forEach(b=>b.onclick=()=>{let r=individualRewards().find(x=>x.id===b.dataset.rredeem),k=kidById(b.dataset.rkid);if(!r||!k||(+k.rewardPoints||0)<r.cost)return;askConfirm("Redeem reward?",`${k.name} will spend ${r.cost} Points on ${r.name}.`,"Redeem",async()=>{await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),cur=d.kids.find(x=>x.id===k.id);if(!cur||(+cur.rewardPoints||0)<r.cost)return;let kids=d.kids.map(x=>x.id===k.id?{...x,rewardPoints:(+x.rewardPoints||0)-r.cost}:x);let ledger=[...(d.ledger||[]),{id:newId(),type:"points_redemption",kidId:k.id,label:r.name,points:-r.cost,by:user?.email||"kid",at:Date.now()}].slice(-300);tr.update(familyRef,{kids,ledger})})})});
  $("#addReward")?.addEventListener("click",async()=>{let name=($("#rewardName").value||"").trim(),cost=Math.max(1,Math.round(+$("#rewardCost").value||0));if(!name)return alert("Add a reward name.");await updateDoc(familyRef,{rewards:[...(data.rewards||[]),{id:newId(),name,cost}]})});
