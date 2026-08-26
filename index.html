@@ -465,16 +465,7 @@ function level(){
          <button id="submitPushups" class="btn small" style="margin-top:9px" ${pushupCount<20?"disabled":""}>Submit ${pushupCount} Pushups</button>`}
    </div>`;
  }
- return `<div class="challenge"><div class="big">${c.icon}</div><h3>${c.name}</h3><div class="tiny muted">${c.desc}</div>${c.target?`<div style="margin-top:7px"><b>${hits}/${c.target} this week</b></div>`:""}<div class="weekTrack">${dates.map((d,i)=>`<span class="dayDot ${challengeHit(k.id,c.id,d)?"hit":""}">${["M","T","W","T","F","S","S"][i]}</span>`).join("")}</div>${st?`<div class="streak">🔥 ${st}-day streak</div>`:""}<div style="margin-top:9px">${hit?`<span class="pill opt">Done today</span>`:pend?`<span class="pill due">Waiting for parent</span>`:c.parentOnly?`<span class="pill due">Parent verifies</span>`:`<button class="btn small" data-challenge="${c.id}">I Did It</button>`}</div><div class="card"><h2>🎁 Reward Shop</h2><p class="muted">Save your Points or spend them on something fun. XP never gets spent.</p><div class="stat"><b>⭐ ${k.rewardPoints||0} Points available</b></div>${[
-          {id:"dessert",name:"🍨 Pick dessert",cost:50},
-          {id:"movie",name:"🍿 Choose family movie",cost:100},
-          {id:"stayup",name:"🌙 Stay up 30 minutes later",cost:200},
-          {id:"icecream",name:"🍦 Ice cream run",cost:300},
-          {id:"theater",name:"🎬 Movie theater",cost:500},
-          {id:"date",name:"❤️ Dad/Mom date or outing",cost:750},
-          {id:"adventure",name:"🏕️ Bigger adventure",cost:1500},
-          ...(data.rewards||[])
-        ].map(r=>`<div class="approval"><div><b>${r.name}</b><div class="reward">${r.cost} Points</div></div><button class="btn small" data-redeem="${r.id}" data-cost="${r.cost}" data-name="${r.name.replace(/"/g,"&quot;")}" ${(+k.rewardPoints||0)<r.cost?"disabled":""}>Redeem</button></div>`).join("")}</div></div>`}).join("")}</div>
+ return `<div class="challenge"><div class="big">${c.icon}</div><h3>${c.name}</h3><div class="tiny muted">${c.desc}</div>${c.target?`<div style="margin-top:7px"><b>${hits}/${c.target} this week</b></div>`:""}<div class="weekTrack">${dates.map((d,i)=>`<span class="dayDot ${challengeHit(k.id,c.id,d)?"hit":""}">${["M","T","W","T","F","S","S"][i]}</span>`).join("")}</div>${st?`<div class="streak">🔥 ${st}-day streak</div>`:""}<div style="margin-top:9px">${hit?`<span class="pill opt">Done today</span>`:pend?`<span class="pill due">Waiting for parent</span>`:c.parentOnly?`<span class="pill due">Parent verifies</span>`:`<button class="btn small" data-challenge="${c.id}">I Did It</button>`}</div></div>`}).join("")}</div>
  </div>`;
 }
 
