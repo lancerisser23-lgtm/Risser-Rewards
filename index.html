@@ -566,15 +566,26 @@ function level(){
  </div>`;
 }
 
-const RIS_REWARDS=[
-{id:"movie",icon:"🍿",name:"Pick the movie",cost:125},
-{id:"dessert",icon:"🍨",name:"Pick dessert",cost:150},
-{id:"theater",icon:"🎬",name:"Go to movie theater",cost:500},
-{id:"dinner",icon:"🍔",name:"Kids pick dinner",cost:700},
-{id:"fun",icon:"🎟️",name:"Go to Family Fun Center",cost:1200}
+const DEFAULT_INDIVIDUAL_REWARDS=[
+{id:"movie",icon:"🍿",name:"Pick the movie",cost:125,active:true},
+{id:"dessert",icon:"🍨",name:"Pick dessert",cost:150,active:true},
+{id:"theater",icon:"🎬",name:"Go to movie theater",cost:500,active:true},
+{id:"dinner",icon:"🍔",name:"Kids pick dinner",cost:700,active:true},
+{id:"fun",icon:"🎟️",name:"Go to Family Fun Center",cost:1200,active:true}
 ];
+const DEFAULT_FAMILY_REWARDS=[
+{id:"familyfun",icon:"🎟️",name:"Go to Family Fun Center",cost:4800,active:true}
+];
+function individualRewards(){
+  const saved=Array.isArray(data?.individualRewards)&&data.individualRewards.length?data.individualRewards:null;
+  return (saved||DEFAULT_INDIVIDUAL_REWARDS).map(r=>({active:true,...r})).filter(r=>r.active!==false);
+}
+function familyRewards(){
+  const saved=Array.isArray(data?.familyRewards)&&data.familyRewards.length?data.familyRewards:null;
+  return (saved||DEFAULT_FAMILY_REWARDS).map(r=>({active:true,...r})).filter(r=>r.active!==false);
+}
 function familyPoints(){return data.kids.reduce((s,k)=>s+(+k.familyPoints||0),0)}
-function rewardGoal(k){return RIS_REWARDS.find(r=>r.id===(k.rewardGoal||"movie"))||RIS_REWARDS[0]}
+function rewardGoal(k){let rs=individualRewards();return rs.find(r=>r.id===(k.rewardGoal||rs[0]?.id))||rs[0]||{id:"none",icon:"⭐",name:"No reward selected",cost:1}}
 function dayStartMs(){
   let d=new Date(); d.setHours(0,0,0,0); return d.getTime();
 }
@@ -622,7 +633,7 @@ function recentActivityCard(kidId){
   return `<div class="card"><h2 style="margin-top:0">🧾 Recent Activity</h2>${rows.map(x=>`<div class="approval"><div><b>${activityIcon(x)} ${x.label||"Activity"}</b>${x.note?`<div class="tiny muted">${x.note}</div>`:""}<div class="tiny muted">${new Date(x.at||Date.now()).toLocaleString([], {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})}</div></div><b class="${(+x.points<0||+x.xp<0||+x.cash<0)?"due":"reward"}">${activityImpact(x)}</b></div>`).join("")}</div>`;
 }
 function rewards(){
- let fp=familyPoints(), familyGoal={icon:"🎟️",name:"Family Fun Center",cost:4800};
+ let fp=familyPoints(), familyGoal=familyRewards()[0]||{icon:"🌳",name:"Family Goal",cost:1};
  let ds=dayStartMs(), ws=weekStartMs();
 
  return header()+`
@@ -681,14 +692,14 @@ function rewards(){
        <div style="margin-top:12px">
          <label>Working toward</label>
          <select data-goal="${k.id}">
-           ${RIS_REWARDS.map(r=>`<option value="${r.id}" ${g.id===r.id?"selected":""}>${r.icon} ${r.name} — ${r.cost} pts</option>`).join("")}
+           ${individualRewards().map(r=>`<option value="${r.id}" ${g.id===r.id?"selected":""}>${r.icon} ${r.name} — ${r.cost} pts</option>`).join("")}
          </select>
          <div class="goalBar"><div class="goalFill" style="width:${Math.min(100,p/g.cost*100)}%"></div></div>
          <div class="tiny muted" style="margin-top:6px">${p>=g.cost?`🎉 Goal earned!`:`${Math.max(0,g.cost-p)} points to go`}</div>
        </div>
 
        <div style="margin-top:10px">
-         ${RIS_REWARDS.map(r=>`<div class="approval">
+         ${individualRewards().map(r=>`<div class="approval">
            <div><b>${r.icon} ${r.name}</b><div class="tiny muted">${r.cost} pts</div></div>
            <button class="btn small" data-rredeem="${r.id}" data-rkid="${k.id}" ${p<r.cost?"disabled":""}>Redeem</button>
          </div>`).join("")}
@@ -722,7 +733,7 @@ function parent(){
    ${vacationMode()?`<div class="notice" style="margin-top:10px"><b>🏖️ VACATION MODE ON</b> — required chores and missed-chore XP penalties are paused. Level Ups stay open.</div>`:""}
    ${summerMode()?`<div class="notice" style="margin-top:10px"><b>☀️ SUMMER MODE ON</b> — school-specific chores are hidden until you turn Summer Mode off.</div>`:""}
 
-   <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px">
+   <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px">
      <button class="btn secondary" data-togglepanel="choreSettings" style="padding:10px 5px;min-height:68px">
        <div style="font-size:24px">🧹</div><div class="tiny"><b>Edit Chores</b></div>
      </button>
@@ -731,6 +742,9 @@ function parent(){
      </button>
      <button class="btn secondary" data-togglepanel="earningSettings" style="padding:10px 5px;min-height:68px">
        <div style="font-size:24px">💰</div><div class="tiny"><b>Earnings</b></div>
+     </button>
+     <button class="btn secondary" data-togglepanel="rewardSettings" style="padding:10px 5px;min-height:68px">
+       <div style="font-size:24px">🎁</div><div class="tiny"><b>Edit Rewards</b></div>
      </button>
    </div>
  </div>
@@ -766,12 +780,50 @@ function parent(){
 ${challengeLibrary().filter(c=>!c.parentOnly).map((c,i)=>`<div class="card masterCard"><div class="row wrap"><div><b>${c.icon} ${c.name}</b><div class="tiny muted">${challengeAvailabilityLabel(c)}</div></div></div><div class="settingsGrid"><div><label>Availability</label><select data-cfreq="${i}"><option value="anytime" ${c.frequency==="anytime"?"selected":""}>Anytime</option><option value="daily" ${c.frequency==="daily"?"selected":""}>Once a day</option><option value="weekdays" ${c.frequency==="weekdays"?"selected":""}>Weekdays</option><option value="weekly" ${c.frequency==="weekly"?"selected":""}>Once a week</option><option value="everyhours" ${c.frequency==="everyhours"?"selected":""}>Every X hours</option><option value="everyx" ${c.frequency==="everyx"?"selected":""}>Every X days</option><option value="once" ${c.frequency==="once"?"selected":""}>One-time</option></select></div><div data-chours-wrap="${i}" style="${c.frequency==="everyhours"?"":"display:none"}"><label>Hours</label><input data-chours="${i}" type="number" min="1" max="24" value="${Math.max(1,+c.intervalHours||4)}"></div><div data-cdays-wrap="${i}" style="${c.frequency==="everyx"?"":"display:none"}"><label>Days</label><input data-cdays="${i}" type="number" min="1" max="365" value="${Math.max(1,+c.intervalDays||1)}"></div><div><label>Points earned</label><input data-cpoints="${i}" type="number" min="0" max="100" step="1" value="${c.id==="pushups"?pushupPoints(20):Math.max(0,+c.rewardPoints||10)}" ${c.id==="pushups"?"disabled":""}></div><div><label>Claim type</label><select data-cclaim="${i}"><option value="each" ${c.claimType!=="shared"?"selected":""}>Each kid</option><option value="shared" ${c.claimType==="shared"?"selected":""}>First kid only / Shared</option></select></div></div></div>`).join("")}
 <button id="saveLevelAvailability" class="btn" style="margin-top:10px">Save Level Up Availability</button></div>
 
- <div class="card parentPanel" id="earningSettings" style="display:none"><h2 style="margin-top:0">💰 Weekly Earnings Rules</h2><div class="notice" style="margin-bottom:10px"><b>New earning balance:</b> daily/basic responsibilities earn Points, not money. Cash/Future Fund comes mostly from bigger weekly jobs.</div><p class="muted">Each kid has two limits: a cash limit and a total limit including Future Fund.</p><div class="settingsGrid" style="grid-template-columns:1fr 1fr 1fr 1fr"><div><label>Cash max / week</label><input id="weeklyCashCap" type="number" min="0" step="1" value="${weeklyCashCap()}"></div><div><label>Total max / week</label><input id="weeklyTotalCap" type="number" min="0" step="1" value="${weeklyTotalCap()}"></div><div><label>Spend Now %</label><input id="cashPct" type="number" min="0" max="100" step="1" value="${Math.round(cashPct())}"></div><div><label>Future Fund %</label><input disabled value="${Math.round(futurePct())}%"></div></div><button id="saveMoneyRules" class="btn" style="margin-top:10px">Save Money Rules</button><div class="tiny muted" style="margin-top:8px">Default: up to $15 cash + $10 Future Fund = $25 total per kid per week. XP, responsibilities and Level Up do not use these money caps.</div></div>
  
- <div class="card"><h2 style="margin-top:0">🎁 Risser Reward Shop</h2><p class="muted">Kids see point targets, never a dollar value. Required chores earn small Points but no money.</p>
- ${RIS_REWARDS.map(r=>`<div class="approval"><div><b>${r.icon} ${r.name}</b><div class="reward">${r.cost} Points</div></div><span class="badge">Family Reward</span></div>`).join("")}
+ <div class="card parentPanel" id="rewardSettings" style="display:none">
+   <div class="row wrap">
+     <div>
+       <h2 style="margin:0">🎁 Edit Rewards</h2>
+       <div class="muted">Add, edit, remove, and set the Points needed for individual and family rewards.</div>
+     </div>
+   </div>
+
+   <h3>⭐ Individual Rewards</h3>
+   <div id="individualRewardEditor">
+   ${(data.individualRewards&&data.individualRewards.length?data.individualRewards:DEFAULT_INDIVIDUAL_REWARDS).map((r,i)=>`
+     <div class="approval">
+       <div style="display:grid;grid-template-columns:70px 1fr 120px;gap:8px;flex:1">
+         <input data-r-icon="${i}" value="${r.icon||"🎁"}" aria-label="Reward icon">
+         <input data-r-name="${i}" value="${r.name||""}" aria-label="Reward name">
+         <input data-r-cost="${i}" type="number" min="1" max="10000" value="${Math.max(1,+r.cost||1)}" aria-label="Reward points">
+       </div>
+       <button class="btn secondary small" data-r-remove="${i}">Remove</button>
+     </div>`).join("")}
+   </div>
+   <button id="addIndividualReward" class="btn secondary">+ Add Individual Reward</button>
+
+   <h3 style="margin-top:18px">🌳 Family Rewards</h3>
+   <div id="familyRewardEditor">
+   ${(data.familyRewards&&data.familyRewards.length?data.familyRewards:DEFAULT_FAMILY_REWARDS).map((r,i)=>`
+     <div class="approval">
+       <div style="display:grid;grid-template-columns:70px 1fr 120px;gap:8px;flex:1">
+         <input data-fr-icon="${i}" value="${r.icon||"🌳"}" aria-label="Family reward icon">
+         <input data-fr-name="${i}" value="${r.name||""}" aria-label="Family reward name">
+         <input data-fr-cost="${i}" type="number" min="1" max="50000" value="${Math.max(1,+r.cost||1)}" aria-label="Family reward points">
+       </div>
+       <button class="btn secondary small" data-fr-remove="${i}">Remove</button>
+     </div>`).join("")}
+   </div>
+   <button id="addFamilyReward" class="btn secondary">+ Add Family Reward</button>
+
+   <div style="margin-top:12px">
+     <button id="saveRewards" class="btn">Save Rewards</button>
+   </div>
  </div>
+<div class="card parentPanel" id="earningSettings" style="display:none"><h2 style="margin-top:0">💰 Weekly Earnings Rules</h2><div class="notice" style="margin-bottom:10px"><b>New earning balance:</b> daily/basic responsibilities earn Points, not money. Cash/Future Fund comes mostly from bigger weekly jobs.</div><p class="muted">Each kid has two limits: a cash limit and a total limit including Future Fund.</p><div class="settingsGrid" style="grid-template-columns:1fr 1fr 1fr 1fr"><div><label>Cash max / week</label><input id="weeklyCashCap" type="number" min="0" step="1" value="${weeklyCashCap()}"></div><div><label>Total max / week</label><input id="weeklyTotalCap" type="number" min="0" step="1" value="${weeklyTotalCap()}"></div><div><label>Spend Now %</label><input id="cashPct" type="number" min="0" max="100" step="1" value="${Math.round(cashPct())}"></div><div><label>Future Fund %</label><input disabled value="${Math.round(futurePct())}%"></div></div><button id="saveMoneyRules" class="btn" style="margin-top:10px">Save Money Rules</button><div class="tiny muted" style="margin-top:8px">Default: up to $15 cash + $10 Future Fund = $25 total per kid per week. XP, responsibilities and Level Up do not use these money caps.</div></div>
  
+
  <div class="card"><h2>👨‍👩‍👧 Add Parent</h2><div class="row wrap"><input id="parentEmail" style="flex:1;min-width:220px" placeholder="Google email"><button id="addParent" class="btn">Authorize</button></div><div class="tiny muted" style="margin-top:7px">Authorized: ${(data.parentEmails||[]).join(", ")}</div></div>`;
 }
 function paid(){
@@ -839,7 +891,7 @@ function bind(){
 
  $("#summerToggle")?.addEventListener("click",async()=>{await patch({summerMode:!summerMode()})});
  $$("[data-goal]").forEach(e=>e.onchange=async()=>{let kids=data.kids.map(k=>k.id===e.dataset.goal?{...k,rewardGoal:e.value}:k);await patch({kids})});
- $$("[data-rredeem]").forEach(b=>b.onclick=()=>{let r=RIS_REWARDS.find(x=>x.id===b.dataset.rredeem),k=kidById(b.dataset.rkid);if(!r||!k||(+k.rewardPoints||0)<r.cost)return;askConfirm("Redeem reward?",`${k.name} will spend ${r.cost} Points on ${r.name}.`,"Redeem",async()=>{await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),cur=d.kids.find(x=>x.id===k.id);if(!cur||(+cur.rewardPoints||0)<r.cost)return;let kids=d.kids.map(x=>x.id===k.id?{...x,rewardPoints:(+x.rewardPoints||0)-r.cost}:x);let ledger=[...(d.ledger||[]),{id:newId(),type:"points_redemption",kidId:k.id,label:r.name,points:-r.cost,by:user?.email||"kid",at:Date.now()}].slice(-300);tr.update(familyRef,{kids,ledger})})})});
+ $$("[data-rredeem]").forEach(b=>b.onclick=()=>{let r=individualRewards().find(x=>x.id===b.dataset.rredeem),k=kidById(b.dataset.rkid);if(!r||!k||(+k.rewardPoints||0)<r.cost)return;askConfirm("Redeem reward?",`${k.name} will spend ${r.cost} Points on ${r.name}.`,"Redeem",async()=>{await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),cur=d.kids.find(x=>x.id===k.id);if(!cur||(+cur.rewardPoints||0)<r.cost)return;let kids=d.kids.map(x=>x.id===k.id?{...x,rewardPoints:(+x.rewardPoints||0)-r.cost}:x);let ledger=[...(d.ledger||[]),{id:newId(),type:"points_redemption",kidId:k.id,label:r.name,points:-r.cost,by:user?.email||"kid",at:Date.now()}].slice(-300);tr.update(familyRef,{kids,ledger})})})});
  $("#addReward")?.addEventListener("click",async()=>{let name=($("#rewardName").value||"").trim(),cost=Math.max(1,Math.round(+$("#rewardCost").value||0));if(!name)return alert("Add a reward name.");await updateDoc(familyRef,{rewards:[...(data.rewards||[]),{id:newId(),name,cost}]})});
  $$("[data-delreward]").forEach(b=>b.onclick=async()=>{await updateDoc(familyRef,{rewards:(data.rewards||[]).filter(r=>r.id!==b.dataset.delreward)})});
  $$("[data-redeem]").forEach(b=>b.onclick=()=>{let cost=+b.dataset.cost,name=b.dataset.name,kidObj=data.kids[kid];if(!kidObj||(+kidObj.rewardPoints||0)<cost)return;askConfirm("Redeem reward?",`${kidObj.name} will spend ${cost} Points on ${name}.`,"Redeem",async()=>{await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),cur=d.kids[kid];if(!cur||(+cur.rewardPoints||0)<cost)return;let kids=d.kids.map((x,i)=>i===kid?{...x,rewardPoints:Math.max(0,(+x.rewardPoints||0)-cost)}:x);let ledger=[...(d.ledger||[]),{id:newId(),type:"points_redemption",kidId:cur.id,label:name,points:-cost,by:user?.email||"kid",at:Date.now()}].slice(-300);tr.update(familyRef,{kids,ledger})})})});
@@ -872,6 +924,29 @@ function bind(){
  $$("[data-cpoints]").forEach(e=>e.addEventListener("change",()=>{let c=challengeDraft[+e.dataset.cpoints];if(c&&c.id!=="pushups")c.rewardPoints=Math.max(0,Math.min(100,+e.value||0))}));
  $$("[data-cclaim]").forEach(e=>e.addEventListener("change",()=>{let c=challengeDraft[+e.dataset.cclaim];if(c)c.claimType=e.value}));
  $("#saveLevelAvailability")?.addEventListener("click",async()=>{await patch({challenges:challengeDraft});alert("Level Up availability saved!")});
+
+ let individualRewardDraft=(data.individualRewards&&data.individualRewards.length?data.individualRewards:DEFAULT_INDIVIDUAL_REWARDS).map(r=>({...r}));
+ let familyRewardDraft=(data.familyRewards&&data.familyRewards.length?data.familyRewards:DEFAULT_FAMILY_REWARDS).map(r=>({...r}));
+
+ $$("[data-r-icon]").forEach(e=>e.addEventListener("change",()=>{let r=individualRewardDraft[+e.dataset.rIcon];if(r)r.icon=(e.value||"🎁").trim()}));
+ $$("[data-r-name]").forEach(e=>e.addEventListener("change",()=>{let r=individualRewardDraft[+e.dataset.rName];if(r)r.name=(e.value||"Reward").trim()}));
+ $$("[data-r-cost]").forEach(e=>e.addEventListener("change",()=>{let r=individualRewardDraft[+e.dataset.rCost];if(r)r.cost=Math.max(1,Math.min(10000,+e.value||1))}));
+ $$("[data-r-remove]").forEach(b=>b.addEventListener("click",async()=>{let i=+b.dataset.rRemove;individualRewardDraft.splice(i,1);await patch({individualRewards:individualRewardDraft});}));
+
+ $$("[data-fr-icon]").forEach(e=>e.addEventListener("change",()=>{let r=familyRewardDraft[+e.dataset.frIcon];if(r)r.icon=(e.value||"🌳").trim()}));
+ $$("[data-fr-name]").forEach(e=>e.addEventListener("change",()=>{let r=familyRewardDraft[+e.dataset.frName];if(r)r.name=(e.value||"Family Reward").trim()}));
+ $$("[data-fr-cost]").forEach(e=>e.addEventListener("change",()=>{let r=familyRewardDraft[+e.dataset.frCost];if(r)r.cost=Math.max(1,Math.min(50000,+e.value||1))}));
+ $$("[data-fr-remove]").forEach(b=>b.addEventListener("click",async()=>{let i=+b.dataset.frRemove;familyRewardDraft.splice(i,1);await patch({familyRewards:familyRewardDraft});}));
+
+ $("#addIndividualReward")?.addEventListener("click",async()=>{individualRewardDraft.push({id:newId(),icon:"🎁",name:"New Reward",cost:100,active:true});await patch({individualRewards:individualRewardDraft})});
+ $("#addFamilyReward")?.addEventListener("click",async()=>{familyRewardDraft.push({id:newId(),icon:"🌳",name:"New Family Reward",cost:1000,active:true});await patch({familyRewards:familyRewardDraft})});
+ $("#saveRewards")?.addEventListener("click",async()=>{
+   individualRewardDraft=individualRewardDraft.filter(r=>(r.name||"").trim()).map(r=>({...r,name:r.name.trim(),icon:(r.icon||"🎁").trim(),cost:Math.max(1,+r.cost||1),active:true}));
+   familyRewardDraft=familyRewardDraft.filter(r=>(r.name||"").trim()).map(r=>({...r,name:r.name.trim(),icon:(r.icon||"🌳").trim(),cost:Math.max(1,+r.cost||1),active:true}));
+   await patch({individualRewards:individualRewardDraft,familyRewards:familyRewardDraft});
+   alert("Rewards saved!");
+ });
+
  $("#addCustom")?.addEventListener("click",()=>$("#customForm").style.display="block");
  $("#cancelCustom")?.addEventListener("click",()=>$("#customForm").style.display="none");
  $$("[data-frequency]").forEach(e=>e.addEventListener("change",()=>{let i=e.dataset.frequency,w=document.querySelector(`[data-interval-wrap="${i}"]`),h=document.querySelector(`[data-hours-wrap="${i}"]`);if(w)w.style.display=e.value==="everyx"?"block":"none";if(h)h.style.display=e.value==="everyhours"?"block":"none"}));
