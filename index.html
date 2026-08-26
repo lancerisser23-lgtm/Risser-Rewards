@@ -87,44 +87,45 @@ const DEFAULTS=[
 ["color","🖍️📦","Coloring stuff away",0,0,false,"Daily","daily",true,false],
 ["legos","🧱📦","Legos away",0,0,false,"Daily","daily",true,false],
 ["books","📚🧺","Books away",0,0,false,"Daily","daily",true,false],
-["living","🛋️✨","Keep living room clean",0,0,false,"House","daily",true,false],
-["counters","🧽✨","Living room counters & tables",1,2,true,"House","weekly",false,true],
-["ktable","🧽🍽️","Clean kitchen table",1,2,true,"Kitchen","daily",false,true],
-["load","🍽️⬇️","Load dishwasher",1,2,true,"Kitchen","anytime",false,true],
-["unload","🍽️⬆️","Unload dishwasher",1,2,true,"Kitchen","anytime",false,true],
-["dishes","🫧🍽️","Hand wash dishes",2,3,true,"Kitchen","anytime",false,true],
-["trash","🗑️➡️","Take out trash if full",1,2,true,"House","needed",false,true],
-["cardboard","📦♻️","Cardboard to recycle",1,2,true,"House","weekly",false,true],
-["fold","👕🧺","Fold clothes",1,2,true,"Laundry","weekly",false,true],
-["putclothes","👚📦","Put clothes away",1,2,false,"Laundry","weekly",false,true],
-["laundry","🧺🫧","Full laundry load",3,5,true,"Laundry","weekly",false,true],
+["living","🛋️✨","Keep living room clean",0,0,true,"House","anytime",false,false],
+["counters","🧽✨","Living room counters & tables",1.2,.8,true,"House","weekly",false,true],
+["ktable","🧽🍽️","Clean kitchen table",0,0,true,"Kitchen","daily",false,false],
+["load","🍽️⬇️","Load dishwasher",0,0,true,"Kitchen","anytime",false,false],
+["unload","🍽️⬆️","Unload dishwasher",0,0,true,"Kitchen","anytime",false,false],
+["dishes","🫧🍽️","Hand wash dishes",0,0,true,"Kitchen","anytime",false,false],
+["trash","🗑️➡️","Take out trash if full",0,0,true,"House","needed",false,false],
+["cardboard","📦♻️","Cardboard to recycle",1.2,.8,true,"House","weekly",false,true],
+["fold","👕🧺","Fold clothes",1.2,.8,true,"Laundry","weekly",false,true],
+["putclothes","👚📦","Put clothes away",1.2,.8,false,"Laundry","weekly",false,true],
+["laundry","🧺🫧","Full laundry load",1.8,1.2,true,"Laundry","weekly",false,true],
 ["pets","🐶🐱🥣","Feed dog & cat",0,0,true,"Animals","daily",true,false],
-["dogwater","🐶💧","Clean dog water bowl",1,2,true,"Animals","weekly",true,true],
-["catwater","🐱💧","Clean cat water bowl",1,2,true,"Animals","weekly",true,true],
-["litter","🐱🧹","Clean litter box",1.5,2.5,true,"Animals","daily",true,true],
+["dogwater","🐶💧","Clean dog water bowl",1.2,.8,true,"Animals","weekly",false,true],
+["catwater","🐱💧","Clean cat water bowl",1.2,.8,true,"Animals","weekly",false,true],
+["litter","🐱🧹","Clean litter box",0,0,true,"Animals","daily",true,false],
 ["goats","🐐🌾","Feed goats",0,0,true,"Animals","daily",true,false],
 ["eggs","🥚🧺","Collect eggs",0,0,true,"Animals","daily",true,false],
-["duck","🦆💦","Clean duck pond",5,8,true,"Animals","weekly",false,true],
-["poop","🐶💩","Pick up dog poop",3,5,true,"Animals","weekly",false,true],
-["snake","🐍🧼","Clean snake cages",4,6,true,"Animals","weekly",false,true],
-["patio","🪑🧹","Clean patio",2,3,true,"Outside","weekly",false,true],
-["towels","🏊🧺","Pool towels reset",1,2,true,"Pool","anytime",false,true],
-["pool","🏖️🧺","Clean pool toys",2,3,true,"Pool","weekly",false,true],
-["sports","🏀🏈⚾","Sports stuff away",1,2,true,"Outside","daily",true,true],
+["duck","🦆💦","Clean duck pond",2.4,1.6,true,"Animals","weekly",false,true],
+["poop","🐶💩","Pick up dog poop",1.8,1.2,true,"Animals","weekly",false,true],
+["snake","🐍🧼","Clean snake cages",2.4,1.6,true,"Animals","weekly",false,true],
+["patio","🪑🧹","Clean patio",1.8,1.2,true,"Outside","weekly",false,true],
+["towels","🏊🧺","Pool towels reset",0,0,true,"Pool","anytime",false,false],
+["pool","🏖️🧺","Clean pool toys / tools",1.8,1.2,true,"Pool","weekly",false,true],
+["sports","🏀🏈⚾","Sports stuff away",0,0,true,"Outside","daily",true,false],
 ["golf","⛳🔎","Golf Ball Bounty",0,0,false,"Outside","weekly",false,true],
-["sweep","🧹✨","Sweep",1.5,2.5,true,"Cleaning","weekly",false,true],
-["mop","🪣🧽","Mop",2.5,4,true,"Cleaning","weekly",false,true],
-["dust","🪶✨","Dust",1.5,2.5,true,"Cleaning","weekly",false,true],
-["bathroom","🚽🧽","Clean bathroom",4,6,true,"Cleaning","weekly",false,true],
-["carclean","🚙🧹","Clean Mom/Dad car",4,6,true,"Vehicles","weekly",false,true],
-["carwash","🚗🫧","Wash car",5,8,true,"Vehicles","anytime",false,true],
-["kart","🏎️🫧","Wash go-kart",3,5,true,"Vehicles","anytime",false,true],
-["weeds","🌱🧤","Pull weeds — 30 min",3,5,true,"Outside","anytime",false,true],
-["garage","🧰🧹","Clean/organize garage",7,10,true,"Big Jobs","weekly",false,true],
+["sweep","🧹✨","Sweep",1.2,.8,true,"Cleaning","weekly",false,true],
+["mop","🪣🧽","Mop",1.8,1.2,true,"Cleaning","weekly",false,true],
+["dust","🪶✨","Dust",1.2,.8,true,"Cleaning","weekly",false,true],
+["bathroom","🚽🧽","Clean bathroom",2.4,1.6,true,"Cleaning","weekly",false,true],
+["carclean","🚙🧹","Clean Mom/Dad car",2.4,1.6,true,"Vehicles","weekly",false,true],
+["carwash","🚗🫧","Wash car",3,2,true,"Vehicles","anytime",false,true],
+["kart","🏎️🫧","Wash go-kart",1.8,1.2,true,"Vehicles","anytime",false,true],
+["weeds","🌱🧤","Pull weeds — 30 min",1.8,1.2,true,"Outside","anytime",false,true],
+["garage","🧰🧹","Clean/organize garage",3.6,2.4,true,"Big Jobs","weekly",false,true],
 ["bible","📖⭐","Bible verse of the week",1,3,false,"Growth","weekly",true,true]
 ].map(x=>({id:x[0],icon:x[1],name:x[2],cash:x[3],car:x[4],exclusive:x[5],category:x[6],frequency:x[7],required:x[8],paid:x[9],xp:10,missXp:5,assignedTo:["noah","eli","shepherd","juniper"],active:true,custom:false}));
 
 const DEFAULT_CHALLENGES=[
+{id:"pushups",icon:"💪",name:"Pushup Power",desc:"Count your pushups — 5 Points for every 20",target:0,xp:0,weekdaysOnly:false,parentOnly:false,counterType:"pushups"},
 {id:"bow",icon:"🏹",name:"Bullseye Club",desc:"Shoot at least 10 arrows",target:4,xp:10,weekdaysOnly:false,parentOnly:false},
 {id:"basketball",icon:"🏀",name:"Hoop Time",desc:"15 minutes of basketball",target:3,xp:10,weekdaysOnly:false,parentOnly:false},
 {id:"catch",icon:"🏈",name:"Catch With Dad",desc:"At least 10 passes with Dad",target:2,xp:10,weekdaysOnly:false,parentOnly:false},
@@ -137,7 +138,7 @@ const DEFAULT_CHALLENGES=[
 
 
 const WEEKLY_VERSES=[{"ref": "Jeremiah 29:11", "text": "For I know the thoughts that I think toward you, saith the LORD, thoughts of peace, and not of evil, to give you an expected end."}, {"ref": "Philippians 4:13", "text": "I can do all things through Christ which strengtheneth me."}, {"ref": "John 3:16", "text": "For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life."}, {"ref": "Proverbs 3:5-6", "text": "Trust in the LORD with all thine heart; and lean not unto thine own understanding. In all thy ways acknowledge him, and he shall direct thy paths."}, {"ref": "Romans 8:28", "text": "And we know that all things work together for good to them that love God, to them who are the called according to his purpose."}, {"ref": "Psalm 23:1", "text": "The LORD is my shepherd; I shall not want."}, {"ref": "Isaiah 41:10", "text": "Fear thou not; for I am with thee: be not dismayed; for I am thy God."}, {"ref": "Joshua 1:9", "text": "Be strong and of a good courage; be not afraid, neither be thou dismayed: for the LORD thy God is with thee whithersoever thou goest."}, {"ref": "Philippians 4:6-7", "text": "Be careful for nothing; but in every thing by prayer and supplication with thanksgiving let your requests be made known unto God."}, {"ref": "Psalm 46:10", "text": "Be still, and know that I am God."}, {"ref": "Matthew 6:33", "text": "But seek ye first the kingdom of God, and his righteousness; and all these things shall be added unto you."}, {"ref": "Romans 12:2", "text": "Be not conformed to this world: but be ye transformed by the renewing of your mind."}, {"ref": "1 Corinthians 13:4-5", "text": "Charity suffereth long, and is kind; charity envieth not; charity vaunteth not itself, is not puffed up."}, {"ref": "Psalm 37:4", "text": "Delight thyself also in the LORD; and he shall give thee the desires of thine heart."}, {"ref": "Romans 5:8", "text": "But God commendeth his love toward us, in that, while we were yet sinners, Christ died for us."}, {"ref": "2 Timothy 1:7", "text": "For God hath not given us the spirit of fear; but of power, and of love, and of a sound mind."}, {"ref": "Psalm 119:105", "text": "Thy word is a lamp unto my feet, and a light unto my path."}, {"ref": "Proverbs 22:6", "text": "Train up a child in the way he should go: and when he is old, he will not depart from it."}, {"ref": "Galatians 5:22-23", "text": "But the fruit of the Spirit is love, joy, peace, longsuffering, gentleness, goodness, faith, meekness, temperance."}, {"ref": "Ephesians 2:8-9", "text": "For by grace are ye saved through faith; and that not of yourselves: it is the gift of God."}, {"ref": "Isaiah 40:31", "text": "But they that wait upon the LORD shall renew their strength; they shall mount up with wings as eagles."}, {"ref": "Psalm 139:14", "text": "I will praise thee; for I am fearfully and wonderfully made."}, {"ref": "Colossians 3:23", "text": "And whatsoever ye do, do it heartily, as to the Lord, and not unto men."}, {"ref": "Micah 6:8", "text": "What doth the LORD require of thee, but to do justly, and to love mercy, and to walk humbly with thy God?"}, {"ref": "Matthew 11:28", "text": "Come unto me, all ye that labour and are heavy laden, and I will give you rest."}, {"ref": "James 1:5", "text": "If any of you lack wisdom, let him ask of God, that giveth to all men liberally."}, {"ref": "Psalm 34:8", "text": "O taste and see that the LORD is good: blessed is the man that trusteth in him."}, {"ref": "Romans 12:12", "text": "Rejoicing in hope; patient in tribulation; continuing instant in prayer."}, {"ref": "1 Peter 5:7", "text": "Casting all your care upon him; for he careth for you."}, {"ref": "Matthew 5:16", "text": "Let your light so shine before men, that they may see your good works, and glorify your Father which is in heaven."}, {"ref": "Hebrews 11:1", "text": "Now faith is the substance of things hoped for, the evidence of things not seen."}, {"ref": "Psalm 56:3", "text": "What time I am afraid, I will trust in thee."}, {"ref": "Luke 6:31", "text": "And as ye would that men should do to you, do ye also to them likewise."}, {"ref": "Proverbs 16:3", "text": "Commit thy works unto the LORD, and thy thoughts shall be established."}, {"ref": "Romans 15:13", "text": "Now the God of hope fill you with all joy and peace in believing."}, {"ref": "1 Thessalonians 5:16-18", "text": "Rejoice evermore. Pray without ceasing. In every thing give thanks."}, {"ref": "Psalm 19:14", "text": "Let the words of my mouth, and the meditation of my heart, be acceptable in thy sight, O LORD."}, {"ref": "Matthew 7:7", "text": "Ask, and it shall be given you; seek, and ye shall find; knock, and it shall be opened unto you."}, {"ref": "John 14:6", "text": "I am the way, the truth, and the life: no man cometh unto the Father, but by me."}, {"ref": "Psalm 27:1", "text": "The LORD is my light and my salvation; whom shall I fear?"}, {"ref": "Ephesians 4:32", "text": "And be ye kind one to another, tenderhearted, forgiving one another."}, {"ref": "1 Corinthians 10:31", "text": "Whether therefore ye eat, or drink, or whatsoever ye do, do all to the glory of God."}, {"ref": "Psalm 118:24", "text": "This is the day which the LORD hath made; we will rejoice and be glad in it."}, {"ref": "Matthew 22:37", "text": "Thou shalt love the Lord thy God with all thy heart, and with all thy soul, and with all thy mind."}, {"ref": "Matthew 22:39", "text": "Thou shalt love thy neighbour as thyself."}, {"ref": "Psalm 51:10", "text": "Create in me a clean heart, O God; and renew a right spirit within me."}, {"ref": "Proverbs 27:17", "text": "Iron sharpeneth iron; so a man sharpeneth the countenance of his friend."}, {"ref": "James 1:19", "text": "Let every man be swift to hear, slow to speak, slow to wrath."}, {"ref": "Romans 3:23", "text": "For all have sinned, and come short of the glory of God."}, {"ref": "Romans 6:23", "text": "For the wages of sin is death; but the gift of God is eternal life through Jesus Christ our Lord."}, {"ref": "Psalm 121:1-2", "text": "I will lift up mine eyes unto the hills, from whence cometh my help. My help cometh from the LORD."}, {"ref": "Deuteronomy 6:5", "text": "And thou shalt love the LORD thy God with all thine heart, and with all thy soul, and with all thy might."}, {"ref": "Ecclesiastes 3:1", "text": "To every thing there is a season, and a time to every purpose under the heaven."}, {"ref": "Matthew 6:34", "text": "Take therefore no thought for the morrow: for the morrow shall take thought for the things of itself."}, {"ref": "Psalm 91:1-2", "text": "He that dwelleth in the secret place of the most High shall abide under the shadow of the Almighty."}, {"ref": "Isaiah 43:2", "text": "When thou passest through the waters, I will be with thee."}, {"ref": "John 8:32", "text": "And ye shall know the truth, and the truth shall make you free."}, {"ref": "1 John 4:19", "text": "We love him, because he first loved us."}, {"ref": "Hebrews 12:1", "text": "Let us run with patience the race that is set before us."}, {"ref": "Hebrews 12:2", "text": "Looking unto Jesus the author and finisher of our faith."}, {"ref": "Psalm 103:12", "text": "As far as the east is from the west, so far hath he removed our transgressions from us."}, {"ref": "Matthew 19:26", "text": "With men this is impossible; but with God all things are possible."}, {"ref": "John 15:5", "text": "I am the vine, ye are the branches."}, {"ref": "Galatians 6:9", "text": "Let us not be weary in well doing: for in due season we shall reap, if we faint not."}, {"ref": "Psalm 147:3", "text": "He healeth the broken in heart, and bindeth up their wounds."}, {"ref": "Proverbs 4:23", "text": "Keep thy heart with all diligence; for out of it are the issues of life."}, {"ref": "Psalm 1:1-3", "text": "Blessed is the man that walketh not in the counsel of the ungodly... he shall be like a tree planted by the rivers of water."}, {"ref": "Isaiah 26:3", "text": "Thou wilt keep him in perfect peace, whose mind is stayed on thee: because he trusteth in thee."}, {"ref": "Romans 10:9", "text": "If thou shalt confess with thy mouth the Lord Jesus, and shalt believe in thine heart... thou shalt be saved."}, {"ref": "John 16:33", "text": "In the world ye shall have tribulation: but be of good cheer; I have overcome the world."}, {"ref": "Psalm 30:5", "text": "Weeping may endure for a night, but joy cometh in the morning."}, {"ref": "Proverbs 18:10", "text": "The name of the LORD is a strong tower: the righteous runneth into it, and is safe."}, {"ref": "Ephesians 6:1", "text": "Children, obey your parents in the Lord: for this is right."}, {"ref": "Ephesians 6:2", "text": "Honour thy father and mother; which is the first commandment with promise."}, {"ref": "Colossians 3:20", "text": "Children, obey your parents in all things: for this is well pleasing unto the Lord."}, {"ref": "Proverbs 15:1", "text": "A soft answer turneth away wrath: but grievous words stir up anger."}, {"ref": "Philippians 2:3", "text": "In lowliness of mind let each esteem other better than themselves."}, {"ref": "Philippians 2:4", "text": "Look not every man on his own things, but every man also on the things of others."}, {"ref": "1 Samuel 16:7", "text": "Man looketh on the outward appearance, but the LORD looketh on the heart."}, {"ref": "Psalm 133:1", "text": "Behold, how good and how pleasant it is for brethren to dwell together in unity!"}, {"ref": "1 Corinthians 16:14", "text": "Let all your things be done with charity."}, {"ref": "Romans 12:10", "text": "Be kindly affectioned one to another with brotherly love; in honour preferring one another."}, {"ref": "Proverbs 17:17", "text": "A friend loveth at all times."}, {"ref": "Psalm 16:8", "text": "I have set the LORD always before me: because he is at my right hand, I shall not be moved."}, {"ref": "Psalm 55:22", "text": "Cast thy burden upon the LORD, and he shall sustain thee."}, {"ref": "Isaiah 55:8-9", "text": "For my thoughts are not your thoughts, neither are your ways my ways, saith the LORD."}, {"ref": "Lamentations 3:22-23", "text": "It is of the LORD'S mercies that we are not consumed... They are new every morning: great is thy faithfulness."}, {"ref": "Psalm 84:11", "text": "The LORD God is a sun and shield: the LORD will give grace and glory."}, {"ref": "Proverbs 11:25", "text": "The liberal soul shall be made fat: and he that watereth shall be watered also himself."}, {"ref": "Acts 20:35", "text": "It is more blessed to give than to receive."}, {"ref": "Matthew 5:9", "text": "Blessed are the peacemakers: for they shall be called the children of God."}, {"ref": "Matthew 5:8", "text": "Blessed are the pure in heart: for they shall see God."}, {"ref": "Psalm 40:1", "text": "I waited patiently for the LORD; and he inclined unto me, and heard my cry."}, {"ref": "Psalm 62:1", "text": "Truly my soul waiteth upon God: from him cometh my salvation."}, {"ref": "Psalm 100:4", "text": "Enter into his gates with thanksgiving, and into his courts with praise."}, {"ref": "Psalm 150:6", "text": "Let every thing that hath breath praise the LORD. Praise ye the LORD."}, {"ref": "1 John 1:9", "text": "If we confess our sins, he is faithful and just to forgive us our sins."}, {"ref": "2 Corinthians 5:17", "text": "If any man be in Christ, he is a new creature."}, {"ref": "Matthew 28:19-20", "text": "Go ye therefore, and teach all nations... and, lo, I am with you alway."}, {"ref": "Psalm 90:12", "text": "So teach us to number our days, that we may apply our hearts unto wisdom."}];
-let user=null,data=null,view="home",kid=0,unsub=null,golfCount=0,lastClaimId=null,lastClaimAt=0;
+let user=null,data=null,view="home",kid=0,unsub=null,golfCount=0,pushupCount=0,lastClaimId=null,lastClaimAt=0;
 const $=q=>document.querySelector(q),$$=q=>[...document.querySelectorAll(q)],money=n=>"$"+Number(n||0).toFixed(Number(n)%1?2:0),newId=()=>crypto.randomUUID();
 
 function isParent(){return !!(user&&!user.isAnonymous&&data&&(data.ownerUid===user.uid||(data.parentEmails||[]).map(x=>x.toLowerCase()).includes((user.email||"").toLowerCase())))}
@@ -158,25 +159,44 @@ function normalize(c){
 function applyBuiltInPolicy(c){
   const x={...c};
 
-  // Daily animal care = responsibility, not a paid job.
+  // Daily animal care/basic responsibilities = points only.
+  if(["pets","goats","eggs","litter","ktable","load","unload","dishes","trash","towels","sports"].includes(x.id)){
+    x.paid=false; x.cash=0; x.car=0;
+  }
   if(["pets","goats","eggs"].includes(x.id)){
-    x.required=true;
-    x.paid=false;
-    x.cash=0;
-    x.car=0;
-    x.frequency="daily";
+    x.required=true; x.frequency="daily";
   }
 
-  // Larger weekly chores = optional paid jobs.
-  if(["duck","poop","snake","patio","pool"].includes(x.id)){
+  // Shared living room responsibility:
+  // one kid claims it, then it cools down for 60 minutes.
+  if(x.id==="living"){
+    x.exclusive=true;
     x.required=false;
+    x.paid=false;
+    x.cash=0; x.car=0;
+    x.frequency="anytime";
+    x.cooldownMinutes=60;
+    x.points=2;
+    x.maxRewardedClaimsPerDay=3;
+  }
+
+  const paidMap={
+    counters:[1.2,.8], cardboard:[1.2,.8], fold:[1.2,.8], putclothes:[1.2,.8],
+    laundry:[1.8,1.2], dogwater:[1.2,.8], catwater:[1.2,.8],
+    duck:[2.4,1.6], poop:[1.8,1.2], snake:[2.4,1.6], patio:[1.8,1.2], pool:[1.8,1.2],
+    sweep:[1.2,.8], mop:[1.8,1.2], dust:[1.2,.8], bathroom:[2.4,1.6],
+    carclean:[2.4,1.6], carwash:[3,2], kart:[1.8,1.2], weeds:[1.8,1.2], garage:[3.6,2.4]
+  };
+  if(paidMap[x.id]){
     x.paid=true;
-    x.frequency="weekly";
+    x.required=false;
+    x.cash=paidMap[x.id][0];
+    x.car=paidMap[x.id][1];
+    if(!["carwash","kart","weeds"].includes(x.id)) x.frequency="weekly";
   }
 
   return x;
 }
-
 function rawLibrary(){
   const saved=Array.isArray(data?.choreLibrary)&&data.choreLibrary.length?data.choreLibrary:[];
   if(!saved.length) return DEFAULTS.map(d=>applyBuiltInPolicy(normalize(d)));
@@ -262,9 +282,35 @@ function live(c,kidId){let p=periodKey(c);return (data.tasks||[]).find(t=>t.chor
 function approved(c,kidId){let p=periodKey(c);return (data.tasks||[]).some(t=>t.choreId===c.id&&t.kidId===kidId&&t.status==="approved"&&(c.frequency==="anytime"||t.periodKey===p))}
 function sharedLive(c){let p=periodKey(c);return (data.tasks||[]).find(t=>t.choreId===c.id&&["open","pending"].includes(t.status)&&(c.frequency==="anytime"||t.periodKey===p))}
 function sharedApproved(c){let p=periodKey(c);return (data.tasks||[]).some(t=>t.choreId===c.id&&t.status==="approved"&&(c.frequency==="anytime"||t.periodKey===p))}
+
+function lastSharedApprovedAny(c){
+  let arr=(data.tasks||[]).filter(t=>t.choreId===c.id&&t.status==="approved");
+  arr.sort((a,b)=>(b.approvedAt||0)-(a.approvedAt||0));
+  return arr[0]||null;
+}
+function cooldownReady(c){
+  let mins=Math.max(0,+c.cooldownMinutes||0);
+  if(!mins)return true;
+  let t=lastSharedApprovedAny(c);
+  if(!t)return true;
+  return Date.now()-(t.approvedAt||0) >= mins*60000;
+}
+function rewardedClaimsToday(c){
+  let start=new Date(); start.setHours(0,0,0,0);
+  return (data.tasks||[]).filter(t=>t.choreId===c.id&&t.status==="approved"&&(t.approvedAt||0)>=start.getTime()).length;
+}
 function canClaim(c,kidId){
   if(!eligible(c,kidId))return false;
   if(c.frequency==="everyx" && !everyXReady(c,kidId))return false;
+
+  // Repeatable shared chores (ex: living room): only one kid at a time,
+  // then a cooldown before anyone can claim it again.
+  if(c.cooldownMinutes){
+    if(sharedLive(c))return false;
+    if(!cooldownReady(c))return false;
+    return true;
+  }
+
   if(c.exclusive){
     if(sharedLive(c)||((c.frequency==="daily"||c.frequency==="weekdays"||c.frequency==="weekly"||c.frequency==="once")&&sharedApproved(c)))return false;
   }else{
@@ -293,6 +339,10 @@ function weekDates(){
 }
 function challengeHit(kidId,cid,date=todayKey()){return challengeLogs().some(x=>x.kidId===kidId&&x.challengeId===cid&&x.date===date&&x.status==="approved")}
 function challengePending(kidId,cid,date=todayKey()){return challengeLogs().some(x=>x.kidId===kidId&&x.challengeId===cid&&x.date===date&&x.status==="pending")}
+function pushupPoints(count){return Math.floor(Math.max(0,Math.min(100,+count||0))/20)*5}
+function pushupPending(kidId){return challengePending(kidId,"pushups")}
+function pushupDone(kidId){return challengeHit(kidId,"pushups")}
+
 function weeklyHits(kidId,cid){let dates=weekDates();return dates.filter(d=>challengeHit(kidId,cid,d)).length}
 function streak(kidId,cid){
  let n=0,d=new Date();
@@ -402,7 +452,20 @@ function level(){
  let k=data.kids[kid],dates=weekDates(),cs=challengeLibrary(),lp=levelProgress(k);
  return header()+world(k)+`<div class="card"><div class="row wrap"><div><h2 style="margin:0">🔥 Level Up</h2><div class="muted">Habits build XP and streaks — not cash.</div></div><select id="kidSel" style="width:auto;min-width:150px">${data.kids.map((x,i)=>`<option value="${i}" ${i===kid?"selected":""}>${x.name}</option>`).join("")}</select></div>
  <div class="notice" style="margin-top:12px"><b>This week: ${lp.earned}/${lp.goal} challenge days</b><div class="progress" style="margin-top:7px"><div class="bar" style="width:${lp.goal?Math.min(100,lp.earned/lp.goal*100):0}%"></div></div></div>
- <div class="challengeGrid" style="margin-top:13px">${cs.filter(c=>!["help","awesome"].includes(c.id)).map(c=>{let hits=weeklyHits(k.id,c.id),pend=challengePending(k.id,c.id),hit=challengeHit(k.id,c.id),st=streak(k.id,c.id);return `<div class="challenge"><div class="big">${c.icon}</div><h3>${c.name}</h3><div class="tiny muted">${c.desc}</div>${c.target?`<div style="margin-top:7px"><b>${hits}/${c.target} this week</b></div>`:""}<div class="weekTrack">${dates.map((d,i)=>`<span class="dayDot ${challengeHit(k.id,c.id,d)?"hit":""}">${["M","T","W","T","F","S","S"][i]}</span>`).join("")}</div>${st?`<div class="streak">🔥 ${st}-day streak</div>`:""}<div style="margin-top:9px">${hit?`<span class="pill opt">Done today</span>`:pend?`<span class="pill due">Waiting for parent</span>`:c.parentOnly?`<span class="pill due">Parent verifies</span>`:`<button class="btn small" data-challenge="${c.id}">I Did It</button>`}</div><div class="card"><h2>🎁 Reward Shop</h2><p class="muted">Save your Points or spend them on something fun. XP never gets spent.</p><div class="stat"><b>⭐ ${k.rewardPoints||0} Points available</b></div>${[
+ <div class="challengeGrid" style="margin-top:13px">${cs.filter(c=>!["help","awesome"].includes(c.id)).map(c=>{
+ let hits=weeklyHits(k.id,c.id),pend=challengePending(k.id,c.id),hit=challengeHit(k.id,c.id),st=streak(k.id,c.id);
+ if(c.id==="pushups"){
+   let todayLog=challengeLogs().find(x=>x.kidId===k.id&&x.challengeId==="pushups"&&x.date===todayKey()&&["pending","approved"].includes(x.status));
+   return `<div class="challenge"><div class="big">💪</div><h3>Pushup Power</h3><div class="tiny muted">5 Points for every 20 pushups · max 100 rewarded per day</div>
+   <div style="margin-top:9px"><b>${todayLog?`${todayLog.count||0} pushups submitted today`:`How many did you do?`}</b></div>
+   ${todayLog
+      ? `<div class="streak">${todayLog.status==="approved"?"✅ Approved":"⏳ Waiting for parent"} · ⭐ ${pushupPoints(todayLog.count||0)} pts</div>`
+      : `<div class="counter" style="margin:10px 0"><button data-pushn="-5">−5</button><div class="count">${pushupCount}</div><button data-pushn="5">+5</button></div>
+         <div class="notice">⭐ ${pushupPoints(pushupCount)} Points</div>
+         <button id="submitPushups" class="btn small" style="margin-top:9px" ${pushupCount<20?"disabled":""}>Submit ${pushupCount} Pushups</button>`}
+   </div>`;
+ }
+ return `<div class="challenge"><div class="big">${c.icon}</div><h3>${c.name}</h3><div class="tiny muted">${c.desc}</div>${c.target?`<div style="margin-top:7px"><b>${hits}/${c.target} this week</b></div>`:""}<div class="weekTrack">${dates.map((d,i)=>`<span class="dayDot ${challengeHit(k.id,c.id,d)?"hit":""}">${["M","T","W","T","F","S","S"][i]}</span>`).join("")}</div>${st?`<div class="streak">🔥 ${st}-day streak</div>`:""}<div style="margin-top:9px">${hit?`<span class="pill opt">Done today</span>`:pend?`<span class="pill due">Waiting for parent</span>`:c.parentOnly?`<span class="pill due">Parent verifies</span>`:`<button class="btn small" data-challenge="${c.id}">I Did It</button>`}</div><div class="card"><h2>🎁 Reward Shop</h2><p class="muted">Save your Points or spend them on something fun. XP never gets spent.</p><div class="stat"><b>⭐ ${k.rewardPoints||0} Points available</b></div>${[
           {id:"dessert",name:"🍨 Pick dessert",cost:50},
           {id:"movie",name:"🍿 Choose family movie",cost:100},
           {id:"stayup",name:"🌙 Stay up 30 minutes later",cost:200},
@@ -529,14 +592,14 @@ function parent(){
  let lib=rawLibrary();
  return header()+`<div class="card"><div class="row wrap"><h2 style="margin:0">👍 Waiting for Approval</h2><button id="bulkBasics" class="btn secondary small">Approve Daily Basics</button></div>${pending().length?pending().map(t=>{let k=kidById(t.kidId);return `<div class="approval"><div><b>${t.icon} ${k?.name} — ${t.name}</b><div class="reward">${t.type==="golf"?`${t.count} balls · `:""}💵 ${money(t.cash)} + 🚗 ${money(t.car)}</div></div><div class="actions"><button data-app="${t.id}" class="btn small">Approve</button><button data-back="${t.id}" class="btn red small">Send Back</button></div></div>`}).join(""):`<p class="muted">Nothing waiting 🎉</p>`}</div>
  <div class="card"><h2 style="margin-top:0">🔥 Level Up Review</h2>
- ${(challengeLogs().filter(x=>x.status==="pending").length)?challengeLogs().filter(x=>x.status==="pending").map(x=>{let c=challengeLibrary().find(c=>c.id===x.challengeId),k=kidById(x.kidId);return `<div class="approval"><div><b>${c?.icon||"⭐"} ${k?.name} — ${c?.name||"Challenge"}</b><div class="reward">+${c?.xp||10} XP · no cash</div></div><div class="actions"><button class="btn small" data-chapp="${x.id}">Approve</button><button class="btn red small" data-chreject="${x.id}">Reject</button></div></div>`}).join(""):`<p class="muted">No challenge requests waiting.</p>`}
+ ${(challengeLogs().filter(x=>x.status==="pending").length)?challengeLogs().filter(x=>x.status==="pending").map(x=>{let c=challengeLibrary().find(c=>c.id===x.challengeId),k=kidById(x.kidId);return `<div class="approval"><div><b>${c?.icon||"⭐"} ${k?.name} — ${c?.name||"Challenge"}</b><div class="reward">${x.challengeId==="pushups"?`${x.count||0} pushups · ⭐ ${pushupPoints(x.count||0)} Points · no cash`:`+${c?.xp||10} XP · no cash`}</div></div><div class="actions"><button class="btn small" data-chapp="${x.id}">Approve</button><button class="btn red small" data-chreject="${x.id}">Reject</button></div></div>`}).join(""):`<p class="muted">No challenge requests waiting.</p>`}
  <div class="notice parentAward" style="margin-top:10px"><b>⭐ Parent Awards</b><div class="settingsGrid" style="grid-template-columns:1fr 1fr 1fr"><div><label>Kid</label><select id="awardKid">${data.kids.map(k=>`<option value="${k.id}">${k.name}</option>`).join("")}</select></div><div><label>Award</label><select id="awardType"><option value="help">🤝 Help Without Being Asked</option><option value="awesome">❤️ Caught Being Awesome</option><option value="screen">📵 Screen Boss</option></select></div><div style="display:flex;align-items:end"><button id="giveAward" class="btn" style="width:100%">Award Today</button></div></div></div>
  </div>
  <div class="card"><div class="row wrap"><div><h2 style="margin:0">☀️ Summer Mode</h2><p class="muted">Temporarily hide school responsibilities without deleting assignments or settings.</p></div><button id="summerToggle" class="btn ${summerMode()?"summerOn":"secondary"}">${summerMode()?"☀️ Summer Mode ON":"Turn Summer Mode On"}</button></div><div class="tiny muted">Hides: Backpack · Homework · Study · Homework Away · Lunch Box · Lunch Stuff Washed</div></div>
  <div class="card"><div class="row wrap"><div><h2 style="margin:0">🧰 Master Chore List</h2><p class="muted">Assign all four daily chores, or specific kids on any cadence.</p></div><div class="actions"><button id="addCustom" class="btn">＋ New Chore</button><button id="saveChores" class="btn secondary">Save Changes</button></div></div>
  <div id="customForm" class="notice" style="display:none;margin-top:12px"><div class="settingsGrid"><div><label>Name</label><input id="newName" placeholder="Clean mudroom"></div><div><label>Emoji</label><input id="newIcon" value="⭐"></div><div><label>Cash</label><input id="newCash" type="number" step=".25" value="1"></div><div><label>Car fund</label><input id="newCar" type="number" step=".25" value="2"></div></div><div class="actions" style="margin-top:10px"><button id="createCustom" class="btn">Add</button><button id="cancelCustom" class="btn secondary">Cancel</button></div></div>
  <div style="display:grid;gap:10px;margin-top:13px">${lib.map((c,i)=>`<div class="card masterCard"><div class="row wrap"><div><b>${c.icon} ${c.name}</b><div class="tiny muted">${c.category} · ${c.paid?`💵 ${money(c.cash)} · 🚗 ${money(c.car)}`:"unpaid responsibility"}</div></div><label class="badge"><input data-active="${i}" type="checkbox" ${c.active!==false?"checked":""}> Active</label></div><div class="assignments">${data.kids.map(k=>`<label><input data-assign="${i}|${k.id}" type="checkbox" ${(c.assignedTo||[]).includes(k.id)?"checked":""}> ${theme(k)[1]} ${k.name}</label>`).join("")}</div><div class="settingsGrid"><div><label>Frequency</label><select data-frequency="${i}"><option value="anytime" ${c.frequency==="anytime"?"selected":""}>Anytime</option><option value="needed" ${c.frequency==="needed"?"selected":""}>When Necessary</option><option value="daily" ${c.frequency==="daily"?"selected":""}>Daily</option><option value="weekdays" ${c.frequency==="weekdays"?"selected":""}>Weekdays Only</option><option value="weekly" ${c.frequency==="weekly"?"selected":""}>Weekly</option><option value="everyx" ${c.frequency==="everyx"?"selected":""}>Every X Days</option><option value="once" ${c.frequency==="once"?"selected":""}>One-time</option></select></div><div data-interval-wrap="${i}" style="${c.frequency==="everyx"?"":"display:none"}"><label>Every how many days?</label><input data-interval="${i}" type="number" min="1" max="365" value="${Math.max(1,+c.intervalDays||7)}"></div><div><label>Required?</label><select data-required="${i}"><option value="0" ${!c.required?"selected":""}>Optional</option><option value="1" ${c.required?"selected":""}>Required</option></select></div><div><label>Completion rule</label><select data-exclusive="${i}"><option value="0" ${!c.exclusive?"selected":""}>Each assigned kid</option><option value="1" ${c.exclusive?"selected":""}>One kid only</option></select></div><div><label>Miss penalty</label><select data-miss="${i}"><option value="0" ${+c.missXp===0?"selected":""}>None</option><option value="5" ${+c.missXp===5?"selected":""}>-5 XP</option><option value="10" ${+c.missXp===10?"selected":""}>-10 XP</option></select></div></div>${c.custom?`<button data-delete="${i}" class="btn red small" style="margin-top:8px">Delete</button>`:""}</div>`).join("")}</div></div>
- <div class="card"><h2 style="margin-top:0">💰 Weekly Earnings Rules</h2><p class="muted">Each kid has two limits: a cash limit and a total limit including Future Fund.</p><div class="settingsGrid" style="grid-template-columns:1fr 1fr 1fr 1fr"><div><label>Cash max / week</label><input id="weeklyCashCap" type="number" min="0" step="1" value="${weeklyCashCap()}"></div><div><label>Total max / week</label><input id="weeklyTotalCap" type="number" min="0" step="1" value="${weeklyTotalCap()}"></div><div><label>Spend Now %</label><input id="cashPct" type="number" min="0" max="100" step="1" value="${Math.round(cashPct())}"></div><div><label>Future Fund %</label><input disabled value="${Math.round(futurePct())}%"></div></div><button id="saveMoneyRules" class="btn" style="margin-top:10px">Save Money Rules</button><div class="tiny muted" style="margin-top:8px">Default: up to $15 cash + $10 Future Fund = $25 total per kid per week. XP, responsibilities and Level Up do not use these money caps.</div></div>
+ <div class="card"><h2 style="margin-top:0">💰 Weekly Earnings Rules</h2><div class="notice" style="margin-bottom:10px"><b>New earning balance:</b> daily/basic responsibilities earn Points, not money. Cash/Future Fund comes mostly from bigger weekly jobs.</div><p class="muted">Each kid has two limits: a cash limit and a total limit including Future Fund.</p><div class="settingsGrid" style="grid-template-columns:1fr 1fr 1fr 1fr"><div><label>Cash max / week</label><input id="weeklyCashCap" type="number" min="0" step="1" value="${weeklyCashCap()}"></div><div><label>Total max / week</label><input id="weeklyTotalCap" type="number" min="0" step="1" value="${weeklyTotalCap()}"></div><div><label>Spend Now %</label><input id="cashPct" type="number" min="0" max="100" step="1" value="${Math.round(cashPct())}"></div><div><label>Future Fund %</label><input disabled value="${Math.round(futurePct())}%"></div></div><button id="saveMoneyRules" class="btn" style="margin-top:10px">Save Money Rules</button><div class="tiny muted" style="margin-top:8px">Default: up to $15 cash + $10 Future Fund = $25 total per kid per week. XP, responsibilities and Level Up do not use these money caps.</div></div>
  <div class="card"><h2 style="margin-top:0">🎁 Risser Reward Shop</h2><p class="muted">Kids see point targets, never a dollar value. Required chores earn small Points but no money.</p>
  ${RIS_REWARDS.map(r=>`<div class="approval"><div><b>${r.icon} ${r.name}</b><div class="reward">${r.cost} Points</div></div><span class="badge">Family Reward</span></div>`).join("")}
  </div>
@@ -583,8 +646,8 @@ function bind(){
  $("#logout")?.addEventListener("click",()=>signOut(auth));
  $$("[data-v]").forEach(b=>b.onclick=()=>{view=b.dataset.v;render()});
  $$("[data-k]").forEach(b=>b.onclick=()=>{kid=+b.dataset.k;view="week";render()});
- $("#kidSel")?.addEventListener("change",e=>{kid=+e.target.value;render()});
- $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;render()});
+ $("#kidSel")?.addEventListener("change",e=>{kid=+e.target.value;pushupCount=0;render()});
+ $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCount=0;render()});
  $("#createFamily")?.addEventListener("click",async()=>setDoc(familyRef,{ownerUid:user.uid,ownerEmail:user.email,parentEmails:[user.email.toLowerCase()],kids:KIDS,tasks:[],payments:[],ledger:[],choreLibrary:DEFAULTS,challenges:DEFAULT_CHALLENGES,challengeLogs:[],golfCash:.05,golfCar:.10,weeklyCashCap:15,weeklyTotalCap:25,cashSplitPct:60,createdAt:serverTimestamp()}));
 
  $$("[data-c]").forEach(b=>b.onclick=()=>{let c=library().find(x=>x.id===b.dataset.c),k=data.kids[kid];if(!c||!canClaim(c,k.id))return;askConfirm(`Claim ${c.icon} ${c.name}?`,`This adds the mission to ${k.name}'s list.${c.exclusive?" Other kids will not be able to claim it while it is active.":""}`,"Yes, Claim It",async()=>{let t={id:newId(),choreId:c.id,kidId:k.id,icon:c.icon,name:c.name,cash:isKidSession()?0:(c.paid?+c.cash||0:0),car:isKidSession()?0:(c.paid?+c.car||0:0),xp:isKidSession()?0:(+c.xp||10),exclusive:!!c.exclusive,required:!!c.required,frequency:c.frequency,periodKey:periodKey(c),status:"open",type:c.id==="golf"?"golf":"normal",count:0,createdAt:Date.now()};await patch({tasks:arrayUnion(t)});lastClaimId=t.id;lastClaimAt=Date.now();view="week";render()})});
@@ -601,7 +664,7 @@ function bind(){
  let totalCap=Math.max(0,+d.weeklyTotalCap||25),cashCap=Math.max(0,+d.weeklyCashCap||15),now=Date.now(),dd=new Date(),day=(dd.getDay()+6)%7;dd.setHours(0,0,0,0);dd.setDate(dd.getDate()-day);let ws=dd.getTime();
  let weekRows=(d.ledger||[]).filter(x=>x.type==="earning"&&x.kidId===t.kidId&&(x.at||0)>=ws),usedGross=weekRows.reduce((s,x)=>s+(+x.gross||(+x.cash||0)+(+x.car||0)),0),usedCash=weekRows.reduce((s,x)=>s+(+x.cash||0),0);
  let gross=+Math.min(rawGross,Math.max(0,totalCap-usedGross)).toFixed(2),pct=Math.min(100,Math.max(0,+d.cashSplitPct||60)),desiredCash=+(gross*pct/100).toFixed(2),cash=+Math.min(desiredCash,Math.max(0,cashCap-usedCash)).toFixed(2),car=+(gross-cash).toFixed(2),xp=+c.xp||10;
- let pts=c.required?3:5; let kids=d.kids.map(k=>k.id===t.kidId?{...k,cash:+((k.cash||0)+cash).toFixed(2),car:+((k.car||0)+car).toFixed(2),xp:(k.xp||0)+xp,rewardPoints:(+k.rewardPoints||0)+pts,familyPoints:(+k.familyPoints||0)+pts,requiredDone:(k.requiredDone||0)+(c.required?1:0),requiredDue:(k.requiredDue||0)+(c.required?1:0)}:k);
+ let pts=(c.points!=null?+c.points:(c.required?3:5)); if(c.maxRewardedClaimsPerDay&&rewardedClaimsToday(c)>=c.maxRewardedClaimsPerDay)pts=0; let kids=d.kids.map(k=>k.id===t.kidId?{...k,cash:+((k.cash||0)+cash).toFixed(2),car:+((k.car||0)+car).toFixed(2),xp:(k.xp||0)+xp,rewardPoints:(+k.rewardPoints||0)+pts,familyPoints:(+k.familyPoints||0)+pts,requiredDone:(k.requiredDone||0)+(c.required?1:0),requiredDue:(k.requiredDue||0)+(c.required?1:0)}:k);
  let tasks=d.tasks.map(x=>x.id===tid?{...x,gross,cash,car,xp,points:pts,status:"approved",approvedBy:user.email,approvedAt:now,capLimited:gross<rawGross||cash<desiredCash}:x);
  let ledger=[...(d.ledger||[]),{id:newId(),type:"earning",taskId:t.id,kidId:t.kidId,label:c.name,gross,cash,car,xp,points:pts,rawGross,capLimited:gross<rawGross||cash<desiredCash,by:user.email,at:now}].slice(-300);
  tr.update(familyRef,{kids,tasks,ledger})})});
@@ -646,8 +709,23 @@ function bind(){
  $$("[data-pay]").forEach(b=>b.onclick=async()=>{let kidId=b.dataset.pay,k=kidById(kidId),input=$(`[data-payamount="${kidId}"]`),amount=Math.max(0,+input.value||0),owed=cashOwed(k);if(amount<=0)return;if(amount>owed+0.001)return alert("That is more than currently owed.");let payment={id:newId(),kidId,amount,by:user.email,at:Date.now()};let ledger=[...(data.ledger||[]),{...payment,type:"payment",label:"Cash payout"}].slice(-300);await patch({payments:arrayUnion(payment),ledger})});
 
  $("#bulkBasics")?.addEventListener("click",async()=>{let basics=pending().filter(t=>t.required&&(+t.cash||0)===0&&(+t.car||0)===0);if(!basics.length)return alert("No unpaid required basics are waiting.");if(!confirm(`Approve ${basics.length} required basics?`))return;for(const t of basics){await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),cur=d.tasks.find(x=>x.id===t.id);if(!cur||cur.status!=="pending")return;let now=Date.now(),xp=cur.xp||10,pts=3;let kids=d.kids.map(k=>k.id===cur.kidId?{...k,xp:(k.xp||0)+xp,rewardPoints:(+k.rewardPoints||0)+pts,familyPoints:(+k.familyPoints||0)+pts,requiredDone:(k.requiredDone||0)+1,requiredDue:(k.requiredDue||0)+1}:k);let tasks=d.tasks.map(x=>x.id===cur.id?{...x,xp,points:pts,status:"approved",approvedBy:user.email,approvedAt:now}:x);let ledger=[...(d.ledger||[]),{id:newId(),type:"points_earning",taskId:cur.id,kidId:cur.kidId,label:cur.name,xp,points:pts,cash:0,car:0,by:user.email,at:now}].slice(-300);tr.update(familyRef,{kids,tasks,ledger})})}});
+
+ $$("[data-pushn]").forEach(b=>b.onclick=()=>{pushupCount=Math.max(0,Math.min(100,pushupCount+(+b.dataset.pushn)));render()});
+ $("#submitPushups")?.addEventListener("click",async()=>{
+   let k=data.kids[kid];
+   if(pushupCount<20||pushupPending(k.id)||pushupDone(k.id))return;
+   let log={id:newId(),kidId:k.id,challengeId:"pushups",date:todayKey(),count:pushupCount,points:pushupPoints(pushupCount),status:"pending",createdAt:Date.now()};
+   await patch({challengeLogs:arrayUnion(log)});
+   pushupCount=0;
+   render();
+ });
  $$("[data-challenge]").forEach(b=>b.onclick=async()=>{let cid=b.dataset.challenge,k=data.kids[kid],c=challengeLibrary().find(x=>x.id===cid);if(!c||challengeHit(k.id,cid)||challengePending(k.id,cid))return;let log={id:newId(),kidId:k.id,challengeId:cid,date:todayKey(),status:"pending",createdAt:Date.now()};await patch({challengeLogs:arrayUnion(log)})});
- $$("[data-chapp]").forEach(b=>b.onclick=async()=>{let id=b.dataset.chapp;await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),logs=d.challengeLogs||[],log=logs.find(x=>x.id===id);if(!log||log.status!=="pending")return;let c=(d.challenges||DEFAULT_CHALLENGES).find(x=>x.id===log.challengeId);if(!c)return;let now=Date.now(),xp=c.xp||10,pts=10;let kids=d.kids.map(k=>k.id===log.kidId?{...k,xp:(k.xp||0)+xp,rewardPoints:(+k.rewardPoints||0)+pts,familyPoints:(+k.familyPoints||0)+pts}:k);logs=logs.map(x=>x.id===id?{...x,xp,points:pts,status:"approved",approvedBy:user.email,approvedAt:now}:x);let ledger=[...(d.ledger||[]),{id:newId(),type:"levelup_earning",challengeLogId:id,kidId:log.kidId,label:c.name,xp,points:pts,cash:0,car:0,by:user.email,at:now}].slice(-300);tr.update(familyRef,{kids,challengeLogs:logs,ledger})})});
+ $$("[data-chapp]").forEach(b=>b.onclick=async()=>{let id=b.dataset.chapp;await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),logs=d.challengeLogs||[],log=logs.find(x=>x.id===id);if(!log||log.status!=="pending")return;let c=(d.challenges||DEFAULT_CHALLENGES).find(x=>x.id===log.challengeId);if(!c)return;let now=Date.now();
+ let isPush=log.challengeId==="pushups",xp=isPush?0:(c.xp||10),pts=isPush?pushupPoints(log.count||0):10;
+ let kids=d.kids.map(k=>k.id===log.kidId?{...k,xp:(k.xp||0)+xp,rewardPoints:(+k.rewardPoints||0)+pts,familyPoints:(+k.familyPoints||0)+pts}:k);
+ logs=logs.map(x=>x.id===id?{...x,xp,points:pts,status:"approved",approvedBy:user.email,approvedAt:now}:x);
+ let ledger=[...(d.ledger||[]),{id:newId(),type:"levelup_earning",challengeLogId:id,kidId:log.kidId,label:c.name,xp,points:pts,cash:0,car:0,count:isPush?(log.count||0):undefined,by:user.email,at:now}].slice(-300);
+ tr.update(familyRef,{kids,challengeLogs:logs,ledger})})});
  $$("[data-chreject]").forEach(b=>b.onclick=async()=>{let logs=challengeLogs().map(x=>x.id===b.dataset.chreject?{...x,status:"rejected",approvedBy:user.email,approvedAt:Date.now()}:x);await patch({challengeLogs:logs})});
  $("#giveAward")?.addEventListener("click",async()=>{let kidId=$("#awardKid").value,cid=$("#awardType").value,c=challengeLibrary().find(x=>x.id===cid);if(!c)return;if(challengeHit(kidId,cid))return alert("Already awarded today.");await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),logs=d.challengeLogs||[];if(logs.some(x=>x.kidId===kidId&&x.challengeId===cid&&x.date===todayKey()&&x.status==="approved"))return;let now=Date.now(),xp=c.xp||10,pts=10;let kids=d.kids.map(k=>k.id===kidId?{...k,xp:(k.xp||0)+xp,rewardPoints:(+k.rewardPoints||0)+pts,familyPoints:(+k.familyPoints||0)+pts}:k);let lid=newId();logs.push({id:lid,kidId,challengeId:cid,date:todayKey(),xp,points:pts,status:"approved",approvedBy:user.email,approvedAt:now,createdAt:now});let ledger=[...(d.ledger||[]),{id:newId(),type:"levelup_earning",challengeLogId:lid,kidId,label:c.name,xp,points:pts,cash:0,car:0,by:user.email,at:now}].slice(-300);tr.update(familyRef,{kids,challengeLogs:logs.slice(-1000),ledger})})});
 }
