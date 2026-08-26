@@ -979,7 +979,9 @@ function bind(){
  let pts=isPush?pushupPoints(log.count||0):Math.max(0,+c.rewardPoints||10);
  let kids=d.kids.map(k=>k.id===log.kidId?{...k,xp:(k.xp||0)+xp,rewardPoints:(+k.rewardPoints||0)+pts,familyPoints:(+k.familyPoints||0)+pts}:k);
  logs=logs.map(x=>x.id===id?{...x,xp,points:pts,status:"approved",approvedBy:user.email,approvedAt:now}:x);
- let ledger=[...(d.ledger||[]),{id:newId(),type:"levelup_earning",challengeLogId:id,kidId:log.kidId,label:c.name||"Level Up",xp,points:pts,cash:0,car:0,count:isPush?(log.count||0):undefined,by:user.email,at:now}].slice(-300);
+ let entry={id:newId(),type:"levelup_earning",challengeLogId:id,kidId:log.kidId,label:c.name||"Level Up",xp,points:pts,cash:0,car:0,by:user.email,at:now};
+ if(isPush)entry.count=log.count||0;
+ let ledger=[...(d.ledger||[]),entry].slice(-300);
  tr.update(familyRef,{kids,challengeLogs:logs,ledger})})});
  $$("[data-chreject]").forEach(b=>b.onclick=async()=>{let logs=challengeLogs().map(x=>x.id===b.dataset.chreject?{...x,status:"rejected",approvedBy:user.email,approvedAt:Date.now()}:x);await patch({challengeLogs:logs})});
  $("#giveAward")?.addEventListener("click",async()=>{let kidId=$("#awardKid").value,cid=$("#awardType").value,c=challengeLibrary().find(x=>x.id===cid);if(!c)return;if(challengeHit(kidId,cid))return alert("Already awarded today.");await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),logs=d.challengeLogs||[];if(logs.some(x=>x.kidId===kidId&&x.challengeId===cid&&x.date===todayKey()&&x.status==="approved"))return;let now=Date.now(),xp=c.xp||10,pts=Math.max(0,+c.rewardPoints||10);let kids=d.kids.map(k=>k.id===kidId?{...k,xp:(k.xp||0)+xp,rewardPoints:(+k.rewardPoints||0)+pts,familyPoints:(+k.familyPoints||0)+pts}:k);let lid=newId();logs.push({id:lid,kidId,challengeId:cid,date:todayKey(),xp,points:pts,status:"approved",approvedBy:user.email,approvedAt:now,createdAt:now});let ledger=[...(d.ledger||[]),{id:newId(),type:"levelup_earning",challengeLogId:lid,kidId,label:c.name,xp,points:pts,cash:0,car:0,by:user.email,at:now}].slice(-300);tr.update(familyRef,{kids,challengeLogs:logs.slice(-1000),ledger})})});
