@@ -213,6 +213,76 @@ input:focus,select:focus{outline:2px solid rgba(52,99,70,.18);border-color:#6d92
 .cashCard:before{content:"";display:block;height:58px;margin:-4px -4px 10px;border-radius:14px;background:url("assets/watchtower-landscape.png") center/cover no-repeat;opacity:.82}
 .goalCard:first-of-type{position:relative;overflow:hidden}.goalCard:first-of-type:after{content:"";position:absolute;right:0;bottom:0;width:125px;height:72px;background:url("assets/beach-reward.png") center/cover no-repeat;opacity:.14;border-radius:18px 0 0 0;pointer-events:none}
 @media(max-width:700px){.adventureSky{min-height:285px!important}.kidAvatarImg{width:68px;height:68px}.worldAvatar{width:74px;height:74px}.adventureWorld{padding:16px!important}}
+
+/* ===== v47.1 Kid World Theme Consistency ===== */
+/* Noah keeps the illustrated mountain/wolf world from v47. */
+.adventureWorld.kidWorld-noah{
+  background-image:
+    linear-gradient(90deg,rgba(8,35,25,.91),rgba(18,57,40,.62) 58%,rgba(18,57,40,.24)),
+    url("assets/hero-mountains.png")!important;
+  background-position:center!important;
+}
+
+/* Eli — warm savanna / lion kingdom. */
+.adventureWorld.kidWorld-eli{
+  background-image:
+    radial-gradient(circle at 78% 22%,rgba(255,218,116,.82) 0 8%,rgba(255,218,116,.18) 9%,transparent 22%),
+    linear-gradient(100deg,rgba(73,42,18,.90),rgba(151,91,35,.62) 52%,rgba(224,166,72,.34)),
+    linear-gradient(180deg,#e9c16c 0%,#bd7c37 58%,#655029 100%)!important;
+}
+.adventureWorld.kidWorld-eli:after{
+  content:"🌾   🌅   🌳";
+  position:absolute;inset:auto 18px 14px auto;
+  background:none!important;
+  font-size:36px;opacity:.62;letter-spacing:5px
+}
+
+/* Shepherd — deep forest / creek expedition. */
+.adventureWorld.kidWorld-shepherd{
+  background-image:
+    radial-gradient(circle at 78% 30%,rgba(146,190,108,.18),transparent 23%),
+    linear-gradient(100deg,rgba(8,42,26,.94),rgba(28,88,48,.68) 55%,rgba(67,125,73,.32)),
+    linear-gradient(180deg,#659066 0%,#285c42 58%,#123929 100%)!important;
+}
+.adventureWorld.kidWorld-shepherd:after{
+  content:"🌲   🌿   🪨";
+  position:absolute;inset:auto 18px 14px auto;
+  background:none!important;
+  font-size:34px;opacity:.62;letter-spacing:5px
+}
+
+/* Juniper — meadow / unicorn world. No wolf or mountain image is inherited. */
+.adventureWorld.kidWorld-juniper{
+  color:#30283b!important;
+  background-image:
+    radial-gradient(circle at 78% 20%,rgba(255,245,185,.92) 0 7%,rgba(255,245,185,.20) 8%,transparent 23%),
+    radial-gradient(circle at 83% 74%,rgba(240,156,207,.30),transparent 16%),
+    radial-gradient(circle at 66% 80%,rgba(156,197,255,.34),transparent 17%),
+    linear-gradient(110deg,rgba(89,63,103,.88),rgba(151,112,160,.56) 46%,rgba(219,185,215,.30)),
+    linear-gradient(180deg,#c8def0 0%,#dac6e4 43%,#9fc68f 100%)!important;
+}
+.adventureWorld.kidWorld-juniper .worldIdentity h2{
+  color:#fff9fd!important;
+  text-shadow:0 2px 8px rgba(75,42,75,.30)
+}
+.adventureWorld.kidWorld-juniper .worldIdentity .wsub{color:rgba(255,252,255,.94)!important}
+.adventureWorld.kidWorld-juniper:after{
+  content:"🌸   ✨   🌈   🌼";
+  position:absolute;inset:auto 18px 12px auto;
+  background:none!important;
+  font-size:34px;opacity:.74;letter-spacing:4px
+}
+
+/* Keep the same world identity on phone/tablet; only spacing scales down. */
+@media(max-width:700px){
+  .adventureWorld.kidWorld-noah{background-position:58% center!important}
+  .adventureWorld.kidWorld-eli,
+  .adventureWorld.kidWorld-shepherd,
+  .adventureWorld.kidWorld-juniper{background-position:center!important}
+  .adventureWorld.kidWorld-eli:after,
+  .adventureWorld.kidWorld-shepherd:after,
+  .adventureWorld.kidWorld-juniper:after{font-size:25px;right:10px;bottom:8px;opacity:.48}
+}
 </style>
 </head>
 <body><div id="app" class="app"></div>
@@ -686,7 +756,7 @@ function levelProgress(k){
  return {earned,goal};
 }
 
-function world(k){let t=theme(k),r=reliability(k),pct=Math.min(100,(+k.car||0)/(+k.target||7500)*100);return `<div class="world ${t[0]} adventureWorld" style="--world-art:url('assets/hero-mountains.png')"><div class="worldIdentity"><img class="worldAvatar" src="assets/${k.id}-avatar.png" alt="${k.name}"><div><div class="wsub">${t[2]}</div><h2>${k.name.toUpperCase()}'S ADVENTURE</h2><div class="wsub">${t[3]}</div></div></div><div class="worldBadges"><span class="worldBadge">💵 Owed ${money(cashOwed(k))}</span><span class="worldBadge">🏦 Future Fund ${money(k.car||0)}</span><span class="worldBadge">💰 Week ${money(weeklyGross(k.id))}/${money(weeklyTotalCap())}</span><span class="worldBadge">💵 Cash ${money(weeklyCash(k.id))}/${money(weeklyCashCap())}</span><span class="worldBadge"><img class="miniAsset" src="assets/star-coin.png" alt=""> ${k.xp||0} XP · ${k.rewardPoints||0} Points</span><span class="worldBadge">🎯 ${r}% reliable</span></div><div class="progress" style="margin-top:13px;background:rgba(255,255,255,.45)"><div class="bar" style="width:${pct}%"></div></div><div class="worldBadge" style="margin-top:9px;display:inline-flex"><img class="miniAsset" src="assets/level-badge.png" alt=""> Weekly Level Up ${levelProgress(k).earned}/${levelProgress(k).goal}</div></div>`}
+function world(k){let t=theme(k),r=reliability(k),pct=Math.min(100,(+k.car||0)/(+k.target||7500)*100),worldArt=k.id==="noah"?"url('assets/hero-mountains.png')":"none";return `<div class="world ${t[0]} adventureWorld kidWorld-${k.id}" style="--world-art:${worldArt}"><div class="worldIdentity"><img class="worldAvatar" src="assets/${k.id}-avatar.png" alt="${k.name}"><div><div class="wsub">${t[2]}</div><h2>${k.name.toUpperCase()}'S ADVENTURE</h2><div class="wsub">${t[3]}</div></div></div><div class="worldBadges"><span class="worldBadge">💵 Owed ${money(cashOwed(k))}</span><span class="worldBadge">🏦 Future Fund ${money(k.car||0)}</span><span class="worldBadge">💰 Week ${money(weeklyGross(k.id))}/${money(weeklyTotalCap())}</span><span class="worldBadge">💵 Cash ${money(weeklyCash(k.id))}/${money(weeklyCashCap())}</span><span class="worldBadge"><img class="miniAsset" src="assets/star-coin.png" alt=""> ${k.xp||0} XP · ${k.rewardPoints||0} Points</span><span class="worldBadge">🎯 ${r}% reliable</span></div><div class="progress" style="margin-top:13px;background:rgba(255,255,255,.45)"><div class="bar" style="width:${pct}%"></div></div><div class="worldBadge" style="margin-top:9px;display:inline-flex"><img class="miniAsset" src="assets/level-badge.png" alt=""> Weekly Level Up ${levelProgress(k).earned}/${levelProgress(k).goal}</div></div>`}
 function weeklyVerse(){
  const now=new Date(),sun=new Date(now.getFullYear(),now.getMonth(),now.getDate());
  sun.setDate(sun.getDate()-sun.getDay()); // Sunday is the start of each verse week
