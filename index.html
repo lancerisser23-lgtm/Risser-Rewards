@@ -283,6 +283,51 @@ input:focus,select:focus{outline:2px solid rgba(52,99,70,.18);border-color:#6d92
   .adventureWorld.kidWorld-shepherd:after,
   .adventureWorld.kidWorld-juniper:after{font-size:25px;right:10px;bottom:8px;opacity:.48}
 }
+
+/* ===== v47.2 Settings Quick Navigation ===== */
+.settingsQuickNav{
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:14px
+}
+.settingsQuickBtn{
+ appearance:none;border:1px solid #d6ccb5;border-radius:16px;background:linear-gradient(180deg,#fffdf7,#f2ecdf);
+ color:#1b3829;min-height:88px;padding:12px;text-align:left;display:flex;align-items:center;gap:10px;
+ cursor:pointer;box-shadow:0 5px 14px rgba(35,54,40,.06);transition:.15s ease
+}
+.settingsQuickBtn:hover{transform:translateY(-1px);border-color:#bba970;box-shadow:0 8px 18px rgba(35,54,40,.10)}
+.settingsQuickIcon{
+ flex:0 0 44px;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;
+ background:#173f2d;color:white;font-size:22px;box-shadow:0 4px 10px rgba(22,62,44,.16)
+}
+.settingsQuickBtn b{display:block;font-size:14px}
+.settingsQuickBtn small{display:block;color:#72776f;font-size:10px;margin-top:3px;line-height:1.2}
+.parentPanel{scroll-margin-top:96px}
+.settingsSectionTop{display:flex;justify-content:flex-end;margin:-4px 0 6px}
+.settingsBackTop{
+ border:0;background:transparent;color:#496251;font-size:11px;font-weight:800;cursor:pointer;padding:4px 2px
+}
+.settingsBackTop:hover{text-decoration:underline}
+@media(max-width:700px){
+ .settingsQuickNav{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .settingsQuickBtn{min-height:76px;padding:9px}
+ .settingsQuickIcon{width:38px;height:38px;flex-basis:38px;font-size:19px}
+}
+
+/* ===== v47.3 Kid Level Ups Navigation Fix ===== */
+.kidExperienceNavNote{display:none}
+@media(max-width:700px){
+ .card:has([data-v="week"].btn) .row{
+   display:grid!important;
+   grid-template-columns:repeat(3,minmax(0,1fr));
+   width:100%;
+ }
+ .card:has([data-v="week"].btn) .btn{
+   min-height:52px;
+   padding:8px 5px;
+   white-space:normal;
+   line-height:1.15;
+   font-size:12px;
+ }
+}
 </style>
 </head>
 <body><div id="app" class="app"></div>
@@ -787,7 +832,7 @@ function kidExperienceNav(){
  return `<div class="card" style="padding:10px;margin-bottom:12px"><div class="row wrap" style="gap:8px;justify-content:flex-start">
    <button data-v="week" class="btn ${view==="week"?"":"secondary"} small">✅ My Missions</button>
    <button data-v="pick" class="btn ${view==="pick"?"":"secondary"} small">🧹 Chores / Jobs</button>
-   <button data-v="level" class="btn ${view==="level"?"":"secondary"} small">🌱 Growth / Level Ups</button>
+   <button data-v="level" class="btn ${view==="level"?"":"secondary"} small">🔥 Level Ups</button>
  </div></div>`;
 }
 function kidsLanding(){
@@ -840,7 +885,7 @@ function week(){
    }
  });
 
- return header()+`<div class="card" style="margin-bottom:12px">${kidChooser()}</div>`+world(k)+`<div class="card">
+ return header()+kidExperienceNav()+`<div class="card" style="margin-bottom:12px">${kidChooser()}</div>`+world(k)+`<div class="card">
    <div>
      <h2 style="margin:0">✅ My Missions</h2>
      <div class="muted">Everything ${k.name} needs to handle right now.</div>
@@ -876,7 +921,7 @@ function week(){
 }
 function level(){
  let k=data.kids[kid],dates=weekDates(),cs=challengeLibrary(),lp=levelProgress(k);
- return header()+kidExperienceNav()+world(k)+`<div class="card"><div class="row wrap"><div><h2 style="margin:0">🌱 Growth / Level Ups</h2><div class="muted">Habits build XP and streaks — not cash.</div></div><select id="kidSel" style="width:auto;min-width:150px">${data.kids.map((x,i)=>`<option value="${i}" ${i===kid?"selected":""}>${x.name}</option>`).join("")}</select></div>
+ return header()+kidExperienceNav()+world(k)+`<div class="card"><div class="row wrap"><div><h2 style="margin:0">🔥 Level Ups</h2><div class="muted">Habits build XP and streaks — not cash.</div></div><select id="kidSel" style="width:auto;min-width:150px">${data.kids.map((x,i)=>`<option value="${i}" ${i===kid?"selected":""}>${x.name}</option>`).join("")}</select></div>
  <div class="notice" style="margin-top:12px"><b>This week: ${lp.earned}/${lp.goal} challenge days</b><div class="progress" style="margin-top:7px"><div class="bar" style="width:${lp.goal?Math.min(100,lp.earned/lp.goal*100):0}%"></div></div></div>
  <div class="challengeGrid" style="margin-top:13px">${cs.filter(c=>!["help","awesome"].includes(c.id)).map(c=>{
  let hits=weeklyHits(k.id,c.id),pend=challengePending(k.id,c.id),hit=challengeHit(k.id,c.id),st=streak(k.id,c.id);
@@ -1135,32 +1180,32 @@ function settings(){
    ${vacationMode()?`<div class="notice" style="margin-top:10px"><b>🏖️ VACATION MODE ON</b> — required chores and missed-chore XP penalties are paused. Level Ups stay open.</div>`:""}
    ${summerMode()?`<div class="notice" style="margin-top:10px"><b>☀️ SUMMER MODE ON</b> — school-specific chores are hidden until you turn Summer Mode off.</div>`:""}
 
-   <div style="display:none">
-     <button class="btn secondary" data-togglepanel="choreSettings" style="padding:10px 5px;min-height:68px">
-       <div style="font-size:24px">🧹</div><div class="tiny"><b>Edit Chores</b></div>
+   <div class="settingsQuickNav">
+     <button class="settingsQuickBtn" data-jump-settings="choreSettings">
+       <span class="settingsQuickIcon">🧹</span><span><b>Edit Chores</b><small>Responsibilities & jobs</small></span>
      </button>
-     <button class="btn secondary" data-togglepanel="levelSettings" style="padding:10px 5px;min-height:68px">
-       <div style="font-size:24px">🔥</div><div class="tiny"><b>Edit Level Ups</b></div>
+     <button class="settingsQuickBtn" data-jump-settings="levelSettings">
+       <span class="settingsQuickIcon">🌱</span><span><b>Edit Level Ups</b><small>Growth & availability</small></span>
      </button>
-     <button class="btn secondary" data-togglepanel="earningSettings" style="padding:10px 5px;min-height:68px">
-       <div style="font-size:24px">💰</div><div class="tiny"><b>Earnings</b></div>
+     <button class="settingsQuickBtn" data-jump-settings="rewardSettings">
+       <span class="settingsQuickIcon">⭐</span><span><b>Edit Rewards</b><small>Individual & family</small></span>
      </button>
-     <button class="btn secondary" data-togglepanel="rewardSettings" style="padding:10px 5px;min-height:68px">
-       <div style="font-size:24px">🎁</div><div class="tiny"><b>Edit Rewards</b></div>
+     <button class="settingsQuickBtn" data-jump-settings="earningSettings">
+       <span class="settingsQuickIcon">💰</span><span><b>Money Rules</b><small>Earnings & Future Fund</small></span>
      </button>
    </div>
  </div>
 
- <div class="card parentPanel" id="choreSettings" style="display:block"><div class="row wrap"><div><h2 style="margin:0">🧰 Master Chore List</h2><p class="muted">Assign all four daily chores, or specific kids on any cadence.</p></div><div class="actions"><button id="addCustom" class="btn">＋ New Chore</button><button id="saveChores" class="btn secondary">Save Changes</button></div></div>
+ <div class="card parentPanel" id="choreSettings" style="display:block"><div class="settingsSectionTop"><button type="button" class="settingsBackTop" data-settings-top="1">↑ Settings menu</button></div><div class="row wrap"><div><h2 style="margin:0">🧰 Master Chore List</h2><p class="muted">Assign all four daily chores, or specific kids on any cadence.</p></div><div class="actions"><button id="addCustom" class="btn">＋ New Chore</button><button id="saveChores" class="btn secondary">Save Changes</button></div></div>
  <div id="customForm" class="notice" style="display:none;margin-top:12px"><div class="settingsGrid"><div><label>Name</label><input id="newName" placeholder="Clean chicken coop"></div><div><label>Emoji</label><input id="newIcon" value="⭐"></div><div><label>Responsibility</label><select id="newRequired"><option value="0" selected>Optional</option><option value="1">Required</option></select></div><div><label>Points earned</label><input id="newPoints" type="number" min="0" max="100" value="3"></div></div><div id="newMoneyArea" style="margin-top:10px"><label>Can this chore earn money?</label><select id="newPaid"><option value="0" selected>No — Points only</option><option value="1">Yes</option></select><div id="newPayFields" style="display:none;margin-top:10px"><label>Effort level</label><select id="newEffort"><option value="helping">🟢 Helping Hand — quick/easy extra job</option><option value="hard">🔵 Hard Work — meaningful time or effort</option><option value="big">🟣 Big Job — significant effort</option></select><div id="newAutoPreview" class="notice" style="margin-top:8px"></div><label><input id="newCustomToggle" type="checkbox"> Customize dollar amount</label><div id="newCustomWrap" style="display:none"><input id="newCustomAmount" type="number" min="0" step=".50" value="2"></div></div></div><div id="requiredMoneyOverride" class="tiny muted" style="display:none;margin-top:8px">Required chores default to no money. <button id="allowRequiredPay" type="button" class="btn secondary small">Allow earnings anyway</button></div><div class="tiny muted" style="margin-top:8px">Required = responsibility. Optional chores can be earning opportunities. Your weekly budget sets the automatic value.</div><div class="actions" style="margin-top:10px"><button id="createCustom" class="btn">Add Chore</button><button id="cancelCustom" class="btn secondary">Cancel</button></div></div>
  <div style="display:grid;gap:10px;margin-top:13px">${lib.map((c,i)=>`<div class="card masterCard"><div class="row wrap"><div><b>${c.icon} ${c.name}</b><div class="tiny muted">${c.category} · ${c.paid?`💵 ${money(c.cash)} · 🚗 ${money(c.car)}`:"unpaid responsibility"}</div></div><label class="badge"><input data-active="${i}" type="checkbox" ${c.active!==false?"checked":""}> Active</label></div><div class="assignments">${data.kids.map(k=>`<label><input data-assign="${i}|${k.id}" type="checkbox" ${(c.assignedTo||[]).includes(k.id)?"checked":""}> ${theme(k)[1]} ${k.name}</label>`).join("")}</div><div class="settingsGrid"><div><label>Frequency</label><select data-frequency="${i}"><option value="anytime" ${c.frequency==="anytime"?"selected":""}>Anytime</option><option value="needed" ${c.frequency==="needed"?"selected":""}>When needed</option><option value="daily" ${c.frequency==="daily"?"selected":""}>Once a day</option><option value="weekdays" ${c.frequency==="weekdays"?"selected":""}>Weekdays</option><option value="weekly" ${c.frequency==="weekly"?"selected":""}>Once a week</option><option value="everyhours" ${c.frequency==="everyhours"?"selected":""}>Every X hours</option><option value="everyx" ${c.frequency==="everyx"?"selected":""}>Every X days</option><option value="once" ${c.frequency==="once"?"selected":""}>One-time</option></select></div><div data-hours-wrap="${i}" style="${c.frequency==="everyhours"?"":"display:none"}"><label>Reopens after how many hours?</label><input data-hours="${i}" type="number" min="1" max="24" value="${Math.max(1,+c.intervalHours||1)}"></div><div data-interval-wrap="${i}" style="${c.frequency==="everyx"?"":"display:none"}"><label>Every how many days?</label><input data-interval="${i}" type="number" min="1" max="365" value="${Math.max(1,+c.intervalDays||7)}"></div><div><label>Required?</label><select data-required="${i}"><option value="0" ${!c.required?"selected":""}>Optional</option><option value="1" ${c.required?"selected":""}>Required</option></select></div><div><label>Points earned</label><input data-points="${i}" type="number" min="0" max="100" step="1" value="${Math.max(0,c.points!=null?+c.points:(c.required?2:3))}"></div><div><label>Earn money?</label><select data-paid="${i}"><option value="0" ${!c.paid?"selected":""}>No</option><option value="1" ${c.paid?"selected":""}>Yes</option></select></div><div data-effort-wrap="${i}" style="${c.paid?"":"display:none"}"><label>Effort</label><select data-effort="${i}"><option value="helping" ${(c.effortLevel||"helping")==="helping"?"selected":""}>🟢 Helping Hand</option><option value="hard" ${c.effortLevel==="hard"?"selected":""}>🔵 Hard Work</option><option value="big" ${c.effortLevel==="big"?"selected":""}>🟣 Big Job</option></select><div class="tiny muted">${c.paid?(()=>{let q=autoChorePreview(c);return `Auto ${money(q.gross)} → 💵 ${money(q.cash)} + 🌱 ${money(q.future)}`})():""}</div></div><div><label>Claim type</label><select data-exclusive="${i}"><option value="0" ${!c.exclusive?"selected":""}>Each kid</option><option value="1" ${c.exclusive?"selected":""}>First kid only / Shared job</option></select></div><div><label>Miss penalty</label><select data-miss="${i}"><option value="0" ${+c.missXp===0?"selected":""}>None</option><option value="5" ${+c.missXp===5?"selected":""}>-5 XP</option><option value="10" ${+c.missXp===10?"selected":""}>-10 XP</option></select></div></div>${c.custom?`<button data-delete="${i}" class="btn red small" style="margin-top:8px">Delete</button>`:""}</div>`).join("")}</div></div>
  
- <div class="card parentPanel" id="levelSettings" style="display:block"><h2 style="margin-top:0">⏱️ Level Up Availability</h2><p class="muted">Choose how often each Level Up can be completed and how many Points it earns. Most Level Ups now default to 5 Points; bigger character/all-day wins default to 10. Pushups stay 5 Points per 20 and are calculated automatically.  “First kid only” is available for shared family challenges, but most Level Ups should stay “Each kid.”</p>
+ <div class="card parentPanel" id="levelSettings" style="display:block"><div class="settingsSectionTop"><button type="button" class="settingsBackTop" data-settings-top="1">↑ Settings menu</button></div><h2 style="margin-top:0">⏱️ Level Up Availability</h2><p class="muted">Choose how often each Level Up can be completed and how many Points it earns. Most Level Ups now default to 5 Points; bigger character/all-day wins default to 10. Pushups stay 5 Points per 20 and are calculated automatically.  “First kid only” is available for shared family challenges, but most Level Ups should stay “Each kid.”</p>
 ${challengeLibrary().filter(c=>!c.parentOnly).map((c,i)=>`<div class="card masterCard"><div class="row wrap"><div><b>${c.icon} ${c.name}</b><div class="tiny muted">${challengeAvailabilityLabel(c)}</div></div></div><div class="settingsGrid"><div><label>Availability</label><select data-cfreq="${i}"><option value="anytime" ${c.frequency==="anytime"?"selected":""}>Anytime</option><option value="daily" ${c.frequency==="daily"?"selected":""}>Once a day</option><option value="weekdays" ${c.frequency==="weekdays"?"selected":""}>Weekdays</option><option value="weekly" ${c.frequency==="weekly"?"selected":""}>Once a week</option><option value="everyhours" ${c.frequency==="everyhours"?"selected":""}>Every X hours</option><option value="everyx" ${c.frequency==="everyx"?"selected":""}>Every X days</option><option value="once" ${c.frequency==="once"?"selected":""}>One-time</option></select></div><div data-chours-wrap="${i}" style="${c.frequency==="everyhours"?"":"display:none"}"><label>Hours</label><input data-chours="${i}" type="number" min="1" max="24" value="${Math.max(1,+c.intervalHours||4)}"></div><div data-cdays-wrap="${i}" style="${c.frequency==="everyx"?"":"display:none"}"><label>Days</label><input data-cdays="${i}" type="number" min="1" max="365" value="${Math.max(1,+c.intervalDays||1)}"></div><div><label>Points earned</label><input data-cpoints="${i}" type="number" min="0" max="100" step="1" value="${c.id==="pushups"?pushupPoints(20):Math.max(0,+c.rewardPoints||defaultLevelPoints(c.id))}" ${c.id==="pushups"?"disabled":""}></div><div><label>Claim type</label><select data-cclaim="${i}"><option value="each" ${c.claimType!=="shared"?"selected":""}>Each kid</option><option value="shared" ${c.claimType==="shared"?"selected":""}>First kid only / Shared</option></select></div></div></div>`).join("")}
 <button id="saveLevelAvailability" class="btn" style="margin-top:10px">Save Level Up Availability</button></div>
 
  
- <div class="card parentPanel" id="rewardSettings" style="display:block">
+ <div class="card parentPanel" id="rewardSettings" style="display:block"><div class="settingsSectionTop"><button type="button" class="settingsBackTop" data-settings-top="1">↑ Settings menu</button></div>
    <div class="row wrap">
      <div>
        <h2 style="margin:0">⭐ Edit Rewards</h2>
@@ -1200,7 +1245,7 @@ ${challengeLibrary().filter(c=>!c.parentOnly).map((c,i)=>`<div class="card maste
      <button id="saveRewards" class="btn">Save Rewards</button>
    </div>
  </div>
-<div class="card parentPanel" id="earningSettings" style="display:block"><h2 style="margin-top:0">💰 Family Earnings Settings</h2><div class="notice"><b>Parents set the budget. We build the economy.</b> Required chores default to responsibility/no money.</div><div class="settingsGrid" style="grid-template-columns:1fr 1fr 1fr"><div><label>Weekly earning max / child</label><input id="weeklyTotalCap" type="number" min="0" step="1" value="${weeklyTotalCap()}"></div><div><label>Future Fund %</label><input id="futureFundPct" type="number" min="0" max="100" value="${Math.round(futurePct())}"></div><div><label>Settle-up reminder</label><select id="settleReminder"><option value="weekly" ${(data.settleReminder||"weekly")==="weekly"?"selected":""}>Weekly — Sunday</option><option value="monthly" ${data.settleReminder==="monthly"?"selected":""}>Monthly</option><option value="none" ${data.settleReminder==="none"?"selected":""}>No reminder</option></select></div></div><div class="notice" style="margin-top:10px"><b>Automatic values:</b> 🟢 Helping Hand ${money(autoBaseReward())} · 🔵 Hard Work ${money(autoBaseReward()*2)} · 🟣 Big Job ${money(autoBaseReward()*3)}<br><span class="tiny muted">${Math.round(cashPct())}% Spend Now / ${Math.round(futurePct())}% Future Fund.</span></div><button id="saveMoneyRules" class="btn" style="margin-top:10px">Save Earnings Settings</button></div>
+<div class="card parentPanel" id="earningSettings" style="display:block"><div class="settingsSectionTop"><button type="button" class="settingsBackTop" data-settings-top="1">↑ Settings menu</button></div><h2 style="margin-top:0">💰 Family Earnings Settings</h2><div class="notice"><b>Parents set the budget. We build the economy.</b> Required chores default to responsibility/no money.</div><div class="settingsGrid" style="grid-template-columns:1fr 1fr 1fr"><div><label>Weekly earning max / child</label><input id="weeklyTotalCap" type="number" min="0" step="1" value="${weeklyTotalCap()}"></div><div><label>Future Fund %</label><input id="futureFundPct" type="number" min="0" max="100" value="${Math.round(futurePct())}"></div><div><label>Settle-up reminder</label><select id="settleReminder"><option value="weekly" ${(data.settleReminder||"weekly")==="weekly"?"selected":""}>Weekly — Sunday</option><option value="monthly" ${data.settleReminder==="monthly"?"selected":""}>Monthly</option><option value="none" ${data.settleReminder==="none"?"selected":""}>No reminder</option></select></div></div><div class="notice" style="margin-top:10px"><b>Automatic values:</b> 🟢 Helping Hand ${money(autoBaseReward())} · 🔵 Hard Work ${money(autoBaseReward()*2)} · 🟣 Big Job ${money(autoBaseReward()*3)}<br><span class="tiny muted">${Math.round(cashPct())}% Spend Now / ${Math.round(futurePct())}% Future Fund.</span></div><button id="saveMoneyRules" class="btn" style="margin-top:10px">Save Earnings Settings</button></div>
  
 
  <div class="card"><h2>👨‍👩‍👧 Add Parent</h2><div class="row wrap"><input id="parentEmail" style="flex:1;min-width:220px" placeholder="Google email"><button id="addParent" class="btn">Authorize</button></div><div class="tiny muted" style="margin-top:7px">Authorized: ${(data.parentEmails||[]).join(", ")}</div></div>`;
@@ -1305,6 +1350,14 @@ function bind(){
  $("#logout")?.addEventListener("click",()=>signOut(auth));
  $$("[data-v]").forEach(b=>b.onclick=()=>{view=b.dataset.v;render()});
  $$("[data-parentgate]").forEach(b=>b.onclick=()=>$("#parentLogin")?.click());
+ $$("[data-jump-settings]").forEach(b=>b.onclick=()=>{
+   let el=document.getElementById(b.dataset.jumpSettings);
+   if(el)el.scrollIntoView({behavior:"smooth",block:"start"});
+ });
+ $$("[data-settings-top]").forEach(b=>b.onclick=()=>{
+   let el=document.querySelector(".settingsQuickNav");
+   if(el)el.scrollIntoView({behavior:"smooth",block:"center"});
+ });
  $$("[data-k]").forEach(b=>b.onclick=()=>{kid=+b.dataset.k;view="week";render()});
  $("#kidSel")?.addEventListener("change",e=>{kid=+e.target.value;pushupCount=0;render()});
  $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCount=0;if(view==="kids")view="week";render()});

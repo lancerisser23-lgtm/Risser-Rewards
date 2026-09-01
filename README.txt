@@ -1,15 +1,16 @@
-Risser Rewards v47.1 — Kid World Theme Fix
+Risser Rewards v47.3 — Kid Level Ups Navigation Fix
 
-Patch on top of v47 Adventure Edition.
+Fixes the missing Level Ups navigation from the kid's default My Missions screen.
 
-Visual fixes only:
-- Juniper now consistently uses her Meadow / Unicorn world on desktop, tablet, and mobile.
-- Juniper no longer inherits Noah's wolf/mountain hero background.
-- Eli now has a warm Savanna / Lion world treatment.
-- Shepherd now has a deep Forest world treatment.
-- Noah retains the illustrated mountain/wolf asset from v47.
-- Responsive layouts still resize/reflow on mobile, but the selected child's visual world remains consistent.
-- Existing v47 assets, navigation, Firebase behavior, chores, approvals, earnings, rewards, Level Ups, and excuse workflows remain unchanged.
+Kid navigation now stays visible after selecting a child:
+- ✅ My Missions
+- 🧹 Chores / Jobs
+- 🔥 Level Ups
 
-Upload the full package contents because v47 uses the assets folder.
+The Level Ups screen title also now uses 🔥 Level Ups consistently.
+
+Important: this was a navigation/rendering issue, not a Level Ups data issue. Existing Level Up opportunities and approval behavior are unchanged.
+
+Includes all v47.2 Settings Quick Nav improvements and v47.1 kid world fixes.
+Upload the full package contents, including assets.
 No Firebase rules changes expected.
