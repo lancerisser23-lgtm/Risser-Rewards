@@ -1,16 +1,12 @@
-Risser Rewards v49.3 — Sunday Earnings Check-In
+Risser Rewards v49 — Per-Kid Penalty Controls + Clean World Assets
 
-Added:
-- Parent-only Sunday popup when Spend Now or Future Fund money is outstanding.
-- Popup shows total Spend Now waiting and Future Fund waiting.
-- “Take Care of It” opens the existing Earnings workflow.
-- Popup appears once per app session/day so it does not nag on every tab change.
-- Persistent Sunday action card appears at the top of Parent HQ while balances remain.
-- Parent HQ buttons jump to the existing Record Cash Payment / Future Fund controls.
-- No duplicate payout system was created.
-- Reminder automatically stops when both outstanding totals reach $0.
-- Existing Settings choice “Weekly — Sunday” controls this behavior.
-- If there is nothing outstanding, no popup/card appears.
+Adds Settings → Money Rules → Required Chore Penalties.
+Each child can independently have automatic missed-required-chore XP penalties ON or OFF.
+OFF does not remove responsibilities or prevent completion; it only prevents new automatic missed-chore XP penalties.
+Turning penalties back ON applies going forward only.
 
+All four world PNGs are scenery-only/reframed assets so live UI text is not doubled.
+
+Retains v48.1 and v47.3 functionality including 🔥 Level Ups.
 No Firebase rules changes expected.
-Upload the full package including assets/.
+Upload the ENTIRE package including assets/.
