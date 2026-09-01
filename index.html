@@ -9,8 +9,8 @@
 <meta name="apple-mobile-web-app-title" content="Risser Rewards">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" sizes="180x180" href="risser-rewards-touch-v17.png">
-<title>Risser Rewards V50</title>
-<meta name="application-version" content="50">
+<title>Risser Rewards V50.2</title>
+<meta name="application-version" content="50.2">
 <style>
 :root{--g:#1f6848;--bg:#f5f5ef;--ink:#182019;--muted:#68736b;--line:#e0e6de;--gold:#d6a62f;--red:#b64e45;--amber:#986a14;--shadow:0 10px 28px rgba(28,64,41,.10)}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-family:ui-rounded,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
@@ -445,6 +445,17 @@ input:focus,select:focus{outline:2px solid rgba(52,99,70,.18);border-color:#6d92
  .v50ParentTabs{grid-template-columns:repeat(3,1fr)}
 }
 
+
+.v501QuickEdit{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px}
+.v501QuickEdit button{border:1px solid var(--line);background:#fff;border-radius:18px;padding:15px;text-align:left;font-weight:950;min-height:80px}
+.v501QuickEdit .ico{display:block;font-size:28px;margin-bottom:6px}
+@media(max-width:650px){.v501QuickEdit{grid-template-columns:1fr}}
+
+.dayPicker{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+.dayPicker label{display:flex;align-items:center;justify-content:center;min-width:38px;height:38px;border:1px solid var(--line);border-radius:11px;background:#fff;font-weight:950;cursor:pointer}
+.dayPicker input{position:absolute;opacity:0;pointer-events:none}
+.dayPicker label:has(input:checked){background:var(--g);color:#fff;border-color:var(--g)}
+.dayPickerWrap{grid-column:1/-1;padding:10px 12px;border:1px dashed var(--line);border-radius:14px;background:#fafbf8}
 </style>
 </head>
 <body><div id="app" class="app"></div>
@@ -539,6 +550,22 @@ function isKidSession(){return !!(user&&user.isAnonymous)}
 function modeLabel(){return isKidSession()?"🏠 Kid Mode":"👨‍👩‍👧 Parent"}
 function theme(k){return {Noah:["noahWorld","🐺","Wolf Forest","Run with the pack. Own your missions."],Eli:["eliWorld","🦁","Golden Savanna","Be bold. Lead well. Keep exploring."],Shepherd:["shepherdWorld","🐍","Jungle Quest","Track it. Own it. Strike with focus."],Juniper:["juniperWorld","🦄🌈","Rainbow Unicorn World","Sparkle through your missions!"]}[k.name]}
 const SCHOOL_CHORE_IDS=["lunch","lunchd","backpack","homework","completehomework","study"];
+const DAY_LABELS=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const SCHOOL_DAYS=[1,2,3,4,5];
+function scheduleDays(c){
+  if(c?.frequency!=="weekdays")return [];
+  let days=Array.isArray(c.days)&&c.days.length?c.days.map(Number).filter(n=>n>=0&&n<=6):SCHOOL_DAYS;
+  return [...new Set(days)].sort((a,b)=>a-b);
+}
+function dayAllowed(c,d=new Date()){return c?.frequency!=="weekdays"||scheduleDays(c).includes(d.getDay())}
+function dayAllowedOnDate(c,date){return c?.frequency!=="weekdays"||scheduleDays(c).includes(new Date(date+"T12:00:00").getDay())}
+function scheduleDaysLabel(c){
+  let days=scheduleDays(c);
+  if(days.length===5&&SCHOOL_DAYS.every(x=>days.includes(x)))return "Mon–Fri";
+  if(days.length===7)return "Every day";
+  return days.map(d=>DAY_LABELS[d]).join(", ");
+}
+
 function isSchoolChore(c){
   return SCHOOL_CHORE_IDS.includes(c.id);
 }
@@ -549,7 +576,7 @@ function vacationDay(date,d=data){
   return (d?.vacationHistory||[]).some(v=>(v.start||0)<=end&&((v.end||Date.now())>=start));
 }
 function normalize(c){
-  return {frequency:"anytime",intervalDays:7,intervalHours:1,required:false,paid:(+c.cash||0)>0||(+c.car||0)>0,xp:10,missXp:5,assignedTo:["noah","eli","shepherd","juniper"],active:true,...c}
+  return {frequency:"anytime",intervalDays:7,intervalHours:1,days:[],required:false,paid:(+c.cash||0)>0||(+c.car||0)>0,xp:10,missXp:5,assignedTo:["noah","eli","shepherd","juniper"],active:true,...c}
 }
 
 // Enforce the family rules requested for the known built-in chores.
@@ -606,12 +633,14 @@ function applyBuiltInPolicy(c){
 }
 function rawLibrary(){
   const saved=Array.isArray(data?.choreLibrary)&&data.choreLibrary.length?data.choreLibrary:[];
-  if(!saved.length) return DEFAULTS.map(d=>applyBuiltInPolicy(normalize(d)));
-
+  if(!saved.length) return DEFAULTS.map(d=>applyBuiltInPolicy(normalize(isSchoolChore(d)?{...d,frequency:"weekdays",days:[1,2,3,4,5]}:d)));
   const map=new Map(saved.map(c=>[c.id,c]));
-  const merged=DEFAULTS.map(d=>applyBuiltInPolicy(normalize({...d,...(map.get(d.id)||{})})));
-  saved.filter(c=>!DEFAULTS.some(d=>d.id===c.id))
-       .forEach(c=>merged.push(normalize(c)));
+  const merged=DEFAULTS.map(d=>{
+    let existing=map.get(d.id)||{};
+    if(isSchoolChore(d)&&!existing.scheduleDaysConfigured) existing={...existing,frequency:"weekdays",days:[1,2,3,4,5]};
+    return applyBuiltInPolicy(normalize({...d,...existing}));
+  });
+  saved.filter(c=>!DEFAULTS.some(d=>d.id===c.id)).forEach(c=>merged.push(normalize(c)));
   return merged;
 }
 
@@ -627,7 +656,7 @@ function prevDateKey(){let d=new Date();d.setDate(d.getDate()-1);return d.toLoca
 function dateKeyFromMs(ms){return ms?new Date(ms).toLocaleDateString("en-CA"):""}
 function requiredDueOnDate(c,date){
  if(c.frequency==="daily")return true;
- if(c.frequency==="weekdays"){let d=new Date(date+"T12:00:00"),day=d.getDay();return day!==0&&day!==6}
+ if(c.frequency==="weekdays")return dayAllowedOnDate(c,date)
  return false;
 }
 async function applyYesterdayMisses(){
@@ -732,7 +761,7 @@ function frequencyLabel(c){
   if(c.frequency==="needed")return "when needed";
   if(c.frequency==="everyhours")return `every ${Math.max(1,+c.intervalHours||1)} hours`;
   if(c.frequency==="everyx")return `every ${Math.max(1,+c.intervalDays||7)} days`;
-  if(c.frequency==="weekdays")return "weekdays";
+  if(c.frequency==="weekdays")return scheduleDaysLabel(c);
   if(c.frequency==="once")return "one-time";
   if(c.frequency==="daily")return "once a day";
   if(c.frequency==="weekly")return "once a week";
@@ -743,7 +772,7 @@ function mondayKey(d=new Date()){let x=new Date(d),day=(x.getDay()+6)%7;x.setHou
 function isWeekend(d=new Date()){let day=d.getDay();return day===0||day===6}
 function periodKey(c){
   if(c.frequency==="daily")return todayKey();
-  if(c.frequency==="weekdays")return isWeekend()?"weekend-off":todayKey();
+  if(c.frequency==="weekdays")return dayAllowed(c)?todayKey():"day-off";
   if(c.frequency==="weekly")return mondayKey();
   if(c.frequency==="everyhours")return "everyhours";
   if(c.frequency==="everyx")return "everyx";
@@ -773,7 +802,7 @@ function everyHoursReady(c,kidId){
   if(!t)return true;
   return (Date.now()-(t.approvedAt||0)) >= hours*3600000;
 }
-function eligible(c,kidId){return c.active!==false&&(c.assignedTo||[]).includes(kidId)&&!(c.frequency==="weekdays"&&isWeekend())}
+function eligible(c,kidId){return c.active!==false&&(c.assignedTo||[]).includes(kidId)&&dayAllowed(c)}
 function live(c,kidId){let p=periodKey(c);return (data.tasks||[]).find(t=>t.choreId===c.id&&t.kidId===kidId&&["open","pending"].includes(t.status)&&(c.frequency==="anytime"||t.periodKey===p))}
 function approved(c,kidId){let p=periodKey(c);return (data.tasks||[]).some(t=>t.choreId===c.id&&t.kidId===kidId&&t.status==="approved"&&(c.frequency==="anytime"||t.periodKey===p))}
 function sharedLive(c){let p=periodKey(c);return (data.tasks||[]).find(t=>t.choreId===c.id&&["open","pending"].includes(t.status)&&(c.frequency==="anytime"||t.periodKey===p))}
@@ -832,11 +861,17 @@ function requiredLeft(k){
 function challengeLibrary(){
   const saved=Array.isArray(data?.challenges)?data.challenges:[];
   const map=new Map(saved.map(c=>[c.id,c]));
-  return DEFAULT_CHALLENGES.map(c=>{
-    let x={frequency:"daily",intervalHours:4,intervalDays:1,claimType:"each",rewardPoints:defaultLevelPoints(c.id),...c,...(map.get(c.id)||{})};
-    if(x.id==="outside"){x.frequency=x.frequency||"everyhours"; if(!map.has(x.id)){x.frequency="everyhours";x.intervalHours=4}}
+  const builtin=DEFAULT_CHALLENGES.map(c=>{
+    let x={frequency:"daily",intervalHours:4,intervalDays:1,claimType:"each",rewardPoints:defaultLevelPoints(c.id),active:true,...c,...(map.get(c.id)||{})};
+    if(x.id==="outside"&&!map.has(x.id)){x.frequency="everyhours";x.intervalHours=4}
     return x;
   });
+  const ids=new Set(DEFAULT_CHALLENGES.map(c=>c.id));
+  const custom=saved.filter(c=>c?.id&&!ids.has(c.id)).map(c=>({
+    icon:"🌱",name:"Growth Mission",desc:"",target:0,xp:10,weekdaysOnly:false,parentOnly:false,
+    frequency:"daily",intervalHours:4,intervalDays:1,claimType:"each",rewardPoints:5,active:true,custom:true,...c
+  }));
+  return [...builtin,...custom];
 }
 function challengeLogs(){return Array.isArray(data?.challengeLogs)?data.challengeLogs:[]}
 function weekDates(){
@@ -940,6 +975,14 @@ function v50FreqOptions(c){
    <option value="everyx" ${c.frequency==="everyx"?"selected":""}>Every X Days</option>
    <option value="once" ${c.frequency==="once"?"selected":""}>One-Time</option>
  </optgroup>`;
+}
+
+function v502DayPicker(c,prefix,index){
+ const selected=scheduleDays(c);
+ return `<div class="dayPickerWrap" data-days-wrap="${prefix}-${index}" style="${c.frequency==="weekdays"?"":"display:none"}">
+   <div class="tiny muted"><b>Which days?</b></div>
+   <div class="dayPicker">${[[1,"M"],[2,"T"],[3,"W"],[4,"T"],[5,"F"],[6,"S"],[0,"S"]].map(([d,l])=>`<label title="${DAY_LABELS[d]}"><input type="checkbox" data-days="${prefix}|${index}|${d}" ${selected.includes(d)?"checked":""}>${l}</label>`).join("")}</div>
+ </div>`;
 }
 function v50GrowthFreqOptions(c){
  return `<optgroup label="Simple">
@@ -1054,7 +1097,7 @@ function week(){
  let k=data.kids[kid],active=kidHubActive(k),goal=rewardGoal(k),rp=visibleRewardProgress(k,goal);
  let responsibilities=library().filter(c=>isResponsibility(c)&&eligible(c,k.id));
  let jobs=library().filter(c=>isJob(c)&&eligible(c,k.id));
- let growth=challengeLibrary().filter(c=>!c.parentOnly);
+ let growth=challengeLibrary().filter(c=>!c.parentOnly&&c.active!==false);
  let dueCount=responsibilities.filter(c=>canClaim(c,k.id)).length;
  return header()+world(k)+`
    <div class="v50CategoryGrid">
@@ -1114,7 +1157,7 @@ function pick(){
  </div>`;
 }
 function level(){
- let k=data.kids[kid],dates=weekDates(),cs=challengeLibrary().filter(c=>!c.parentOnly),lp=levelProgress(k);
+ let k=data.kids[kid],dates=weekDates(),cs=challengeLibrary().filter(c=>!c.parentOnly&&c.active!==false),lp=levelProgress(k);
  return header()+kidExperienceNav()+world(k)+`<div class="card">
    <div class="v50SectionTitle">
      <div><h2 style="margin:0">🌱 Growth</h2><div class="muted">Pick a Mission. Build skills, habits and character.</div></div>
@@ -1293,6 +1336,16 @@ function settings(){
  let lib=rawLibrary();
  return header()+`
  <div class="card">
+   <div class="tiny muted">QUICK EDIT</div>
+   <h2 style="margin:4px 0">What do you want to update?</h2>
+   <div class="v501QuickEdit">
+     <button data-settings-jump="workSettingsV50"><span class="ico">✅ 💼</span>Edit Jobs / Responsibilities</button>
+     <button data-settings-jump="growthSettingsV50"><span class="ico">🌱</span>Edit Growth Missions</button>
+     <button data-settings-jump="rewardSettingsV50"><span class="ico">🏆</span>Edit Rewards</button>
+   </div>
+ </div>
+
+ <div class="card">
    <div class="tiny muted">QUICK SETUP</div><h2 style="margin:4px 0">⚙️ Family Setup</h2>
    <p class="muted">Most families only need this section. Advanced controls are still available below.</p>
    <div class="v50SetupGrid">
@@ -1304,14 +1357,14 @@ function settings(){
    <button id="saveMoneyRules" class="btn" style="margin-top:12px">Save Family Money Setup</button>
  </div>
 
- <div class="card">
-   <div class="v50SectionTitle"><div><h2 style="margin:0">✅ Responsibilities & 💼 Jobs</h2><div class="muted">Assign work and choose a simple schedule. Most families only need Every Day, Certain Days, Weekly or Anytime.</div></div></div>
+ <div class="card" id="workSettingsV50">
+   <div class="v50SectionTitle"><div><h2 style="margin:0">✅ Responsibilities & 💼 Jobs</h2><div class="muted">Assign work and choose a simple schedule. Certain Days lets you pick exactly which days — school items default to Monday–Friday.</div></div></div>
    <div style="display:grid;gap:10px">${lib.map((c,i)=>`<details class="v50Advanced masterCard"><summary>${c.icon} ${c.name} <span class="tiny muted">· ${c.required?"Responsibility":"Job"} · ${frequencyLabel(c)}</span></summary><div class="v50AdvancedBody">
      <div class="assignments">${data.kids.map(k=>`<label><input data-assign="${i}|${k.id}" type="checkbox" ${(c.assignedTo||[]).includes(k.id)?"checked":""}> ${k.name}</label>`).join("")}</div>
      <div class="settingsGrid">
        <div><label>Active</label><select data-active-select="${i}"><option value="1" ${c.active!==false?"selected":""}>Yes</option><option value="0" ${c.active===false?"selected":""}>No</option></select><input data-active="${i}" type="checkbox" ${c.active!==false?"checked":""} style="display:none"></div>
        <div><label>Type</label><select data-required="${i}"><option value="1" ${c.required?"selected":""}>Responsibility</option><option value="0" ${!c.required?"selected":""}>Job</option></select></div>
-       <div><label>Schedule</label><select data-frequency="${i}">${v50FreqOptions(c)}</select></div>
+       <div><label>Schedule</label><select data-frequency="${i}">${v50FreqOptions(c)}</select></div>${v502DayPicker(c,"chore",i)}
        <div><label>Earn money?</label><select data-paid="${i}"><option value="0" ${!c.paid?"selected":""}>No</option><option value="1" ${c.paid?"selected":""}>Yes</option></select></div>
        <div data-hours-wrap="${i}" style="${c.frequency==="everyhours"?"":"display:none"}"><label>Reopens after hours</label><input data-hours="${i}" type="number" min="1" max="24" value="${Math.max(1,+c.intervalHours||1)}"></div>
        <div data-interval-wrap="${i}" style="${c.frequency==="everyx"?"":"display:none"}"><label>Every X days</label><input data-interval="${i}" type="number" min="1" max="365" value="${Math.max(1,+c.intervalDays||7)}"></div>
@@ -1335,24 +1388,54 @@ function settings(){
    </div></details>
  </div>
 
- <div class="card">
-   <h2 style="margin-top:0">🌱 Growth Missions</h2><p class="muted">Level Ups, Challenges and Missions are now one thing: Growth Missions.</p>
-   ${challengeLibrary().filter(c=>!c.parentOnly).map((c,i)=>`<details class="v50Advanced masterCard"><summary>${c.icon} ${c.name} <span class="tiny muted">· ${challengeAvailabilityLabel(c)}</span></summary><div class="v50AdvancedBody"><div class="settingsGrid">
-     <div><label>Schedule</label><select data-cfreq="${i}">${v50GrowthFreqOptions(c)}</select></div>
-     <div data-chours-wrap="${i}" style="${c.frequency==="everyhours"?"":"display:none"}"><label>Hours</label><input data-chours="${i}" type="number" min="1" max="24" value="${Math.max(1,+c.intervalHours||4)}"></div>
-     <div data-cdays-wrap="${i}" style="${c.frequency==="everyx"?"":"display:none"}"><label>Days</label><input data-cdays="${i}" type="number" min="1" max="365" value="${Math.max(1,+c.intervalDays||1)}"></div>
-     <div><label>Who can complete?</label><select data-cclaim="${i}"><option value="each" ${c.claimType!=="shared"?"selected":""}>Each kid</option><option value="shared" ${c.claimType==="shared"?"selected":""}>First kid only</option></select></div>
-     <input data-cpoints="${i}" type="hidden" value="${c.id==="pushups"?pushupPoints(20):Math.max(0,+c.rewardPoints||defaultLevelPoints(c.id))}">
-   </div></div></details>`).join("")}
-   <button id="saveLevelAvailability" class="btn" style="margin-top:12px">Save Growth Missions</button>
- </div>
+ <div class="card" id="growthSettingsV50">
+   <h2 style="margin-top:0">🌱 Growth Missions</h2>
+   <p class="muted">Add your own Missions, edit the current ones, or remove anything your family doesn't use. Removing a Mission hides it without deleting its history.</p>
 
+   ${challengeLibrary().filter(c=>!c.parentOnly&&c.active!==false).map(c=>{
+     let i=challengeLibrary().findIndex(x=>x.id===c.id);
+     return `<details class="v50Advanced masterCard">
+       <summary>${c.icon} ${c.name} <span class="tiny muted">· ${challengeAvailabilityLabel(c)}</span></summary>
+       <div class="v50AdvancedBody">
+         <div class="settingsGrid">
+           <div><label>Name</label><input data-cname="${i}" value="${c.name||""}"></div>
+           <div><label>Icon</label><input data-cicon="${i}" value="${c.icon||"🌱"}"></div>
+           <div style="grid-column:1/-1"><label>Mission description</label><input data-cdesc="${i}" value="${c.desc||""}"></div>
+           <div><label>XP</label><input data-cxp="${i}" type="number" min="0" max="100" value="${Math.max(0,+c.xp||0)}"></div>
+           <div><label>Schedule</label><select data-cfreq="${i}">${v50GrowthFreqOptions(c)}</select></div>${v502DayPicker(c,"growth",i)}
+           <div data-chours-wrap="${i}" style="${c.frequency==="everyhours"?"":"display:none"}"><label>Hours</label><input data-chours="${i}" type="number" min="1" max="168" value="${Math.max(1,+c.intervalHours||4)}"></div>
+           <div data-cdays-wrap="${i}" style="${c.frequency==="everyx"?"":"display:none"}"><label>Days</label><input data-cdays="${i}" type="number" min="1" max="365" value="${Math.max(1,+c.intervalDays||1)}"></div>
+           <div><label>Who can complete?</label><select data-cclaim="${i}"><option value="each" ${c.claimType!=="shared"?"selected":""}>Each kid</option><option value="shared" ${c.claimType==="shared"?"selected":""}>First kid only</option></select></div>
+           <input data-cpoints="${i}" type="hidden" value="${c.id==="pushups"?pushupPoints(20):Math.max(0,+c.rewardPoints||defaultLevelPoints(c.id))}">
+         </div>
+         <button class="btn red small" style="margin-top:10px" data-growth-remove="${c.id}">Remove Mission</button>
+       </div>
+     </details>`;
+   }).join("")}
+   <button id="saveLevelAvailability" class="btn" style="margin-top:12px">Save Growth Missions</button>
+
+   <details class="v50Advanced" style="margin-top:12px">
+     <summary>＋ Add a Growth Mission</summary>
+     <div class="v50AdvancedBody">
+       <div class="settingsGrid">
+         <div><label>Mission name</label><input id="newGrowthName" placeholder="Practice Piano"></div>
+         <div><label>Icon</label><input id="newGrowthIcon" value="🌱"></div>
+         <div style="grid-column:1/-1"><label>What should they do?</label><input id="newGrowthDesc" placeholder="Practice for at least 20 minutes"></div>
+         <div><label>XP earned</label><input id="newGrowthXp" type="number" min="0" max="100" value="10"></div>
+         <div><label>Schedule</label><select id="newGrowthFreq"><option value="daily">Every Day</option><option value="weekdays">Certain Days</option><option value="weekly">Weekly</option><option value="anytime">Anytime</option></select></div>
+       </div>
+       <button id="addGrowthMission" class="btn secondary" style="margin-top:10px">Add Growth Mission</button>
+     </div>
+   </details>
+
+   ${challengeLibrary().some(c=>!c.parentOnly&&c.active===false)?`<details class="v50Advanced" style="margin-top:12px"><summary>Hidden / Removed Missions</summary><div class="v50AdvancedBody">${challengeLibrary().filter(c=>!c.parentOnly&&c.active===false).map(c=>`<div class="approval"><div><b>${c.icon} ${c.name}</b><div class="tiny muted">Past history preserved</div></div><button class="btn secondary small" data-growth-restore="${c.id}">Restore</button></div>`).join("")}</div></details>`:""}
+ </div>
  <details class="v50Advanced">
    <summary>Advanced Settings</summary>
    <div class="v50AdvancedBody">
      <div class="card flat"><h2 style="margin-top:0">🛡️ Missed Responsibility Penalties</h2><div class="penaltyKidGrid">${data.kids.map(k=>`<label class="penaltyKidToggle"><span><b>${k.name}</b><span class="tiny muted"> · automatic XP penalties</span></span><input type="checkbox" data-required-penalty="${k.id}" ${requiredPenaltyEnabled(k.id)?"checked":""}></label>`).join("")}</div></div>
      <div class="card flat"><h2 style="margin-top:0">💰 Earnings Advanced</h2><div class="settingsGrid"><div><label>Settle-up reminder</label><select id="settleReminder"><option value="weekly" ${(data.settleReminder||"weekly")==="weekly"?"selected":""}>Weekly — Sunday</option><option value="monthly" ${data.settleReminder==="monthly"?"selected":""}>Monthly</option><option value="none" ${data.settleReminder==="none"?"selected":""}>No reminder</option></select></div><div><label>Spend Now cap (legacy)</label><input id="weeklyCashCapAdvanced" type="number" min="0" step="1" value="${weeklyCashCap()}"></div></div><div class="tiny muted" style="margin-top:8px">Historical earnings and reward-progress data remain intact. V50 shows kids only Money + XP.</div></div>
-     <div class="card flat"><h2 style="margin-top:0">🏆 Reward Goals</h2><p class="muted">Keep the list short. The numbers below are legacy progress targets kept for backward compatibility; kids only see a progress bar.</p>
+     <div class="card flat" id="rewardSettingsV50"><h2 style="margin-top:0">🏆 Reward Goals</h2><p class="muted">Keep the list short. The numbers below are legacy progress targets kept for backward compatibility; kids only see a progress bar.</p>
        <div id="individualRewardEditor">${(data.individualRewards&&data.individualRewards.length?data.individualRewards:DEFAULT_INDIVIDUAL_REWARDS).map((r,i)=>`<div class="approval"><div style="display:grid;grid-template-columns:70px 1fr 120px;gap:8px;flex:1"><input data-r-icon="${i}" value="${r.icon||"🎁"}"><input data-r-name="${i}" value="${r.name||""}"><input data-r-cost="${i}" type="number" min="1" value="${Math.max(1,+r.cost||1)}"></div><button class="btn secondary small" data-r-remove="${i}">Remove</button></div>`).join("")}</div>
        <button id="addIndividualReward" class="btn secondary">+ Add Personal Goal</button>
        <h3>Family Team Goal</h3><div id="familyRewardEditor">${(data.familyRewards&&data.familyRewards.length?data.familyRewards:DEFAULT_FAMILY_REWARDS).slice(0,1).map((r,i)=>`<div class="approval"><div style="display:grid;grid-template-columns:70px 1fr 120px;gap:8px;flex:1"><input data-fr-icon="${i}" value="${r.icon||"🌳"}"><input data-fr-name="${i}" value="${r.name||""}"><input data-fr-cost="${i}" type="number" min="1" value="${Math.max(1,+r.cost||1)}"></div></div>`).join("")}</div>
@@ -1717,12 +1800,50 @@ $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCoun
  $("#addParent")?.addEventListener("click",async()=>{let e=$("#parentEmail").value.trim().toLowerCase();if(!e.includes("@"))return alert("Enter a valid Google email.");await patch({parentEmails:arrayUnion(e)});$("#parentEmail").value=""});
 
  let challengeDraft=challengeLibrary().map(c=>({...c}));
- $$("[data-cfreq]").forEach(e=>e.addEventListener("change",()=>{let i=+e.dataset.cfreq,c=challengeDraft[i],h=document.querySelector(`[data-chours-wrap="${i}"]`),d=document.querySelector(`[data-cdays-wrap="${i}"]`);if(c)c.frequency=e.value;if(h)h.style.display=e.value==="everyhours"?"block":"none";if(d)d.style.display=e.value==="everyx"?"block":"none"}));
+ $$("[data-cname]").forEach(e=>e.addEventListener("input",()=>{let c=challengeDraft[+e.dataset.cname];if(c)c.name=e.value}));
+ $$("[data-cicon]").forEach(e=>e.addEventListener("input",()=>{let c=challengeDraft[+e.dataset.cicon];if(c)c.icon=e.value}));
+ $$("[data-cdesc]").forEach(e=>e.addEventListener("input",()=>{let c=challengeDraft[+e.dataset.cdesc];if(c)c.desc=e.value}));
+ $$("[data-cxp]").forEach(e=>e.addEventListener("input",()=>{let c=challengeDraft[+e.dataset.cxp];if(c)c.xp=Math.max(0,Math.min(100,+e.value||0))}));
+
+ $$("[data-cfreq]").forEach(e=>e.addEventListener("change",()=>{let i=+e.dataset.cfreq,c=challengeDraft[i],h=document.querySelector(`[data-chours-wrap="${i}"]`),d=document.querySelector(`[data-cdays-wrap="${i}"]`),days=document.querySelector(`[data-days-wrap="growth-${i}"]`);if(c){c.frequency=e.value;if(e.value==="weekdays"&&(!Array.isArray(c.days)||!c.days.length))c.days=[1,2,3,4,5]}if(h)h.style.display=e.value==="everyhours"?"block":"none";if(d)d.style.display=e.value==="everyx"?"block":"none";if(days)days.style.display=e.value==="weekdays"?"block":"none"}));
+ $$('[data-days^="growth|"]').forEach(e=>e.addEventListener("change",()=>{
+   let [,i,d]=e.dataset.days.split("|"),c=challengeDraft[+i];if(!c)return;
+   let set=new Set(Array.isArray(c.days)&&c.days.length?c.days.map(Number):[1,2,3,4,5]);
+   e.checked?set.add(+d):set.delete(+d);
+   c.days=[...set].sort((a,b)=>a-b);
+ }));
  $$("[data-chours]").forEach(e=>e.addEventListener("change",()=>{let c=challengeDraft[+e.dataset.chours];if(c)c.intervalHours=Math.max(1,+e.value||4)}));
  $$("[data-cdays]").forEach(e=>e.addEventListener("change",()=>{let c=challengeDraft[+e.dataset.cdays];if(c)c.intervalDays=Math.max(1,+e.value||1)}));
  $$("[data-cpoints]").forEach(e=>e.addEventListener("change",()=>{let c=challengeDraft[+e.dataset.cpoints];if(c&&c.id!=="pushups")c.rewardPoints=Math.max(0,Math.min(100,+e.value||0))}));
  $$("[data-cclaim]").forEach(e=>e.addEventListener("change",()=>{let c=challengeDraft[+e.dataset.cclaim];if(c)c.claimType=e.value}));
- $("#saveLevelAvailability")?.addEventListener("click",async()=>{await patch({challenges:challengeDraft});alert("Growth Missions saved!")});
+ $("#saveLevelAvailability")?.addEventListener("click",async()=>{
+   challengeDraft=challengeDraft.map(c=>({...c,name:(c.name||"Growth Mission").trim(),icon:(c.icon||"🌱").trim(),desc:(c.desc||"").trim(),xp:Math.max(0,Math.min(100,+c.xp||0)),days:c.frequency==="weekdays"?(Array.isArray(c.days)&&c.days.length?c.days:[1,2,3,4,5]):(c.days||[])}));
+   await patch({challenges:challengeDraft});
+   alert("Growth Missions saved!");
+ });
+
+ $("#addGrowthMission")?.addEventListener("click",async()=>{
+   let name=$("#newGrowthName")?.value.trim();
+   if(!name)return alert("Give the Growth Mission a name.");
+   let mission={id:"growth_"+newId(),icon:$("#newGrowthIcon")?.value.trim()||"🌱",name,desc:$("#newGrowthDesc")?.value.trim()||"",target:0,xp:Math.max(0,Math.min(100,+$("#newGrowthXp")?.value||10)),weekdaysOnly:false,parentOnly:false,frequency:$("#newGrowthFreq")?.value||"daily",days:($("#newGrowthFreq")?.value==="weekdays"?[1,2,3,4,5]:[]),intervalHours:4,intervalDays:1,claimType:"each",rewardPoints:5,active:true,custom:true};
+   await patch({challenges:[...challengeLibrary().map(c=>({...c})),mission]});
+   alert("Growth Mission added.");
+ });
+ $$("[data-growth-remove]").forEach(b=>b.addEventListener("click",()=>{
+   let id=b.dataset.growthRemove,c=challengeLibrary().find(x=>x.id===id);if(!c)return;
+   askConfirm("Remove Growth Mission?",`${c.name} will disappear from Kid Mode. Past completions, XP and history will stay intact.`,"Remove Mission",async()=>{
+     await patch({challenges:challengeLibrary().map(x=>x.id===id?{...x,active:false}:x)});
+   });
+ }));
+ $$("[data-growth-restore]").forEach(b=>b.addEventListener("click",async()=>{
+   let id=b.dataset.growthRestore;
+   await patch({challenges:challengeLibrary().map(x=>x.id===id?{...x,active:true}:x)});
+ }));
+ $$("[data-settings-jump]").forEach(b=>b.addEventListener("click",()=>{
+   let target=document.getElementById(b.dataset.settingsJump);if(!target)return;
+   let d=target.closest("details");while(d){d.open=true;d=d.parentElement?.closest("details")}
+   target.scrollIntoView({behavior:"smooth",block:"start"});
+ }));
 
 
  let individualRewardDraft=(data.individualRewards&&data.individualRewards.length?data.individualRewards:DEFAULT_INDIVIDUAL_REWARDS).map(r=>({...r}));
@@ -1788,11 +1909,27 @@ $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCoun
  $("#cancelCustom")?.addEventListener("click",()=>$("#customForm").style.display="none");
  $("#newPaid")?.addEventListener("change",e=>{$("#newPayFields").style.display=e.target.value==="1"?"grid":"none"});
  $("#newRequired")?.addEventListener("change",e=>{if(e.target.value==="1"&&+$("#newPoints").value===3)$("#newPoints").value="2";if(e.target.value==="0"&&+$("#newPoints").value===2)$("#newPoints").value="3"});
- $$("[data-frequency]").forEach(e=>e.addEventListener("change",()=>{let i=e.dataset.frequency,w=document.querySelector(`[data-interval-wrap="${i}"]`),h=document.querySelector(`[data-hours-wrap="${i}"]`);if(w)w.style.display=e.value==="everyx"?"block":"none";if(h)h.style.display=e.value==="everyhours"?"block":"none"}));
+ $$("[data-frequency]").forEach(e=>e.addEventListener("change",()=>{let i=e.dataset.frequency,w=document.querySelector(`[data-interval-wrap="${i}"]`),h=document.querySelector(`[data-hours-wrap="${i}"]`),days=document.querySelector(`[data-days-wrap="chore-${i}"]`);if(w)w.style.display=e.value==="everyx"?"block":"none";if(h)h.style.display=e.value==="everyhours"?"block":"none";if(days)days.style.display=e.value==="weekdays"?"block":"none"}));
  $("#createCustom")?.addEventListener("click",async()=>{let name=$("#newName").value.trim();if(!name)return;let required=$("#newRequired").value==="1",paid=$("#newPaid").value==="1";let c={id:"custom_"+newId(),name,icon:$("#newIcon").value||"⭐",category:"Custom",frequency:"anytime",intervalDays:7,intervalHours:1,required,paid,points:Math.max(0,+$("#newPoints").value||0),xp:10,missXp:required?5:0,assignedTo:data.kids.map(k=>k.id),active:true,custom:true,createdAt:Date.now(),effortLevel:$("#newEffort")?.value||"helping",useCustomAmount:!!$("#newCustomToggle")?.checked,customAmount:Math.max(0,+$("#newCustomAmount")?.value||0)};await patch({choreLibrary:[...library(),c]})});
 function refreshNewChoreMoney(){let required=$("#newRequired")?.value==="1",area=$("#newMoneyArea"),ov=$("#requiredMoneyOverride"),pay=$("#newPaid"),fields=$("#newPayFields");if(!area)return;if(required&&area.dataset.override!=="1"){area.style.display="none";ov.style.display="block";pay.value="0"}else{area.style.display="block";ov.style.display="none"}fields.style.display=pay.value==="1"?"block":"none";let gross=$("#newCustomToggle")?.checked?Math.max(0,+$("#newCustomAmount")?.value||0):autoBaseReward()*effortMultiplier($("#newEffort")?.value||"helping"),cash=+(gross*cashPct()/100).toFixed(2),future=+(gross-cash).toFixed(2);$("#newAutoPreview").innerHTML=`<b>This job can earn ${money(gross)}</b><br>💵 ${money(cash)} Spend Now · 🌱 ${money(future)} Future Fund`;$("#newCustomWrap").style.display=$("#newCustomToggle")?.checked?"block":"none"}
 $("#newRequired")?.addEventListener("change",()=>{$("#newMoneyArea").dataset.override="";refreshNewChoreMoney()});$("#allowRequiredPay")?.addEventListener("click",()=>{$("#newMoneyArea").dataset.override="1";refreshNewChoreMoney()});["newPaid","newEffort","newCustomToggle"].forEach(id=>$(`#${id}`)?.addEventListener("change",refreshNewChoreMoney));$("#newCustomAmount")?.addEventListener("input",refreshNewChoreMoney);refreshNewChoreMoney();
- $("#saveChores")?.addEventListener("click",async()=>{let before=rawLibrary(),lib=rawLibrary().map(c=>({...c,assignedTo:[]})),now=Date.now();$$("[data-active]").forEach(e=>{let i=+e.dataset.active,was=before[i]?.active!==false;lib[i].active=e.checked;if(!was&&e.checked)lib[i].activatedAt=now});$$("[data-frequency]").forEach(e=>lib[+e.dataset.frequency].frequency=e.value);$$("[data-hours]").forEach(e=>lib[+e.dataset.hours].intervalHours=Math.max(1,+e.value||1));$$("[data-interval]").forEach(e=>lib[+e.dataset.interval].intervalDays=Math.max(1,+e.value||7));$$("[data-required]").forEach(e=>{let i=+e.dataset.required,was=!!before[i]?.required,next=e.value==="1";lib[i].required=next;if(!was&&next)lib[i].requiredSince=now;if(was&&!next)lib[i].requiredSince=0});$$("[data-points]").forEach(e=>lib[+e.dataset.points].points=Math.max(0,Math.min(100,+e.value||0)));$$("[data-paid]").forEach(e=>lib[+e.dataset.paid].paid=e.value==="1");$$("[data-effort]").forEach(e=>lib[+e.dataset.effort].effortLevel=e.value);$$("[data-exclusive]").forEach(e=>lib[+e.dataset.exclusive].exclusive=e.value==="1");$$("[data-miss]").forEach(e=>lib[+e.dataset.miss].missXp=+e.value);$$("[data-assign]").forEach(e=>{if(e.checked){let [i,kidId]=e.dataset.assign.split("|");lib[+i].assignedTo.push(kidId)}});await patch({choreLibrary:lib});alert("Responsibilities & Jobs saved!")});
+ $("#saveChores")?.addEventListener("click",async()=>{
+   let before=rawLibrary(),lib=rawLibrary().map(c=>({...c,assignedTo:[]})),now=Date.now();
+   $$("[data-active]").forEach(e=>{let i=+e.dataset.active,was=before[i]?.active!==false;lib[i].active=e.checked;if(!was&&e.checked)lib[i].activatedAt=now});
+   $$("[data-frequency]").forEach(e=>{let i=+e.dataset.frequency;lib[i].frequency=e.value;lib[i].scheduleDaysConfigured=true;if(e.value==="weekdays"&&(!Array.isArray(lib[i].days)||!lib[i].days.length))lib[i].days=[1,2,3,4,5]});
+   $$('[data-days^="chore|"]').forEach(e=>{let [,i,d]=e.dataset.days.split("|");i=+i;let set=new Set(Array.isArray(lib[i].days)?lib[i].days.map(Number):[]);e.checked?set.add(+d):set.delete(+d);lib[i].days=[...set].sort((a,b)=>a-b);lib[i].scheduleDaysConfigured=true});
+   $$("[data-hours]").forEach(e=>lib[+e.dataset.hours].intervalHours=Math.max(1,+e.value||1));
+   $$("[data-interval]").forEach(e=>lib[+e.dataset.interval].intervalDays=Math.max(1,+e.value||7));
+   $$("[data-required]").forEach(e=>{let i=+e.dataset.required,was=!!before[i]?.required,next=e.value==="1";lib[i].required=next;if(!was&&next)lib[i].requiredSince=now;if(was&&!next)lib[i].requiredSince=0});
+   $$("[data-points]").forEach(e=>lib[+e.dataset.points].points=Math.max(0,Math.min(100,+e.value||0)));
+   $$("[data-paid]").forEach(e=>lib[+e.dataset.paid].paid=e.value==="1");
+   $$("[data-effort]").forEach(e=>lib[+e.dataset.effort].effortLevel=e.value);
+   $$("[data-exclusive]").forEach(e=>lib[+e.dataset.exclusive].exclusive=e.value==="1");
+   $$("[data-miss]").forEach(e=>lib[+e.dataset.miss].missXp=+e.value);
+   $$("[data-assign]").forEach(e=>{if(e.checked){let [i,kidId]=e.dataset.assign.split("|");lib[+i].assignedTo.push(kidId)}});
+   await patch({choreLibrary:lib});
+   alert("Responsibilities & Jobs saved!");
+ });
  $$("[data-delete]").forEach(e=>e.onclick=async()=>{let i=+e.dataset.delete;if(confirm("Delete this custom chore?"))await patch({choreLibrary:library().filter((_,idx)=>idx!==i)})});
  $("#undoClaim")?.addEventListener("click",async()=>{if(!lastClaimId||Date.now()-lastClaimAt>60000)return;let t=(data.tasks||[]).find(x=>x.id===lastClaimId);if(!t||t.status!=="open")return;let tasks=data.tasks.filter(x=>x.id!==lastClaimId);lastClaimId=null;lastClaimAt=0;await patch({tasks});render()});
  $$("[data-pay]").forEach(b=>b.onclick=async()=>{let kidId=b.dataset.pay,k=kidById(kidId),input=$(`[data-payamount="${kidId}"]`),amount=Math.max(0,+input.value||0),owed=cashOwed(k);if(amount<=0)return;if(amount>owed+0.001)return alert("That is more than currently owed.");let payment={id:newId(),kidId,amount,by:user.email,at:Date.now()};let ledger=[...(data.ledger||[]),{...payment,type:"payment",label:"Cash payout"}].slice(-300);await patch({payments:arrayUnion(payment),ledger})});
