@@ -1411,16 +1411,7 @@ function bind(){
  });
  $$("[data-k]").forEach(b=>b.onclick=()=>{kid=+b.dataset.k;view="week";render()});
  $("#kidSel")?.addEventListener("change",e=>{kid=+e.target.value;pushupCount=0;render()});
- $$("[data-required-penalty]").forEach(el=>el.onchange=async()=>{
- if(!isParentSession())return;
- const id=el.dataset.requiredPenalty,enabled=!!el.checked;
- await runTransaction(db,async tr=>{
-   const snap=await tr.get(familyRef),d=snap.data();
-   const kids=(d.kids||[]).map(k=>k.id===id?{...k,requiredChorePenalties:enabled}:k);
-   tr.update(familyRef,{kids});
- });
-});
-$$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCount=0;if(view==="kids")view="week";render()});
+ $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCount=0;if(view==="kids")view="week";render()});
  $("#createFamily")?.addEventListener("click",async()=>setDoc(familyRef,{ownerUid:user.uid,ownerEmail:user.email,parentEmails:[user.email.toLowerCase()],kids:KIDS,tasks:[],payments:[],futureFundDeposits:[],ledger:[],choreLibrary:DEFAULTS,challenges:DEFAULT_CHALLENGES,challengeLogs:[],golfCash:.05,golfCar:.10,weeklyCashCap:15,weeklyTotalCap:25,cashSplitPct:60,createdAt:serverTimestamp()}));
 
  $$("[data-c]").forEach(b=>b.onclick=()=>{let c=library().find(x=>x.id===b.dataset.c),k=data.kids[kid];if(!c||!canClaim(c,k.id))return;askConfirm(`Claim ${c.icon} ${c.name}?`,`This adds the mission to ${k.name}'s list.${c.exclusive?" Other kids will not be able to claim it while it is active.":""}`,"Yes, Claim It",async()=>{let t={id:newId(),choreId:c.id,kidId:k.id,icon:c.icon,name:c.name,cash:isKidSession()?0:(c.paid?+c.cash||0:0),car:isKidSession()?0:(c.paid?+c.car||0:0),xp:isKidSession()?0:(+c.xp||10),exclusive:!!c.exclusive,required:!!c.required,frequency:c.frequency,periodKey:periodKey(c),status:"open",type:c.id==="golf"?"golf":"normal",count:0,createdAt:Date.now()};await patch({tasks:arrayUnion(t)});lastClaimId=t.id;lastClaimAt=Date.now();view="week";render()})});
@@ -1441,7 +1432,22 @@ $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCoun
  let tasks=d.tasks.map(x=>x.id===tid?{...x,gross,cash,car,xp,points:pts,status:"approved",approvedBy:user.email,approvedAt:now,capLimited:gross<rawGross||cash<desiredCash}:x);
  let ledger=[...(d.ledger||[]),{id:newId(),type:"earning",taskId:t.id,kidId:t.kidId,label:c.name,gross,cash,car,xp,points:pts,rawGross,capLimited:gross<rawGross||cash<desiredCash,by:user.email,at:now}].slice(-300);
  tr.update(familyRef,{kids,tasks,ledger})})});
- $("#saveMoneyRules")?.addEventListener("click",async()=>{let total=Math.max(0,+$("#weeklyTotalCap").value||0),future=Math.min(100,Math.max(0,+$("#futureFundPct").value||0));await patch({weeklyTotalCap:total,weeklyCashCap:total,cashSplitPct:100-future,settleReminder:$("#settleReminder").value||"weekly"})});
+ $("#saveMoneyRules")?.addEventListener("click",async()=>{
+ let total=Math.max(0,+$("#weeklyTotalCap").value||0),future=Math.min(100,Math.max(0,+$("#futureFundPct").value||0));
+ let penaltyChoices={};
+ $$("[data-required-penalty]").forEach(el=>penaltyChoices[el.dataset.requiredPenalty]=!!el.checked);
+ try{
+   await runTransaction(db,async tr=>{
+     const snap=await tr.get(familyRef),d=snap.data();
+     const kids=(d.kids||[]).map(k=>({...k,requiredChorePenalties:penaltyChoices[k.id]!==undefined?penaltyChoices[k.id]:(k.requiredChorePenalties!==false)}));
+     tr.update(familyRef,{weeklyTotalCap:total,weeklyCashCap:total,cashSplitPct:100-future,settleReminder:$("#settleReminder").value||"weekly",kids});
+   });
+   alert("Settings saved.");
+ }catch(err){
+   console.error("Could not save earnings settings",err);
+   alert("Could not save settings. Please try again.");
+ }
+});
 
 
 

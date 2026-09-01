@@ -1,12 +1,18 @@
-Risser Rewards v49 — Per-Kid Penalty Controls + Clean World Assets
+Risser Rewards v49.2 — Required Chore Penalty Save Fix
 
-Adds Settings → Money Rules → Required Chore Penalties.
-Each child can independently have automatic missed-required-chore XP penalties ON or OFF.
-OFF does not remove responsibilities or prevent completion; it only prevents new automatic missed-chore XP penalties.
-Turning penalties back ON applies going forward only.
+Fixes the per-kid Required Chore Penalties setting.
 
-All four world PNGs are scenery-only/reframed assets so live UI text is not doubled.
+Previously the new checkboxes used a separate onchange save path, while the visible
+Save Earnings Settings button did not save those values. This could make Juniper's
+unchecked setting appear not to persist.
 
-Retains v48.1 and v47.3 functionality including 🔥 Level Ups.
+v49.2:
+- Saves all four per-kid penalty choices when Save Earnings Settings is clicked.
+- Saves the money-rule fields and kid penalty settings in one Firestore transaction.
+- Shows “Settings saved.” after a successful save.
+- Existing kids default to penalties ON until intentionally turned OFF.
+- Turning penalties OFF prevents future automatic missed-required-chore XP penalties only.
+- No retroactive penalties are created when re-enabled.
+
 No Firebase rules changes expected.
-Upload the ENTIRE package including assets/.
+Upload the full package including assets/.
