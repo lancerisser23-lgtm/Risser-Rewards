@@ -52,6 +52,13 @@ label{font-size:13px;font-weight:850}input,select{width:100%;min-height:45px;bor
 @media(max-width:900px){.chores{grid-template-columns:repeat(3,1fr)}.settingsGrid{grid-template-columns:1fr 1fr}.cashCards{grid-template-columns:1fr 1fr}}
 @media(max-width:700px){.half,.third,.quarter{grid-column:1/-1}.chores{grid-template-columns:repeat(2,1fr)}.task,.approval,.ledgerRow{align-items:flex-start;flex-direction:column}.world h2{font-size:29px}}
 @media(max-width:430px){.app{padding:12px 10px 45px}.cashCards{grid-template-columns:1fr}.settingsGrid{grid-template-columns:1fr}.world{padding:18px;min-height:220px}.world .wicon{font-size:66px}.world:after{font-size:29px}}
+
+.fiveTabs{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.fiveTabs .tab{white-space:normal;line-height:1.15;min-height:52px;padding:8px 5px}
+@media(max-width:700px){
+  .fiveTabs{grid-template-columns:repeat(5,minmax(64px,1fr));overflow-x:auto}
+  .fiveTabs .tab{font-size:12px}
+}
 </style>
 </head>
 <body><div id="app" class="app"></div>
@@ -416,6 +423,9 @@ function canClaim(c,kidId){
   return true;
 }
 function pending(){return (data.tasks||[]).filter(t=>t.status==="pending")}
+function pendingExcuseRequests(d=data){return (d?.ledger||[]).filter(x=>x.type==="required_miss"&&!x.undone&&x.excuseRequest?.status==="pending")}
+function pendingLevelUps(){return challengeLogs().filter(x=>x.status==="pending")}
+function waitingApprovalCount(){return pending().length+pendingLevelUps().length+pendingExcuseRequests().length}
 function recentApprovals(){
   return (data.tasks||[]).filter(t=>t.status==="approved")
     .sort((a,b)=>(b.approvedAt||0)-(a.approvedAt||0))
@@ -531,25 +541,34 @@ function weeklyVerse(){
 }
 function verseBanner(){const v=weeklyVerse();return `<div class="verseBanner"><div class="tiny muted">📖 VERSE OF THE WEEK</div><div style="font-size:17px;font-weight:850;line-height:1.45;margin-top:4px">“${v.text}”</div><div class="verseRef">${v.ref} · WEB</div><div class="tiny muted" style="margin-top:4px">New verse every Sunday</div></div>`}
 function header(){
+ let kidsOn=["kids","week","pick","level","golf"].includes(view);
  return `<div class="top"><div><div class="brand">🚙 Risser Rewards</div><div class="sub">Responsibility → hard work → choices.</div></div><div class="actions"><span class="badge">${modeLabel()}</span>${isKidSession()?`<button id="parentLogin" class="btn secondary">Parent Sign In</button>`:`<span class="tiny muted">${user?.email||""}</span><button id="logout" class="btn secondary">Sign out</button>`}</div></div>
  ${verseBanner()}${vacationMode()?`<div class="notice" style="margin-top:8px"><b>🏖️ Vacation Mode</b> — Required chores are paused. Level Ups are still open!</div>`:""}
- <div class="tabs">
- ${isKidSession()
-   ? `<button data-v="week" class="tab ${view==="week"?"on":""}">✅ My Missions</button>
-      <button data-v="pick" class="tab ${view==="pick"?"on":""}">🎯 Chores</button>
-      <button data-v="level" class="tab ${view==="level"?"on":""}">🔥 Level Up</button>
-      <button data-v="rewards" class="tab ${view==="rewards"?"on":""}">🎁 Rewards</button>`
-   : `<button data-v="parent" class="tab ${view==="parent"?"on":""}">🔒 Parent ${pending().length?`(${pending().length})`:""}</button>
-      <button data-v="paid" class="tab ${view==="paid"?"on":""}">💰 Earnings</button>
-      <button data-v="week" class="tab ${view==="week"?"on":""}">✅ Kids View</button>
-      <button data-v="pick" class="tab ${view==="pick"?"on":""}">🎯 Chores</button>
-      <button data-v="level" class="tab ${view==="level"?"on":""}">🔥 Level Up</button>
-      <button data-v="rewards" class="tab ${view==="rewards"?"on":""}">🎁 Rewards</button>`}
+ <div class="tabs fiveTabs">
+   <button data-v="kids" class="tab ${kidsOn?"on":""}">🏡 Kids</button>
+   ${isKidSession()
+      ? `<button data-parentgate="1" class="tab">🔒 Parent HQ</button>`
+      : `<button data-v="parent" class="tab ${view==="parent"?"on":""}">🔒 Parent HQ${waitingApprovalCount()?` (${waitingApprovalCount()})`:""}</button>`}
+   <button data-v="paid" class="tab ${view==="paid"?"on":""}">💰 Earnings</button>
+   <button data-v="rewards" class="tab ${view==="rewards"?"on":""}">🎁 Rewards</button>
+   ${isKidSession()
+      ? `<button data-parentgate="1" class="tab">⚙️ Settings</button>`
+      : `<button data-v="settings" class="tab ${view==="settings"?"on":""}">⚙️ Settings</button>`}
  </div>`;
 }
 function login(){return `<div class="login card"><div style="font-size:68px">🐺 🦁 🐍 🦄</div><h1>Risser Rewards</h1><p class="muted">Choose how this device will be used.</p><div class="actions" style="justify-content:center;margin-top:16px"><button id="kidLogin" class="btn">🏠 Family iPad — Kid Mode</button><button id="google" class="btn google">G&nbsp; Parent Sign In</button></div><div class="notice" style="margin-top:14px"><b>Kid Mode:</b> chores, missions and Level Up only. No Parent tab, Earnings tab, approvals, payouts or settings.</div></div>`}
 function setup(){return `<div class="login card"><h2>🏡 Create Risser Family</h2><button id="createFamily" class="btn">Create Family</button></div>`}
 
+function kidExperienceNav(){
+ return `<div class="card" style="padding:10px;margin-bottom:12px"><div class="row wrap" style="gap:8px;justify-content:flex-start">
+   <button data-v="week" class="btn ${view==="week"?"":"secondary"} small">✅ My Missions</button>
+   <button data-v="pick" class="btn ${view==="pick"?"":"secondary"} small">🧹 Chores / Jobs</button>
+   <button data-v="level" class="btn ${view==="level"?"":"secondary"} small">🌱 Growth / Level Ups</button>
+ </div></div>`;
+}
+function kidsLanding(){
+ return header()+`<div class="card"><h2 style="margin-top:0">🏡 Kids</h2><p class="muted">Choose who you are to open your world.</p>${kidChooser()}</div>`;
+}
 function home(){
  let needs=needsSomeone();
  return header()+(needs.length?`<div class="card attention"><h2 style="margin-top:0">🚨 Needs Someone</h2>${needs.map(c=>`<div class="task"><div><b>${c.icon} ${c.name}</b><div class="reward">${(c.frequency==="daily"||c.frequency==="weekdays")?"Due today":c.frequency==="weekly"?"Due this week":"Due now"} · ${(c.assignedTo||[]).map(id=>kidById(id)?.name).filter(Boolean).join(", ")}</div></div><span class="pill due">Unclaimed</span></div>`).join("")}</div>`:"")
@@ -557,7 +576,7 @@ function home(){
 }
 function pick(){
  let k=data.kids[kid],lib=library().filter(c=>eligible(c,k.id));
- return header()+`<div class="card" style="margin-bottom:12px">${kidChooser()}</div>`+world(k)+`<div class="card"><div class="row wrap"><div><h2 style="margin:0">🎯 Pick a Mission</h2><div class="muted">Only chores assigned to ${k.name} appear.</div></div></div><div class="chores" style="margin-top:15px">${lib.map(c=>{let allowed=canClaim(c,k.id),owner=c.exclusive?sharedLive(c):null,done=(c.frequency!=="anytime")&&(c.exclusive?sharedApproved(c):approved(c,k.id));return `<button class="chore" data-c="${c.id}" ${allowed?"":"disabled"}><div class="icon">${c.icon}</div><div class="name">${c.name}</div><div class="reward">${c.paid?`💵 ${money(c.cash)} · 🚗 ${money(c.car)}`:"🏠 responsibility"}</div><div style="margin-top:5px">${c.required?`<span class="pill req">Required</span>`:`<span class="pill opt">Optional</span>`} <span class="pill due">${frequencyLabel(c)}</span></div>${owner?`<div class="tiny" style="margin-top:6px">🔒 ${kidById(owner.kidId)?.name} claimed it</div>`:done?`<div class="tiny" style="margin-top:6px">✅ Done this period</div>`:""}</button>`}).join("")}</div></div>`;
+ return header()+kidExperienceNav()+`<div class="card" style="margin-bottom:12px">${kidChooser()}</div>`+world(k)+`<div class="card"><div class="row wrap"><div><h2 style="margin:0">🎯 Pick a Mission</h2><div class="muted">Only chores assigned to ${k.name} appear.</div></div></div><div class="chores" style="margin-top:15px">${lib.map(c=>{let allowed=canClaim(c,k.id),owner=c.exclusive?sharedLive(c):null,done=(c.frequency!=="anytime")&&(c.exclusive?sharedApproved(c):approved(c,k.id));return `<button class="chore" data-c="${c.id}" ${allowed?"":"disabled"}><div class="icon">${c.icon}</div><div class="name">${c.name}</div><div class="reward">${c.paid?`💵 ${money(c.cash)} · 🚗 ${money(c.car)}`:"🏠 responsibility"}</div><div style="margin-top:5px">${c.required?`<span class="pill req">Required</span>`:`<span class="pill opt">Optional</span>`} <span class="pill due">${frequencyLabel(c)}</span></div>${owner?`<div class="tiny" style="margin-top:6px">🔒 ${kidById(owner.kidId)?.name} claimed it</div>`:done?`<div class="tiny" style="margin-top:6px">✅ Done this period</div>`:""}</button>`}).join("")}</div></div>`;
 }
 function week(){
  let k=data.kids[kid];
@@ -623,7 +642,7 @@ function week(){
 }
 function level(){
  let k=data.kids[kid],dates=weekDates(),cs=challengeLibrary(),lp=levelProgress(k);
- return header()+world(k)+`<div class="card"><div class="row wrap"><div><h2 style="margin:0">🔥 Level Up</h2><div class="muted">Habits build XP and streaks — not cash.</div></div><select id="kidSel" style="width:auto;min-width:150px">${data.kids.map((x,i)=>`<option value="${i}" ${i===kid?"selected":""}>${x.name}</option>`).join("")}</select></div>
+ return header()+kidExperienceNav()+world(k)+`<div class="card"><div class="row wrap"><div><h2 style="margin:0">🌱 Growth / Level Ups</h2><div class="muted">Habits build XP and streaks — not cash.</div></div><select id="kidSel" style="width:auto;min-width:150px">${data.kids.map((x,i)=>`<option value="${i}" ${i===kid?"selected":""}>${x.name}</option>`).join("")}</select></div>
  <div class="notice" style="margin-top:12px"><b>This week: ${lp.earned}/${lp.goal} challenge days</b><div class="progress" style="margin-top:7px"><div class="bar" style="width:${lp.goal?Math.min(100,lp.earned/lp.goal*100):0}%"></div></div></div>
  <div class="challengeGrid" style="margin-top:13px">${cs.filter(c=>!["help","awesome"].includes(c.id)).map(c=>{
  let hits=weeklyHits(k.id,c.id),pend=challengePending(k.id,c.id),hit=challengeHit(k.id,c.id),st=streak(k.id,c.id);
@@ -713,15 +732,30 @@ function activityIcon(x){
   if(x.type==="earning"||x.type==="points_earning")return "✅";
   return "•";
 }
+function kidMissAttention(kidId){
+  let misses=(data.ledger||[]).filter(x=>x.type==="required_miss"&&x.kidId===kidId&&!x.undone).sort((a,b)=>(b.at||0)-(a.at||0));
+  if(!misses.length)return "";
+  return `<div class="card" style="border:2px solid currentColor"><h2 style="margin-top:0">⚠️ Needs Your Attention</h2><p class="muted">You lost XP for these missed required chores. If something isn't right, ask a parent to review it.</p>${misses.map(x=>{
+    let st=x.excuseRequest?.status||"";
+    let name=String(x.label||"Missed required chore").replace("Missed required chore — ","");
+    let action=st==="pending"?`<span class="tiny"><b>⏳ Excuse Requested — Waiting for Parent</b></span>`:st==="denied"?`<span class="tiny muted"><b>Parent kept this penalty</b></span>`:`<button class="btn secondary small" data-requestexcuse="${x.id}">🙋 Ask Parent to Excuse</button>`;
+    return `<div class="approval"><div><b>🔴 MISSED CHORE · ${x.xp||0} XP</b><div><b>${name}</b></div><div class="tiny muted">${x.forDate||""}</div></div><div>${action}</div></div>`;
+  }).join("")}</div>`;
+}
 function recentActivityCard(kidId){
-  let rows=kidActivity(kidId);if(!rows.length)return "";
-  return `<div class="card"><h2 style="margin-top:0">🧾 Recent Activity</h2>${rows.map(x=>`<div class="approval"><div><b>${activityIcon(x)} ${x.label||"Activity"}</b>${x.note?`<div class="tiny muted">${x.note}</div>`:""}<div class="tiny muted">${new Date(x.at||Date.now()).toLocaleString([], {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})}</div></div><b class="${(+x.points<0||+x.xp<0||+x.cash<0)?"due":"reward"}">${activityImpact(x)}</b></div>`).join("")}</div>`;
+  let rows=kidActivity(kidId);
+  let activity=rows.length?`<div class="card"><h2 style="margin-top:0">🧾 Recent Activity</h2>${rows.map(x=>{
+    let isMiss=x.type==="required_miss"&&!x.undone,isExcused=x.type==="miss_reversal",isBehavior=x.type==="behavior_deduction";
+    let title=isMiss?`🔴 MISSED CHORE — ${String(x.label||"").replace("Missed required chore — ","")}`:isExcused?`🟢 EXCUSED BY PARENT — ${String(x.label||"").replace("Excused miss — ","")}`:isBehavior?`🔴 BEHAVIOR CONSEQUENCE — ${x.label||""}`:`${activityIcon(x)} ${x.label||"Activity"}`;
+    return `<div class="approval"><div><b>${title}</b>${x.note?`<div class="tiny muted">${x.note}</div>`:""}<div class="tiny muted">${new Date(x.at||Date.now()).toLocaleString([], {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})}</div></div><b class="${(+x.points<0||+x.xp<0||+x.cash<0)?"due":"reward"}">${activityImpact(x)}</b></div>`;
+  }).join("")}</div>`:"";
+  return kidMissAttention(kidId)+activity;
 }
 function rewards(){
  let fp=familyPoints(), familyGoal=familyRewards()[0]||{icon:"🌳",name:"Family Goal",cost:1};
  let ds=dayStartMs(), ws=weekStartMs();
 
- return header()+`
+ return header()+`${isKidSession()?`<div class="card" style="margin-bottom:12px">${kidChooser()}</div>`:""}
  <div class="card">
    <h2 style="margin-top:0">🌳 Risser Family — Working Together</h2>
    <div class="goalCard">
@@ -734,7 +768,7 @@ function rewards(){
  <div class="card">
    <h2 style="margin-top:0">🏆 Scoreboard</h2>
    <div class="scoreGrid">
-   ${data.kids.map(k=>{
+   ${(isKidSession()?[data.kids[kid]]:data.kids).map(k=>{
      let g=rewardGoal(k), p=+k.rewardPoints||0;
      let todayPts=pointsEarnedSince(k.id,ds), weekPts=pointsEarnedSince(k.id,ws);
      let todayXp=xpEarnedSince(k.id,ds), weekXp=xpEarnedSince(k.id,ws);
@@ -797,48 +831,12 @@ function rewards(){
 }
 function parent(){
  let lib=rawLibrary();
- return header()+`
- <div class="card">
-   <div class="row wrap" style="align-items:center">
-     <div><h2 style="margin:0">👨‍👩‍👧 Parent</h2><div class="tiny muted">Modes & settings</div></div>
-   </div>
-
-   <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px">
-     <button id="summerToggleTop" class="btn ${summerMode()?"summerOn":"secondary"}" style="min-height:76px;text-align:left;padding:12px">
-       <div style="font-size:25px">☀️</div>
-       <div><b>Summer Mode — ${summerMode()?"ON":"OFF"}</b></div>
-       <div class="tiny" style="margin-top:3px">${summerMode()?"School chores are hidden":"School chores are active"}</div>
-     </button>
-     <button id="vacationToggle" class="btn ${vacationMode()?"summerOn":"secondary"}" style="min-height:76px;text-align:left;padding:12px">
-       <div style="font-size:25px">🏖️</div>
-       <div><b>Vacation Mode — ${vacationMode()?"ON":"OFF"}</b></div>
-       <div class="tiny" style="margin-top:3px">${vacationMode()?"Required chores + miss penalties paused":"Normal responsibilities are active"}</div>
-     </button>
-   </div>
-
-   ${vacationMode()?`<div class="notice" style="margin-top:10px"><b>🏖️ VACATION MODE ON</b> — required chores and missed-chore XP penalties are paused. Level Ups stay open.</div>`:""}
-   ${summerMode()?`<div class="notice" style="margin-top:10px"><b>☀️ SUMMER MODE ON</b> — school-specific chores are hidden until you turn Summer Mode off.</div>`:""}
-
-   <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px">
-     <button class="btn secondary" data-togglepanel="choreSettings" style="padding:10px 5px;min-height:68px">
-       <div style="font-size:24px">🧹</div><div class="tiny"><b>Edit Chores</b></div>
-     </button>
-     <button class="btn secondary" data-togglepanel="levelSettings" style="padding:10px 5px;min-height:68px">
-       <div style="font-size:24px">🔥</div><div class="tiny"><b>Edit Level Ups</b></div>
-     </button>
-     <button class="btn secondary" data-togglepanel="earningSettings" style="padding:10px 5px;min-height:68px">
-       <div style="font-size:24px">💰</div><div class="tiny"><b>Earnings</b></div>
-     </button>
-     <button class="btn secondary" data-togglepanel="rewardSettings" style="padding:10px 5px;min-height:68px">
-       <div style="font-size:24px">🎁</div><div class="tiny"><b>Edit Rewards</b></div>
-     </button>
-   </div>
- </div>
-
- <div class="card"><div class="row wrap"><h2 style="margin:0">⏳ Waiting for Approval</h2><button id="bulkBasics" class="btn secondary small">Approve Daily Basics</button></div>${pending().length?pending().map(t=>{let k=kidById(t.kidId);return `<div class="approval"><div><b>${t.icon} ${k?.name} — ${t.name}</b><div class="reward">${t.type==="golf"?`${t.count} balls · `:""}💵 ${money(t.cash)} + 🚗 ${money(t.car)}</div></div><div class="actions"><button data-app="${t.id}" class="btn small">Approve</button><button data-back="${t.id}" class="btn red small">Send Back</button></div></div>`}).join(""):`<p class="muted">Nothing waiting 🎉</p>`}</div>
- 
- <div class="card"><h2 style="margin-top:0">🔥 Level Up Review</h2>
- ${(challengeLogs().filter(x=>x.status==="pending").length)?challengeLogs().filter(x=>x.status==="pending").map(x=>{let c=challengeLibrary().find(c=>c.id===x.challengeId),k=kidById(x.kidId);return `<div class="approval"><div><b>${c?.icon||"⭐"} ${k?.name} — ${c?.name||"Challenge"}</b><div class="reward">${x.challengeId==="pushups"?`${x.count||0} pushups · ⭐ ${pushupPoints(x.count||0)} Points · no cash`:`⭐ ${Math.max(0,+c?.rewardPoints||defaultLevelPoints(c?.id))} Points · 🔥 ${c?.xp||10} XP · no cash`}</div></div><div class="actions"><button class="btn small" data-chapp="${x.id}">Approve</button><button class="btn red small" data-chreject="${x.id}">Reject</button></div></div>`}).join(""):`<p class="muted">No challenge requests waiting.</p>`}
+ return header()+`<div class="card"><h2 style="margin-top:0">🔒 Parent HQ</h2><p class="muted">The things that need a parent's decision right now.</p></div> <div class="card">
+ <div class="row wrap"><div><h2 style="margin:0">⏳ Waiting for Approval${waitingApprovalCount()?` (${waitingApprovalCount()})`:""}</h2><div class="tiny muted">Completed chores, Level Ups, and kid excuse requests all show here.</div></div><button id="bulkBasics" class="btn secondary small">Approve Daily Basics</button></div>
+ ${pending().map(t=>{let k=kidById(t.kidId);return `<div class="approval"><div><div class="tiny muted"><b>🧹 COMPLETED CHORE</b></div><b>${t.icon} ${k?.name} — ${t.name}</b><div class="reward">${t.type==="golf"?`${t.count} balls · `:""}💵 ${money(t.cash)} + 🚗 ${money(t.car)}</div></div><div class="actions"><button data-app="${t.id}" class="btn small">Approve</button><button data-back="${t.id}" class="btn red small">Send Back</button></div></div>`}).join("")}
+ ${pendingLevelUps().map(x=>{let c=challengeLibrary().find(c=>c.id===x.challengeId),k=kidById(x.kidId);return `<div class="approval"><div><div class="tiny muted"><b>🔥 COMPLETED LEVEL UP</b></div><b>${c?.icon||"⭐"} ${k?.name} — ${c?.name||"Challenge"}</b><div class="reward">${x.challengeId==="pushups"?`${x.count||0} pushups · ⭐ ${pushupPoints(x.count||0)} Points · no cash`:`⭐ ${Math.max(0,+c?.rewardPoints||defaultLevelPoints(c?.id))} Points · 🔥 ${c?.xp||10} XP · no cash`}</div></div><div class="actions"><button class="btn small" data-chapp="${x.id}">Approve</button><button class="btn red small" data-chreject="${x.id}">Reject</button></div></div>`}).join("")}
+ ${pendingExcuseRequests().map(x=>{let k=kidById(x.kidId),name=String(x.label||"Missed required chore").replace("Missed required chore — ","");return `<div class="approval"><div><div class="tiny muted"><b>🙋 EXCUSE REQUEST</b></div><b>${k?.name} — ${name}</b><div class="due">${x.xp||0} XP · ${x.forDate||""}</div><div class="tiny muted">${k?.name||"Kid"} thinks this missed chore should be excused.</div></div><div class="actions"><button class="btn small" data-excuseapprove="${x.id}">Excuse + Restore XP</button><button class="btn red small" data-excusedeny="${x.id}">Keep Penalty</button></div></div>`}).join("")}
+ ${waitingApprovalCount()?"":`<p class="muted">Nothing waiting 🎉</p>`}
  </div>
 
  <div class="card"><h2 style="margin-top:0">⚠️ Behavior Consequence</h2><p class="muted">Use this for clear behavior issues. XP or Points can be docked for clear misses. Going over screen time defaults to -10 Points. Cash deductions should be reserved for bigger line-crossing moments. Future Fund is never touched.</p>
@@ -877,16 +875,58 @@ function parent(){
  ${(data.ledger||[]).filter(x=>x.type==="required_miss"&&!x.undone).slice().sort((a,b)=>(b.at||0)-(a.at||0)).slice(0,12).map(x=>{let k=kidById(x.kidId);return `<div class="approval"><div><b>⚠️ ${k?.name||""} — ${x.label||"Missed required chore"}</b><div class="tiny muted">For ${x.forDate||""} · ${x.xp||0} XP</div></div><button class="btn secondary small" data-undomiss="${x.id}">↩️ Undo / Excuse</button></div>`}).join("")||`<p class="muted">No active missed-chore penalties.</p>`}
  </div>
  
- <div class="card parentPanel" id="choreSettings" style="display:none"><div class="row wrap"><div><h2 style="margin:0">🧰 Master Chore List</h2><p class="muted">Assign all four daily chores, or specific kids on any cadence.</p></div><div class="actions"><button id="addCustom" class="btn">＋ New Chore</button><button id="saveChores" class="btn secondary">Save Changes</button></div></div>
+`;
+}
+function settings(){
+ let lib=rawLibrary();
+ return header()+`
+ <div class="card">
+   <div class="row wrap" style="align-items:center">
+     <div><h2 style="margin:0">⚙️ Settings</h2><div class="tiny muted">Family setup & rules</div></div>
+   </div>
+
+   <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px">
+     <button id="summerToggleTop" class="btn ${summerMode()?"summerOn":"secondary"}" style="min-height:76px;text-align:left;padding:12px">
+       <div style="font-size:25px">☀️</div>
+       <div><b>Summer Mode — ${summerMode()?"ON":"OFF"}</b></div>
+       <div class="tiny" style="margin-top:3px">${summerMode()?"School chores are hidden":"School chores are active"}</div>
+     </button>
+     <button id="vacationToggle" class="btn ${vacationMode()?"summerOn":"secondary"}" style="min-height:76px;text-align:left;padding:12px">
+       <div style="font-size:25px">🏖️</div>
+       <div><b>Vacation Mode — ${vacationMode()?"ON":"OFF"}</b></div>
+       <div class="tiny" style="margin-top:3px">${vacationMode()?"Required chores + miss penalties paused":"Normal responsibilities are active"}</div>
+     </button>
+   </div>
+
+   ${vacationMode()?`<div class="notice" style="margin-top:10px"><b>🏖️ VACATION MODE ON</b> — required chores and missed-chore XP penalties are paused. Level Ups stay open.</div>`:""}
+   ${summerMode()?`<div class="notice" style="margin-top:10px"><b>☀️ SUMMER MODE ON</b> — school-specific chores are hidden until you turn Summer Mode off.</div>`:""}
+
+   <div style="display:none">
+     <button class="btn secondary" data-togglepanel="choreSettings" style="padding:10px 5px;min-height:68px">
+       <div style="font-size:24px">🧹</div><div class="tiny"><b>Edit Chores</b></div>
+     </button>
+     <button class="btn secondary" data-togglepanel="levelSettings" style="padding:10px 5px;min-height:68px">
+       <div style="font-size:24px">🔥</div><div class="tiny"><b>Edit Level Ups</b></div>
+     </button>
+     <button class="btn secondary" data-togglepanel="earningSettings" style="padding:10px 5px;min-height:68px">
+       <div style="font-size:24px">💰</div><div class="tiny"><b>Earnings</b></div>
+     </button>
+     <button class="btn secondary" data-togglepanel="rewardSettings" style="padding:10px 5px;min-height:68px">
+       <div style="font-size:24px">🎁</div><div class="tiny"><b>Edit Rewards</b></div>
+     </button>
+   </div>
+ </div>
+
+ <div class="card parentPanel" id="choreSettings" style="display:block"><div class="row wrap"><div><h2 style="margin:0">🧰 Master Chore List</h2><p class="muted">Assign all four daily chores, or specific kids on any cadence.</p></div><div class="actions"><button id="addCustom" class="btn">＋ New Chore</button><button id="saveChores" class="btn secondary">Save Changes</button></div></div>
  <div id="customForm" class="notice" style="display:none;margin-top:12px"><div class="settingsGrid"><div><label>Name</label><input id="newName" placeholder="Clean chicken coop"></div><div><label>Emoji</label><input id="newIcon" value="⭐"></div><div><label>Responsibility</label><select id="newRequired"><option value="0" selected>Optional</option><option value="1">Required</option></select></div><div><label>Points earned</label><input id="newPoints" type="number" min="0" max="100" value="3"></div></div><div id="newMoneyArea" style="margin-top:10px"><label>Can this chore earn money?</label><select id="newPaid"><option value="0" selected>No — Points only</option><option value="1">Yes</option></select><div id="newPayFields" style="display:none;margin-top:10px"><label>Effort level</label><select id="newEffort"><option value="helping">🟢 Helping Hand — quick/easy extra job</option><option value="hard">🔵 Hard Work — meaningful time or effort</option><option value="big">🟣 Big Job — significant effort</option></select><div id="newAutoPreview" class="notice" style="margin-top:8px"></div><label><input id="newCustomToggle" type="checkbox"> Customize dollar amount</label><div id="newCustomWrap" style="display:none"><input id="newCustomAmount" type="number" min="0" step=".50" value="2"></div></div></div><div id="requiredMoneyOverride" class="tiny muted" style="display:none;margin-top:8px">Required chores default to no money. <button id="allowRequiredPay" type="button" class="btn secondary small">Allow earnings anyway</button></div><div class="tiny muted" style="margin-top:8px">Required = responsibility. Optional chores can be earning opportunities. Your weekly budget sets the automatic value.</div><div class="actions" style="margin-top:10px"><button id="createCustom" class="btn">Add Chore</button><button id="cancelCustom" class="btn secondary">Cancel</button></div></div>
  <div style="display:grid;gap:10px;margin-top:13px">${lib.map((c,i)=>`<div class="card masterCard"><div class="row wrap"><div><b>${c.icon} ${c.name}</b><div class="tiny muted">${c.category} · ${c.paid?`💵 ${money(c.cash)} · 🚗 ${money(c.car)}`:"unpaid responsibility"}</div></div><label class="badge"><input data-active="${i}" type="checkbox" ${c.active!==false?"checked":""}> Active</label></div><div class="assignments">${data.kids.map(k=>`<label><input data-assign="${i}|${k.id}" type="checkbox" ${(c.assignedTo||[]).includes(k.id)?"checked":""}> ${theme(k)[1]} ${k.name}</label>`).join("")}</div><div class="settingsGrid"><div><label>Frequency</label><select data-frequency="${i}"><option value="anytime" ${c.frequency==="anytime"?"selected":""}>Anytime</option><option value="needed" ${c.frequency==="needed"?"selected":""}>When needed</option><option value="daily" ${c.frequency==="daily"?"selected":""}>Once a day</option><option value="weekdays" ${c.frequency==="weekdays"?"selected":""}>Weekdays</option><option value="weekly" ${c.frequency==="weekly"?"selected":""}>Once a week</option><option value="everyhours" ${c.frequency==="everyhours"?"selected":""}>Every X hours</option><option value="everyx" ${c.frequency==="everyx"?"selected":""}>Every X days</option><option value="once" ${c.frequency==="once"?"selected":""}>One-time</option></select></div><div data-hours-wrap="${i}" style="${c.frequency==="everyhours"?"":"display:none"}"><label>Reopens after how many hours?</label><input data-hours="${i}" type="number" min="1" max="24" value="${Math.max(1,+c.intervalHours||1)}"></div><div data-interval-wrap="${i}" style="${c.frequency==="everyx"?"":"display:none"}"><label>Every how many days?</label><input data-interval="${i}" type="number" min="1" max="365" value="${Math.max(1,+c.intervalDays||7)}"></div><div><label>Required?</label><select data-required="${i}"><option value="0" ${!c.required?"selected":""}>Optional</option><option value="1" ${c.required?"selected":""}>Required</option></select></div><div><label>Points earned</label><input data-points="${i}" type="number" min="0" max="100" step="1" value="${Math.max(0,c.points!=null?+c.points:(c.required?2:3))}"></div><div><label>Earn money?</label><select data-paid="${i}"><option value="0" ${!c.paid?"selected":""}>No</option><option value="1" ${c.paid?"selected":""}>Yes</option></select></div><div data-effort-wrap="${i}" style="${c.paid?"":"display:none"}"><label>Effort</label><select data-effort="${i}"><option value="helping" ${(c.effortLevel||"helping")==="helping"?"selected":""}>🟢 Helping Hand</option><option value="hard" ${c.effortLevel==="hard"?"selected":""}>🔵 Hard Work</option><option value="big" ${c.effortLevel==="big"?"selected":""}>🟣 Big Job</option></select><div class="tiny muted">${c.paid?(()=>{let q=autoChorePreview(c);return `Auto ${money(q.gross)} → 💵 ${money(q.cash)} + 🌱 ${money(q.future)}`})():""}</div></div><div><label>Claim type</label><select data-exclusive="${i}"><option value="0" ${!c.exclusive?"selected":""}>Each kid</option><option value="1" ${c.exclusive?"selected":""}>First kid only / Shared job</option></select></div><div><label>Miss penalty</label><select data-miss="${i}"><option value="0" ${+c.missXp===0?"selected":""}>None</option><option value="5" ${+c.missXp===5?"selected":""}>-5 XP</option><option value="10" ${+c.missXp===10?"selected":""}>-10 XP</option></select></div></div>${c.custom?`<button data-delete="${i}" class="btn red small" style="margin-top:8px">Delete</button>`:""}</div>`).join("")}</div></div>
  
- <div class="card parentPanel" id="levelSettings" style="display:none"><h2 style="margin-top:0">⏱️ Level Up Availability</h2><p class="muted">Choose how often each Level Up can be completed and how many Points it earns. Most Level Ups now default to 5 Points; bigger character/all-day wins default to 10. Pushups stay 5 Points per 20 and are calculated automatically.  “First kid only” is available for shared family challenges, but most Level Ups should stay “Each kid.”</p>
+ <div class="card parentPanel" id="levelSettings" style="display:block"><h2 style="margin-top:0">⏱️ Level Up Availability</h2><p class="muted">Choose how often each Level Up can be completed and how many Points it earns. Most Level Ups now default to 5 Points; bigger character/all-day wins default to 10. Pushups stay 5 Points per 20 and are calculated automatically.  “First kid only” is available for shared family challenges, but most Level Ups should stay “Each kid.”</p>
 ${challengeLibrary().filter(c=>!c.parentOnly).map((c,i)=>`<div class="card masterCard"><div class="row wrap"><div><b>${c.icon} ${c.name}</b><div class="tiny muted">${challengeAvailabilityLabel(c)}</div></div></div><div class="settingsGrid"><div><label>Availability</label><select data-cfreq="${i}"><option value="anytime" ${c.frequency==="anytime"?"selected":""}>Anytime</option><option value="daily" ${c.frequency==="daily"?"selected":""}>Once a day</option><option value="weekdays" ${c.frequency==="weekdays"?"selected":""}>Weekdays</option><option value="weekly" ${c.frequency==="weekly"?"selected":""}>Once a week</option><option value="everyhours" ${c.frequency==="everyhours"?"selected":""}>Every X hours</option><option value="everyx" ${c.frequency==="everyx"?"selected":""}>Every X days</option><option value="once" ${c.frequency==="once"?"selected":""}>One-time</option></select></div><div data-chours-wrap="${i}" style="${c.frequency==="everyhours"?"":"display:none"}"><label>Hours</label><input data-chours="${i}" type="number" min="1" max="24" value="${Math.max(1,+c.intervalHours||4)}"></div><div data-cdays-wrap="${i}" style="${c.frequency==="everyx"?"":"display:none"}"><label>Days</label><input data-cdays="${i}" type="number" min="1" max="365" value="${Math.max(1,+c.intervalDays||1)}"></div><div><label>Points earned</label><input data-cpoints="${i}" type="number" min="0" max="100" step="1" value="${c.id==="pushups"?pushupPoints(20):Math.max(0,+c.rewardPoints||defaultLevelPoints(c.id))}" ${c.id==="pushups"?"disabled":""}></div><div><label>Claim type</label><select data-cclaim="${i}"><option value="each" ${c.claimType!=="shared"?"selected":""}>Each kid</option><option value="shared" ${c.claimType==="shared"?"selected":""}>First kid only / Shared</option></select></div></div></div>`).join("")}
 <button id="saveLevelAvailability" class="btn" style="margin-top:10px">Save Level Up Availability</button></div>
 
  
- <div class="card parentPanel" id="rewardSettings" style="display:none">
+ <div class="card parentPanel" id="rewardSettings" style="display:block">
    <div class="row wrap">
      <div>
        <h2 style="margin:0">🎁 Edit Rewards</h2>
@@ -926,12 +966,13 @@ ${challengeLibrary().filter(c=>!c.parentOnly).map((c,i)=>`<div class="card maste
      <button id="saveRewards" class="btn">Save Rewards</button>
    </div>
  </div>
-<div class="card parentPanel" id="earningSettings" style="display:none"><h2 style="margin-top:0">💰 Family Earnings Settings</h2><div class="notice"><b>Parents set the budget. We build the economy.</b> Required chores default to responsibility/no money.</div><div class="settingsGrid" style="grid-template-columns:1fr 1fr 1fr"><div><label>Weekly earning max / child</label><input id="weeklyTotalCap" type="number" min="0" step="1" value="${weeklyTotalCap()}"></div><div><label>Future Fund %</label><input id="futureFundPct" type="number" min="0" max="100" value="${Math.round(futurePct())}"></div><div><label>Settle-up reminder</label><select id="settleReminder"><option value="weekly" ${(data.settleReminder||"weekly")==="weekly"?"selected":""}>Weekly — Sunday</option><option value="monthly" ${data.settleReminder==="monthly"?"selected":""}>Monthly</option><option value="none" ${data.settleReminder==="none"?"selected":""}>No reminder</option></select></div></div><div class="notice" style="margin-top:10px"><b>Automatic values:</b> 🟢 Helping Hand ${money(autoBaseReward())} · 🔵 Hard Work ${money(autoBaseReward()*2)} · 🟣 Big Job ${money(autoBaseReward()*3)}<br><span class="tiny muted">${Math.round(cashPct())}% Spend Now / ${Math.round(futurePct())}% Future Fund.</span></div><button id="saveMoneyRules" class="btn" style="margin-top:10px">Save Earnings Settings</button></div>
+<div class="card parentPanel" id="earningSettings" style="display:block"><h2 style="margin-top:0">💰 Family Earnings Settings</h2><div class="notice"><b>Parents set the budget. We build the economy.</b> Required chores default to responsibility/no money.</div><div class="settingsGrid" style="grid-template-columns:1fr 1fr 1fr"><div><label>Weekly earning max / child</label><input id="weeklyTotalCap" type="number" min="0" step="1" value="${weeklyTotalCap()}"></div><div><label>Future Fund %</label><input id="futureFundPct" type="number" min="0" max="100" value="${Math.round(futurePct())}"></div><div><label>Settle-up reminder</label><select id="settleReminder"><option value="weekly" ${(data.settleReminder||"weekly")==="weekly"?"selected":""}>Weekly — Sunday</option><option value="monthly" ${data.settleReminder==="monthly"?"selected":""}>Monthly</option><option value="none" ${data.settleReminder==="none"?"selected":""}>No reminder</option></select></div></div><div class="notice" style="margin-top:10px"><b>Automatic values:</b> 🟢 Helping Hand ${money(autoBaseReward())} · 🔵 Hard Work ${money(autoBaseReward()*2)} · 🟣 Big Job ${money(autoBaseReward()*3)}<br><span class="tiny muted">${Math.round(cashPct())}% Spend Now / ${Math.round(futurePct())}% Future Fund.</span></div><button id="saveMoneyRules" class="btn" style="margin-top:10px">Save Earnings Settings</button></div>
  
 
  <div class="card"><h2>👨‍👩‍👧 Add Parent</h2><div class="row wrap"><input id="parentEmail" style="flex:1;min-width:220px" placeholder="Google email"><button id="addParent" class="btn">Authorize</button></div><div class="tiny muted" style="margin-top:7px">Authorized: ${(data.parentEmails||[]).join(", ")}</div></div>`;
 }
-function paid(){
+
+function paidParent(){
  let totalCashWaiting=data.kids.reduce((sum,k)=>sum+cashOwed(k),0);
  let totalFutureWaiting=data.kids.reduce((sum,k)=>sum+futureWaiting(k),0);
  return header()+`
@@ -971,7 +1012,7 @@ function paid(){
          </select>
        </div>
        <button data-fund="${k.id}" class="btn small" style="margin-top:8px">Mark Future Fund as Funded</button>
-       <div class="tiny muted" style="margin-top:7px">Oak & Arrow/Risser Rewards tracks what you committed to their future. You choose where the actual money lives. Roth IRA contributions require eligible earned income.</div>
+       <div class="tiny muted" style="margin-top:7px">Risser Rewards tracks what you committed to their future. You choose where the actual money lives. Roth IRA contributions require eligible earned income.</div>
      </div>
 
      <div class="tiny muted" style="margin-top:10px">This week</div>
@@ -981,6 +1022,22 @@ function paid(){
 
  <div class="card"><h2>📜 Recent Earnings History</h2>${(data.ledger||[]).slice().sort((a,b)=>(b.at||0)-(a.at||0)).slice(0,80).map(x=>`<div class="ledgerRow"><div><b>${kidById(x.kidId)?.name||""}</b> — ${x.label}</div><div>${x.type==="payment"?"Cash Paid":x.type==="future_fund_deposit"?"Future Funded":x.type==="reversal"?"Reversed":x.type==="behavior_deduction"?"Consequence":x.type==="required_miss"?"Miss":"Earned"}</div><div>${x.type==="payment"?"-"+money(x.amount):x.type==="future_fund_deposit"?`🌱 ${money(x.amount)}${x.destinationLabel?` · ${x.destinationLabel}`:""}`:x.type==="reversal"?`↩️ 💵 ${money(Math.abs(x.cash||0))} · 🌱 ${money(Math.abs(x.car||0))}`:x.type==="behavior_deduction"?`⚠️ ${x.xp?`${x.xp} XP · `:""}${x.cash?`💵 ${money(Math.abs(x.cash))}`:""}`:x.type==="required_miss"?`⚠️ ${x.xp||0} XP`:`Total ${money(x.gross||((x.cash||0)+(x.car||0)))} · 💵 ${money(x.cash||0)} · 🌱 ${money(x.car||0)}`}</div><div class="tiny muted">${new Date(x.at||Date.now()).toLocaleDateString()}</div></div>`).join("")||`<p class="muted">No history yet.</p>`}</div>`;
 }
+function paidKid(){
+ let k=data.kids[kid],paid=paidTotal(k.id),owed=cashOwed(k),funded=futureFundedTotal(k.id),waiting=futureWaiting(k);
+ return header()+`<div class="card" style="margin-bottom:12px">${kidChooser()}</div>${world(k)}
+ <div class="card"><h2 style="margin-top:0">💰 ${k.name}'s Earnings</h2><p class="muted">What you've earned, what is ready to spend, and what is building for your future.</p>
+ <div class="settingsGrid" style="grid-template-columns:repeat(3,1fr)">
+   <div class="notice"><div class="tiny muted">🏆 LIFETIME EARNED</div><div class="metric">${money(lifetimeTotalEarned(k))}</div></div>
+   <div class="notice"><div class="tiny muted">💵 SPEND NOW</div><div class="metric">${money(owed)}</div></div>
+   <div class="notice"><div class="tiny muted">🌱 FUTURE FUND EARNED</div><div class="metric">${money(k.car||0)}</div></div>
+ </div>
+ <div class="tiny muted" style="margin-top:10px">Your Future Fund is being saved for later. Parent payment and account details stay in Parent Mode.</div>
+ </div>
+ <div class="card"><h2 style="margin-top:0">📈 This Week</h2><div class="row wrap" style="justify-content:flex-start"><span class="badge">Total ${money(weeklyGross(k.id))} / ${money(weeklyTotalCap())}</span><span class="badge">Spend Now ${money(weeklyCash(k.id))}</span></div></div>
+ <div class="card"><h2 style="margin-top:0">📜 My Earnings History</h2>${(data.ledger||[]).filter(x=>x.kidId===k.id&&["earning","payment","future_fund_deposit","reversal"].includes(x.type)).slice().sort((a,b)=>(b.at||0)-(a.at||0)).slice(0,30).map(x=>`<div class="ledgerRow"><div><b>${x.label||"Earnings"}</b></div><div>${x.type==="earning"?"Earned":x.type==="reversal"?"Adjusted":"Updated"}</div><div>${x.type==="earning"?`💵 ${money(x.cash||0)} · 🌱 ${money(x.car||0)}`:""}</div><div class="tiny muted">${new Date(x.at||Date.now()).toLocaleDateString()}</div></div>`).join("")||`<p class="muted">No earnings history yet.</p>`}</div>`;
+}
+function paid(){return isKidSession()?paidKid():paidParent()}
+
 function golf(){
  let t=(data.tasks||[]).find(x=>x.kidId===data.kids[kid].id&&x.type==="golf"&&x.status==="open");
  return header()+world(data.kids[kid])+`<div class="card login"><div style="font-size:70px">⛳🔎</div><h2>Golf Ball Bounty</h2><div class="counter"><button data-n="-1">−</button><div class="count">${golfCount}</div><button data-n="1">+</button></div><div class="notice">💵 ${money(golfCount*(data.golfCash||.05))} · 🚗 ${money(golfCount*(data.golfCar||.10))}</div><button id="submitGolf" class="btn" style="margin-top:12px">Submit ${golfCount} Balls</button></div>`;
@@ -996,7 +1053,7 @@ function undoBanner(){
   if(!lastClaimId||Date.now()-lastClaimAt>60000)return "";
   return `<div class="undoToast"><span>Mission claimed.</span><button id="undoClaim" class="btn secondary small">Undo</button></div>`;
 }
-function render(){if(!user){$("#app").innerHTML=login();bind();return}if(data===null){$("#app").innerHTML=`<div class="login card">Loading family…</div>`;return}if(data===false){$("#app").innerHTML=setup();bind();return}if(isKidSession()&&view==="home")view="week";$("#app").innerHTML=view==="pick"?pick():view==="week"?week():view==="level"?level():view==="rewards"?rewards():view==="parent"?parent():view==="paid"?paid():view==="golf"?golf():(isKidSession()?week():parent());bind()}
+function render(){if(!user){$("#app").innerHTML=login();bind();return}if(data===null){$("#app").innerHTML=`<div class="login card">Loading family…</div>`;return}if(data===false){$("#app").innerHTML=setup();bind();return}if(isKidSession()&&["home","parent","settings"].includes(view))view="kids";$("#app").innerHTML=view==="kids"?kidsLanding():view==="pick"?pick():view==="week"?week():view==="level"?level():view==="rewards"?rewards():view==="parent"?parent():view==="settings"?settings():view==="paid"?paid():view==="golf"?golf():(isKidSession()?kidsLanding():parent());bind()}
 async function patch(p){await updateDoc(familyRef,p)}
 
 function bind(){
@@ -1013,6 +1070,7 @@ function bind(){
  $("#parentLogin")?.addEventListener("click",async()=>{await signOut(auth);try{await signInWithPopup(auth,provider)}catch(e){if(/popup|blocked|cancelled/i.test(e.code||""))await signInWithRedirect(auth,provider);else alert(e.message)}});
  $("#logout")?.addEventListener("click",()=>signOut(auth));
  $$("[data-v]").forEach(b=>b.onclick=()=>{view=b.dataset.v;render()});
+ $$("[data-parentgate]").forEach(b=>b.onclick=()=>$("#parentLogin")?.click());
  $$("[data-k]").forEach(b=>b.onclick=()=>{kid=+b.dataset.k;view="week";render()});
  $("#kidSel")?.addEventListener("change",e=>{kid=+e.target.value;pushupCount=0;render()});
  $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCount=0;render()});
@@ -1084,6 +1142,42 @@ function bind(){
  let pts=+cur.points||(cur.required?2:3);ledger.push({id:newId(),type:"reversal",taskId:tid,kidId:cur.kidId,label:`Undo approval — ${cur.name}`,cash:-cash,car:-car,xp:-xp,points:-pts,by:user.email,at:Date.now()});
  tr.update(familyRef,{kids,tasks,ledger:ledger.slice(-300)});
  })})});
+ $$("[data-requestexcuse]").forEach(b=>b.onclick=async()=>{
+   let missId=b.dataset.requestexcuse;
+   await runTransaction(db,async tr=>{
+     let snap=await tr.get(familyRef),d=snap.data();
+     let cur=(d.ledger||[]).find(x=>x.id===missId&&x.type==="required_miss"&&!x.undone);
+     if(!cur||cur.excuseRequest?.status==="pending"||cur.excuseRequest?.status==="denied")return;
+     let ledger=(d.ledger||[]).map(x=>x.id===missId?{...x,excuseRequest:{status:"pending",requestedAt:Date.now(),requestedBy:cur.kidId}}:x);
+     tr.update(familyRef,{ledger:ledger.slice(-500)});
+   });
+ });
+ $$("[data-excuseapprove]").forEach(b=>b.onclick=()=>{
+   let missId=b.dataset.excuseapprove,m=(data.ledger||[]).find(x=>x.id===missId&&x.type==="required_miss"&&!x.undone&&x.excuseRequest?.status==="pending");
+   if(!m)return;let k=kidById(m.kidId);
+   askConfirm("Excuse this missed chore?",`This restores ${Math.abs(+m.xp||0)} XP to ${k?.name||"this kid"} and marks the penalty as excused.`,"Excuse + Restore XP",async()=>{
+     await runTransaction(db,async tr=>{
+       let snap=await tr.get(familyRef),d=snap.data(),cur=(d.ledger||[]).find(x=>x.id===missId&&x.type==="required_miss"&&!x.undone&&x.excuseRequest?.status==="pending");
+       if(!cur)return;
+       let restore=Math.abs(+cur.xp||0),now=Date.now();
+       let kids=(d.kids||[]).map(x=>x.id===cur.kidId?{...x,xp:(+x.xp||0)+restore}:x);
+       let ledger=(d.ledger||[]).map(x=>x.id===missId?{...x,undone:true,undoneBy:user.email,undoneAt:now,excuseRequest:{...x.excuseRequest,status:"approved",decidedAt:now,decidedBy:user.email}}:x);
+       ledger.push({id:newId(),type:"miss_reversal",kidId:cur.kidId,choreId:cur.choreId,label:`Excused miss — ${String(cur.label||"").replace("Missed required chore — ","")}`,note:"Kid requested review · Excused by parent",xp:restore,points:0,cash:0,by:user.email,at:now,reverses:missId,forDate:cur.forDate});
+       tr.update(familyRef,{kids,ledger:ledger.slice(-500)});
+     });
+   });
+ });
+ $$("[data-excusedeny]").forEach(b=>b.onclick=()=>{
+   let missId=b.dataset.excusedeny,m=(data.ledger||[]).find(x=>x.id===missId&&x.type==="required_miss"&&!x.undone&&x.excuseRequest?.status==="pending");
+   if(!m)return;let k=kidById(m.kidId);
+   askConfirm("Keep this penalty?",`${k?.name||"This kid"}'s missed-chore penalty will stay. No XP will be restored.`,"Keep Penalty",async()=>{
+     await runTransaction(db,async tr=>{
+       let snap=await tr.get(familyRef),d=snap.data(),now=Date.now();
+       let ledger=(d.ledger||[]).map(x=>x.id===missId&&x.type==="required_miss"&&!x.undone&&x.excuseRequest?.status==="pending"?{...x,excuseRequest:{...x.excuseRequest,status:"denied",decidedAt:now,decidedBy:user.email}}:x);
+       tr.update(familyRef,{ledger:ledger.slice(-500)});
+     });
+   });
+ });
  async function bulkExcuseMissRange(startDate,endDate){
    if(!startDate||!endDate)return alert("Choose a start and end date.");
    let a=startDate<=endDate?startDate:endDate,b=startDate<=endDate?endDate:startDate;
