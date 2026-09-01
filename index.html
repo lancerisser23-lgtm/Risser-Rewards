@@ -59,6 +59,146 @@ label{font-size:13px;font-weight:850}input,select{width:100%;min-height:45px;bor
   .fiveTabs{grid-template-columns:repeat(5,minmax(64px,1fr));overflow-x:auto}
   .fiveTabs .tab{font-size:12px}
 }
+
+/* ===== v46.5 Adventure Visual Refresh — visual only ===== */
+:root{
+ --g:#173f2d;--g2:#285d42;--pine:#102f24;--cream:#f8f3e8;--paper:#fffdf7;
+ --sand:#eadcc0;--gold:#d5a526;--gold2:#efc44f;--clay:#a9582d;--sky:#b9d1cf;
+ --ink:#1b261e;--muted:#677168;--line:#ded6c4;--red:#a95042;--amber:#9d711d;
+ --shadow:0 10px 30px rgba(31,49,35,.09);--shadow-lg:0 18px 46px rgba(21,47,33,.16)
+}
+html,body{
+ background:
+   radial-gradient(circle at 20% -8%,rgba(185,209,207,.42),transparent 34%),
+   linear-gradient(180deg,#f5efe2 0,#fbf8ef 260px,#f4f1e8 100%);
+ color:var(--ink)
+}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:.2;
+ background-image:linear-gradient(rgba(61,78,65,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(61,78,65,.03) 1px,transparent 1px);
+ background-size:28px 28px}
+.app{max-width:1220px;padding:18px 16px 72px}
+
+/* Masthead */
+.top{background:rgba(255,253,247,.76);backdrop-filter:blur(10px);border:1px solid rgba(216,207,187,.78);
+ border-radius:22px;padding:12px 14px;box-shadow:0 8px 24px rgba(35,54,40,.07)}
+.brandWrap{display:flex;align-items:center;gap:11px}
+.brandPeak{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;color:#efc95b;
+ background:linear-gradient(145deg,#173f2d,#0d2a1f);box-shadow:inset 0 0 0 2px rgba(255,255,255,.08),0 5px 14px rgba(18,49,35,.18)}
+.brand{font-family:Georgia,"Times New Roman",serif;font-size:clamp(23px,4vw,37px);font-weight:800;letter-spacing:.015em;line-height:.9;color:var(--pine)}
+.sub{font-size:12px;letter-spacing:.025em;margin-top:5px}
+
+/* Main navigation */
+.fiveTabs{position:sticky;top:8px;z-index:40;margin:14px 0 18px!important;padding:7px;
+ background:linear-gradient(135deg,#0f3024,#173f2d 52%,#244d38);border:1px solid rgba(255,255,255,.08);
+ border-radius:20px;box-shadow:0 10px 26px rgba(16,46,33,.20)}
+.fiveTabs .tab{min-height:54px;background:transparent;color:#f8f1df;border:1px solid transparent;border-radius:14px;
+ font-weight:800;letter-spacing:.01em;transition:.18s ease}
+.fiveTabs .tab:hover{background:rgba(255,255,255,.07)}
+.fiveTabs .tab.on{background:linear-gradient(180deg,rgba(255,255,255,.17),rgba(255,255,255,.09));color:#fff9e8;
+ border-color:rgba(239,198,77,.72);box-shadow:inset 0 0 0 1px rgba(255,255,255,.05),0 3px 12px rgba(0,0,0,.14)}
+
+/* Type + surfaces */
+h1,h2,h3{color:#172d21}
+h2{font-family:Georgia,"Times New Roman",serif;letter-spacing:-.02em;font-weight:700}
+.metric{font-family:Georgia,"Times New Roman",serif;color:var(--pine)}
+.card{background:linear-gradient(180deg,rgba(255,253,247,.99),rgba(249,246,237,.99));border:1px solid rgba(215,206,185,.9);
+ border-radius:20px;box-shadow:var(--shadow)}
+.notice{background:linear-gradient(145deg,#edf3e8,#e5eee0);border:1px solid #d0ddc8}
+.warn{background:linear-gradient(145deg,#fff4d5,#f8e9b9);border-color:#ead193}
+.attention{background:linear-gradient(135deg,#fff0c8,#fffaf0);border:1px solid #e6c56d;box-shadow:0 10px 28px rgba(117,82,16,.09)}
+.goalCard{background:rgba(255,255,255,.55);border-color:#ded6c2}
+.progress,.goalBar{background:#e9e4d7}
+.bar,.goalFill{background:linear-gradient(90deg,#24573d,#6e9861,#d9ad34)}
+.badge{background:#f0ece1;border:1px solid #e0d9c9;color:#344237}
+
+/* Controls */
+.btn{border-radius:12px;background:linear-gradient(180deg,#22563d,#173f2d);box-shadow:0 3px 8px rgba(22,62,44,.16)}
+.btn:hover{filter:brightness(1.04)}
+.btn.secondary{background:#fffdf8;border-color:#d8d0be;box-shadow:none}
+.btn.gold{background:linear-gradient(180deg,#dfb344,#c9951e);color:#2d2614}
+input,select{background:#fffefa;border-color:#cfc7b5}
+input:focus,select:focus{outline:2px solid rgba(52,99,70,.18);border-color:#6d9276}
+
+/* Scripture / journal note */
+.verseBanner{background:linear-gradient(90deg,rgba(205,169,85,.08) 1px,transparent 1px),linear-gradient(#fff9e8,#f8efd6);
+ background-size:24px 100%,auto;border:1px solid #dfc47d;border-left:5px solid #bb8c2c;border-radius:16px;
+ box-shadow:0 6px 18px rgba(89,68,20,.07)}
+
+/* Kids landing — scenic adventure cover */
+.adventureLanding{overflow:hidden;border-radius:28px;border:1px solid #cfc2a7;background:#fff9ed;box-shadow:var(--shadow-lg);margin-bottom:16px}
+.adventureSky{position:relative;min-height:305px;padding:38px 24px 120px;text-align:center;overflow:hidden;
+ background:radial-gradient(circle at 50% 7%,rgba(255,241,183,.98) 0 8%,rgba(255,241,183,.32) 9%,transparent 25%),
+ linear-gradient(180deg,#d8e3de 0,#f5e5bd 62%,#d0b67f 100%)}
+.adventureSky:before{content:"";position:absolute;left:-4%;right:-4%;bottom:28px;height:185px;
+ background:linear-gradient(135deg,transparent 0 12%,#87957a 12% 19%,transparent 19% 25%,#6d8068 25% 35%,transparent 35% 42%,#80927b 42% 53%,transparent 53% 61%,#647761 61% 72%,transparent 72%);
+ opacity:.9}
+.adventureSky:after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:105px;background:linear-gradient(180deg,#315d43,#173f2d);
+ clip-path:polygon(0 58%,7% 31%,12% 55%,18% 18%,23% 59%,30% 36%,36% 70%,42% 24%,48% 58%,55% 16%,61% 58%,68% 29%,75% 65%,82% 23%,88% 55%,94% 32%,100% 58%,100% 100%,0 100%)}
+.adventureMark{position:relative;z-index:3;display:inline-grid;place-items:center;width:46px;height:46px;border:2px solid #244c37;border-radius:50%;color:#244c37;font-size:27px;font-weight:900;margin-bottom:8px}
+.adventureTitle{position:relative;z-index:3;font-family:Georgia,"Times New Roman",serif;font-weight:800;letter-spacing:.015em;line-height:.84;
+ color:#123c29;font-size:clamp(38px,7vw,67px);text-shadow:0 1px rgba(255,255,255,.55)}
+.adventureTagline{position:relative;z-index:3;margin-top:16px;color:#273b2d;font-weight:800;font-size:15px}
+.adventurePicker{position:relative;z-index:5;margin-top:-72px;padding:0 18px 20px}
+.adventurePicker .kidChooser{margin:0}
+.adventurePicker .kidChooserTitle{text-align:center;color:#fff9e8;text-shadow:0 2px 6px rgba(0,0,0,.25);
+ font-family:Georgia,"Times New Roman",serif;font-size:20px}
+.adventurePicker .kidChoices{gap:10px}
+.kidChoice{overflow:hidden;min-height:170px;justify-content:flex-end;padding:16px 8px 13px;border-radius:18px;color:#fff;
+ border:1px solid rgba(255,255,255,.55);box-shadow:0 8px 18px rgba(15,42,29,.18),inset 0 0 0 1px rgba(255,255,255,.10);position:relative}
+.kidChoice:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.08),transparent 38%,rgba(0,0,0,.34));pointer-events:none}
+.kidChoice>*{position:relative;z-index:2}
+.kidChoice .kidEmoji{font-size:58px;filter:drop-shadow(0 4px 5px rgba(0,0,0,.18));margin-bottom:auto}
+.kidChoice .kidName{font-family:Georgia,"Times New Roman",serif;font-size:22px}
+.kidWorldLabel{font-size:10px;opacity:.92;font-weight:750}
+.kidSelected{margin-top:5px;background:rgba(255,255,255,.9);color:#173f2d;padding:3px 7px;border-radius:999px}
+.kidChoice.kid-noah{background:linear-gradient(150deg,#527779,#244d47 56%,#102f24)}
+.kidChoice.kid-eli{background:linear-gradient(150deg,#d0a044,#9d6128 55%,#65401e)}
+.kidChoice.kid-shepherd{background:linear-gradient(150deg,#6d904f,#315b35 58%,#183e2a)}
+.kidChoice.kid-juniper{background:linear-gradient(150deg,#c091ba,#8d74a0 52%,#617f8c)}
+.kidChoice.on{border-color:#f4cf5b;box-shadow:0 0 0 3px rgba(240,195,66,.35),0 10px 22px rgba(15,42,29,.2)}
+.familyAdventure{margin-top:12px;padding:13px 15px;border-radius:15px;background:linear-gradient(145deg,#f1e6cb,#e6d7b8);
+ border:1px solid #cfbd96;display:flex;gap:11px;align-items:center;color:#273329}
+.compassMedallion{width:42px;height:42px;display:grid;place-items:center;border-radius:50%;color:#e7bb3d;background:#173f2d;font-size:20px}
+
+/* Individual worlds */
+.world{border:1px solid rgba(255,255,255,.22);box-shadow:0 16px 38px rgba(22,49,35,.18);min-height:250px}
+.world:before{content:"";position:absolute;inset:auto 0 0 0;height:42%;background:linear-gradient(180deg,transparent,rgba(11,34,24,.25));pointer-events:none}
+.worldBadge{background:rgba(255,253,244,.9);border:1px solid rgba(255,255,255,.65);box-shadow:0 3px 8px rgba(0,0,0,.07)}
+.world h2{font-family:Georgia,"Times New Roman",serif;letter-spacing:-.02em}
+
+/* Missions / chores / growth */
+.chore{border:1px solid #ded6c3;background:linear-gradient(180deg,#fffef9,#f8f3e8);box-shadow:0 5px 14px rgba(37,56,41,.06);
+ transition:transform .15s ease,box-shadow .15s ease}
+.chore:hover{transform:translateY(-2px);box-shadow:0 9px 20px rgba(37,56,41,.10)}
+.icon{filter:drop-shadow(0 3px 4px rgba(0,0,0,.08))}
+.challenge{border:1px solid #d8d2c2;background:radial-gradient(circle at 90% 10%,rgba(116,143,94,.08),transparent 23%),linear-gradient(145deg,#fffdf7,#f3efe4);box-shadow:0 5px 14px rgba(37,56,41,.05)}
+.challenge .big{width:58px;height:58px;display:grid;place-items:center;background:#e6eadc;border:1px solid #ccd5bf;border-radius:50%}
+.streak{color:#9f5d25}
+
+/* Internal kid subnav */
+.card:has([data-v="week"].btn){background:linear-gradient(135deg,#193f2e,#244d39);border-color:#173b2b;padding:8px}
+.card:has([data-v="week"].btn) .btn{background:transparent;border:1px solid transparent;color:#f8f0de;box-shadow:none}
+.card:has([data-v="week"].btn) .btn:not(.secondary){background:rgba(255,255,255,.12);border-color:#dfbd55;color:white}
+.card:has([data-v="week"].btn) .btn.secondary{color:#f8f0de}
+
+/* Parent HQ, earnings, rewards, settings refinement */
+.approval{border-top-color:#e3dccb}
+.cashCard{background:linear-gradient(180deg,#fffdf8,#f5f0e5);border-color:#dcd3bf;box-shadow:0 7px 18px rgba(37,56,41,.06)}
+.owed{font-family:Georgia,"Times New Roman",serif;color:#173f2d}
+.ledgerRow{border-top-color:#e4ddce}
+.masterCard{background:#fffdf8;border-color:#ded6c3}
+.assignments label{background:#eee9dd;border:1px solid #dfd6c3}
+.confirmCard{background:#fffaf0;border:1px solid #d9cdb5}
+
+@media(max-width:700px){
+ .top{border-radius:18px}.fiveTabs{top:5px;border-radius:16px;padding:5px}.fiveTabs .tab{font-size:11px;min-height:49px}
+ .adventureSky{min-height:245px;padding-top:28px}.adventurePicker{margin-top:-62px;padding:0 10px 14px}
+ .adventurePicker .kidChoices{grid-template-columns:repeat(2,1fr)}.kidChoice{min-height:145px}.kidChoice .kidEmoji{font-size:48px}
+}
+@media(max-width:430px){
+ .brandPeak{width:36px;height:36px}.brand{font-size:21px}.top .actions{width:100%;justify-content:space-between}
+ .adventureSky{min-height:225px}.adventureTitle{font-size:42px}.kidChoice{min-height:132px}
+}
 </style>
 </head>
 <body><div id="app" class="app"></div>
@@ -335,7 +475,7 @@ function reliability(k){let d=+k.requiredDue||0,c=+k.requiredDone||0;return d?Ma
 function relClass(r){return r>=90?"good":r>=75?"mid":"low"}
 function kidChooser(){
  const icons={noah:"🐺",eli:"🦁",shepherd:"🐍",juniper:"🦄"};
- return `<div class="kidChooser"><div class="kidChooserTitle">👋 Who are you?</div><div class="kidChoices">${data.kids.map((x,i)=>`<button class="kidChoice ${i===kid?"on":""}" data-kidpick="${i}"><span class="kidEmoji">${icons[x.id]||"⭐"}</span><span>${x.name}</span>${i===kid?`<span class="tiny muted">That's me!</span>`:""}</button>`).join("")}</div></div>`
+ return `<div class="kidChooser"><div class="kidChooserTitle">👋 Who are you?</div><div class="kidChoices">${data.kids.map((x,i)=>`<button class="kidChoice kid-${x.id||"default"} ${i===kid?"on":""}" data-kidpick="${i}"><span class="kidEmoji">${icons[x.id]||"⭐"}</span><span class="kidName">${x.name}</span><span class="kidWorldLabel">${x.id==="noah"?"Mountain World":x.id==="eli"?"Savanna World":x.id==="shepherd"?"Forest World":x.id==="juniper"?"Meadow World":"Adventure World"}</span>${i===kid?`<span class="tiny kidSelected">Selected</span>`:""}</button>`).join("")}</div></div>`
 }
 function frequencyLabel(c){
   if(c.frequency==="needed")return "when needed";
@@ -542,7 +682,7 @@ function weeklyVerse(){
 function verseBanner(){const v=weeklyVerse();return `<div class="verseBanner"><div class="tiny muted">📖 VERSE OF THE WEEK</div><div style="font-size:17px;font-weight:850;line-height:1.45;margin-top:4px">“${v.text}”</div><div class="verseRef">${v.ref} · WEB</div><div class="tiny muted" style="margin-top:4px">New verse every Sunday</div></div>`}
 function header(){
  let kidsOn=["kids","week","pick","level","golf"].includes(view);
- return `<div class="top"><div><div class="brand">🚙 Risser Rewards</div><div class="sub">Responsibility → hard work → choices.</div></div><div class="actions"><span class="badge">${modeLabel()}</span>${isKidSession()?`<button id="parentLogin" class="btn secondary">Parent Sign In</button>`:`<span class="tiny muted">${user?.email||""}</span><button id="logout" class="btn secondary">Sign out</button>`}</div></div>
+ return `<div class="top"><div><div class="brandWrap"><span class="brandPeak">▲</span><div><div class="brand">RISSER REWARDS</div><div class="sub">Responsibility → hard work → choices.</div></div></div></div><div class="actions"><span class="badge">${modeLabel()}</span>${isKidSession()?`<button id="parentLogin" class="btn secondary">Parent Sign In</button>`:`<span class="tiny muted">${user?.email||""}</span><button id="logout" class="btn secondary">Sign out</button>`}</div></div>
  ${verseBanner()}${vacationMode()?`<div class="notice" style="margin-top:8px"><b>🏖️ Vacation Mode</b> — Required chores are paused. Level Ups are still open!</div>`:""}
  <div class="tabs fiveTabs">
    <button data-v="kids" class="tab ${kidsOn?"on":""}">🏡 Kids</button>
@@ -550,7 +690,7 @@ function header(){
       ? `<button data-parentgate="1" class="tab">🔒 Parent HQ</button>`
       : `<button data-v="parent" class="tab ${view==="parent"?"on":""}">🔒 Parent HQ${waitingApprovalCount()?` (${waitingApprovalCount()})`:""}</button>`}
    <button data-v="paid" class="tab ${view==="paid"?"on":""}">💰 Earnings</button>
-   <button data-v="rewards" class="tab ${view==="rewards"?"on":""}">🎁 Rewards</button>
+   <button data-v="rewards" class="tab ${view==="rewards"?"on":""}">⭐ Rewards</button>
    ${isKidSession()
       ? `<button data-parentgate="1" class="tab">⚙️ Settings</button>`
       : `<button data-v="settings" class="tab ${view==="settings"?"on":""}">⚙️ Settings</button>`}
@@ -567,7 +707,17 @@ function kidExperienceNav(){
  </div></div>`;
 }
 function kidsLanding(){
- return header()+`<div class="card"><h2 style="margin-top:0">🏡 Kids</h2><p class="muted">Choose who you are to open your world.</p>${kidChooser()}</div>`;
+ return header()+`<section class="adventureLanding">
+   <div class="adventureSky">
+     <div class="adventureMark">⌁</div>
+     <div class="adventureTitle">RISSER<br>REWARDS</div>
+     <div class="adventureTagline">Choose your adventure.</div>
+   </div>
+   <div class="adventurePicker">
+     ${kidChooser()}
+     <div class="familyAdventure"><span class="compassMedallion">✦</span><div><b>Your family. Your adventure.</b><div class="tiny muted">Building character. Creating memories.</div></div></div>
+   </div>
+ </section>`;
 }
 function home(){
  let needs=needsSomeone();
@@ -929,7 +1079,7 @@ ${challengeLibrary().filter(c=>!c.parentOnly).map((c,i)=>`<div class="card maste
  <div class="card parentPanel" id="rewardSettings" style="display:block">
    <div class="row wrap">
      <div>
-       <h2 style="margin:0">🎁 Edit Rewards</h2>
+       <h2 style="margin:0">⭐ Edit Rewards</h2>
        <div class="muted">Add, edit, remove, and set the Points needed for individual and family rewards.</div>
      </div>
    </div>
@@ -1073,7 +1223,7 @@ function bind(){
  $$("[data-parentgate]").forEach(b=>b.onclick=()=>$("#parentLogin")?.click());
  $$("[data-k]").forEach(b=>b.onclick=()=>{kid=+b.dataset.k;view="week";render()});
  $("#kidSel")?.addEventListener("change",e=>{kid=+e.target.value;pushupCount=0;render()});
- $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCount=0;render()});
+ $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCount=0;if(view==="kids")view="week";render()});
  $("#createFamily")?.addEventListener("click",async()=>setDoc(familyRef,{ownerUid:user.uid,ownerEmail:user.email,parentEmails:[user.email.toLowerCase()],kids:KIDS,tasks:[],payments:[],futureFundDeposits:[],ledger:[],choreLibrary:DEFAULTS,challenges:DEFAULT_CHALLENGES,challengeLogs:[],golfCash:.05,golfCar:.10,weeklyCashCap:15,weeklyTotalCap:25,cashSplitPct:60,createdAt:serverTimestamp()}));
 
  $$("[data-c]").forEach(b=>b.onclick=()=>{let c=library().find(x=>x.id===b.dataset.c),k=data.kids[kid];if(!c||!canClaim(c,k.id))return;askConfirm(`Claim ${c.icon} ${c.name}?`,`This adds the mission to ${k.name}'s list.${c.exclusive?" Other kids will not be able to claim it while it is active.":""}`,"Yes, Claim It",async()=>{let t={id:newId(),choreId:c.id,kidId:k.id,icon:c.icon,name:c.name,cash:isKidSession()?0:(c.paid?+c.cash||0:0),car:isKidSession()?0:(c.paid?+c.car||0:0),xp:isKidSession()?0:(+c.xp||10),exclusive:!!c.exclusive,required:!!c.required,frequency:c.frequency,periodKey:periodKey(c),status:"open",type:c.id==="golf"?"golf":"normal",count:0,createdAt:Date.now()};await patch({tasks:arrayUnion(t)});lastClaimId=t.id;lastClaimAt=Date.now();view="week";render()})});
