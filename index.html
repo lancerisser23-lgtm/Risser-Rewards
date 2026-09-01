@@ -374,6 +374,11 @@ input:focus,select:focus{outline:2px solid rgba(52,99,70,.18);border-color:#6d92
 .penaltyKidToggle{display:flex!important;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;background:#fffdf8;border:1px solid #ddd5c4;border-radius:14px}
 .penaltyKidToggle input{width:22px;height:22px;accent-color:#1d5a3d}
 @media(max-width:700px){.penaltyKidGrid{grid-template-columns:1fr}}
+
+.weeklySettleCard{border:2px solid #d4b56d;background:linear-gradient(180deg,#fffdf7,#f8f1df)}
+.weeklySettleCard .settleTotals .notice{margin:0}
+@media(max-width:700px){.weeklySettleCard .settleTotals{grid-template-columns:1fr 1fr!important;min-width:100%!important}}
+
 </style>
 </head>
 <body><div id="app" class="app"></div>
@@ -1161,7 +1166,7 @@ function rewards(){
 }
 function parent(){
  let lib=rawLibrary();
- return header()+`<div class="card"><h2 style="margin-top:0">🔒 Parent HQ</h2><p class="muted">The things that need a parent's decision right now.</p></div> <div class="card">
+ return header()+weeklySettleCard()+`<div class="card"><h2 style="margin-top:0">🔒 Parent HQ</h2><p class="muted">The things that need a parent's decision right now.</p></div> <div class="card">
  <div class="row wrap"><div><h2 style="margin:0">⏳ Waiting for Approval${waitingApprovalCount()?` (${waitingApprovalCount()})`:""}</h2><div class="tiny muted">Completed chores, Level Ups, and kid excuse requests all show here.</div></div><button id="bulkBasics" class="btn secondary small">Approve Daily Basics</button></div>
  ${pending().map(t=>{let k=kidById(t.kidId);return `<div class="approval"><div><div class="tiny muted"><b>🧹 COMPLETED CHORE</b></div><b>${t.icon} ${k?.name} — ${t.name}</b><div class="reward">${t.type==="golf"?`${t.count} balls · `:""}💵 ${money(t.cash)} + 🚗 ${money(t.car)}</div></div><div class="actions"><button data-app="${t.id}" class="btn small">Approve</button><button data-back="${t.id}" class="btn red small">Send Back</button></div></div>`}).join("")}
  ${pendingLevelUps().map(x=>{let c=challengeLibrary().find(c=>c.id===x.challengeId),k=kidById(x.kidId);return `<div class="approval"><div><div class="tiny muted"><b>🔥 COMPLETED LEVEL UP</b></div><b>${c?.icon||"⭐"} ${k?.name} — ${c?.name||"Challenge"}</b><div class="reward">${x.challengeId==="pushups"?`${x.count||0} pushups · ⭐ ${pushupPoints(x.count||0)} Points · no cash`:`⭐ ${Math.max(0,+c?.rewardPoints||defaultLevelPoints(c?.id))} Points · 🔥 ${c?.xp||10} XP · no cash`}</div></div><div class="actions"><button class="btn small" data-chapp="${x.id}">Approve</button><button class="btn red small" data-chreject="${x.id}">Reject</button></div></div>`}).join("")}
@@ -1306,7 +1311,7 @@ function paidParent(){
  let totalCashWaiting=data.kids.reduce((sum,k)=>sum+cashOwed(k),0);
  let totalFutureWaiting=data.kids.reduce((sum,k)=>sum+futureWaiting(k),0);
  return header()+`
- <div class="card">
+ <div class="card" id="earningsSettleTop">
    <h2 style="margin-top:0">💰 Earnings</h2>
    <p class="muted">Celebrate what the kids have earned for life. Paying Spend Now or funding Future Fund records where the real money went — it never erases their lifetime earnings.</p>${((data.settleReminder||"weekly")==="weekly"&&new Date().getDay()===0&&(totalCashWaiting>0||totalFutureWaiting>0))?`<div class="notice" style="margin-top:10px"><b>📅 Weekly Earnings Check-In</b><br>This week's earnings are ready to settle. Pay Spend Now and fund Future Fund when you're ready.</div>`:""}
    <div class="settingsGrid" style="grid-template-columns:1fr 1fr;margin-top:12px">
@@ -1366,6 +1371,54 @@ function paidKid(){
  <div class="card"><h2 style="margin-top:0">📈 This Week</h2><div class="row wrap" style="justify-content:flex-start"><span class="badge">Total ${money(weeklyGross(k.id))} / ${money(weeklyTotalCap())}</span><span class="badge">Spend Now ${money(weeklyCash(k.id))}</span></div></div>
  <div class="card"><h2 style="margin-top:0">📜 My Earnings History</h2>${(data.ledger||[]).filter(x=>x.kidId===k.id&&["earning","payment","future_fund_deposit","reversal"].includes(x.type)).slice().sort((a,b)=>(b.at||0)-(a.at||0)).slice(0,30).map(x=>`<div class="ledgerRow"><div><b>${x.label||"Earnings"}</b></div><div>${x.type==="earning"?"Earned":x.type==="reversal"?"Adjusted":"Updated"}</div><div>${x.type==="earning"?`💵 ${money(x.cash||0)} · 🌱 ${money(x.car||0)}`:""}</div><div class="tiny muted">${new Date(x.at||Date.now()).toLocaleDateString()}</div></div>`).join("")||`<p class="muted">No earnings history yet.</p>`}</div>`;
 }
+
+function earningsWaitingTotals(){
+ return {
+   cash:(data.kids||[]).reduce((sum,k)=>sum+cashOwed(k),0),
+   future:(data.kids||[]).reduce((sum,k)=>sum+futureWaiting(k),0)
+ };
+}
+function weeklySettleReminderActive(){
+ const t=earningsWaitingTotals();
+ return isParent()&&(data.settleReminder||"weekly")==="weekly"&&new Date().getDay()===0&&(t.cash>0||t.future>0);
+}
+function weeklySettleCard(){
+ const t=earningsWaitingTotals();
+ if(!weeklySettleReminderActive())return "";
+ return `<div class="card weeklySettleCard" id="weeklySettleCard">
+   <div class="row between wrap" style="gap:12px">
+     <div>
+       <div class="tiny muted">SUNDAY PARENT ACTION</div>
+       <h2 style="margin:3px 0 4px">💰 Weekly Earnings Check-In</h2>
+       <div class="muted">You have money waiting to be handled.</div>
+     </div>
+     <div class="settingsGrid settleTotals" style="grid-template-columns:1fr 1fr;min-width:300px">
+       <div class="notice"><div class="tiny muted">💵 WAITING TO PAY</div><b>${money(t.cash)}</b></div>
+       <div class="notice"><div class="tiny muted">🌱 WAITING TO FUND</div><b>${money(t.future)}</b></div>
+     </div>
+   </div>
+   <div class="actions" style="margin-top:12px">
+     ${t.cash>0?`<button class="btn" data-settle-jump="cash">💵 Record Cash Payments</button>`:""}
+     ${t.future>0?`<button class="btn secondary" data-settle-jump="future">🌱 Fund Future Money</button>`:""}
+   </div>
+   <div class="tiny muted" style="margin-top:8px">This stays here every Sunday until all outstanding Spend Now and Future Fund balances are recorded.</div>
+ </div>`;
+}
+function maybeShowWeeklySettlePopup(){
+ if(!weeklySettleReminderActive())return;
+ const today=new Date().toISOString().slice(0,10);
+ const key=`risserWeeklySettlePopup:${today}`;
+ if(sessionStorage.getItem(key))return;
+ sessionStorage.setItem(key,"1");
+ const t=earningsWaitingTotals();
+ askConfirm(
+   "💰 Weekly Earnings Check-In",
+   `You have ${money(t.cash)} Spend Now waiting to be paid and ${money(t.future)} Future Fund waiting to be funded.`,
+   "Take Care of It",
+   ()=>{view="paid";render();setTimeout(()=>document.querySelector("#earningsSettleTop")?.scrollIntoView({behavior:"smooth",block:"start"}),50)}
+ );
+}
+
 function paid(){return isKidSession()?paidKid():paidParent()}
 
 function golf(){
@@ -1411,7 +1464,15 @@ function bind(){
  });
  $$("[data-k]").forEach(b=>b.onclick=()=>{kid=+b.dataset.k;view="week";render()});
  $("#kidSel")?.addEventListener("change",e=>{kid=+e.target.value;pushupCount=0;render()});
- $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCount=0;if(view==="kids")view="week";render()});
+ 
+ $$("[data-settle-jump]").forEach(b=>b.onclick=()=>{
+   view="paid";render();
+   setTimeout(()=>{
+     const sel=b.dataset.settleJump==="future"?"[data-fund]":"[data-pay]";
+     document.querySelector(sel)?.scrollIntoView({behavior:"smooth",block:"center"});
+   },60);
+ });
+$$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCount=0;if(view==="kids")view="week";render()});
  $("#createFamily")?.addEventListener("click",async()=>setDoc(familyRef,{ownerUid:user.uid,ownerEmail:user.email,parentEmails:[user.email.toLowerCase()],kids:KIDS,tasks:[],payments:[],futureFundDeposits:[],ledger:[],choreLibrary:DEFAULTS,challenges:DEFAULT_CHALLENGES,challengeLogs:[],golfCash:.05,golfCar:.10,weeklyCashCap:15,weeklyTotalCap:25,cashSplitPct:60,createdAt:serverTimestamp()}));
 
  $$("[data-c]").forEach(b=>b.onclick=()=>{let c=library().find(x=>x.id===b.dataset.c),k=data.kids[kid];if(!c||!canClaim(c,k.id))return;askConfirm(`Claim ${c.icon} ${c.name}?`,`This adds the mission to ${k.name}'s list.${c.exclusive?" Other kids will not be able to claim it while it is active.":""}`,"Yes, Claim It",async()=>{let t={id:newId(),choreId:c.id,kidId:k.id,icon:c.icon,name:c.name,cash:isKidSession()?0:(c.paid?+c.cash||0:0),car:isKidSession()?0:(c.paid?+c.car||0:0),xp:isKidSession()?0:(+c.xp||10),exclusive:!!c.exclusive,required:!!c.required,frequency:c.frequency,periodKey:periodKey(c),status:"open",type:c.id==="golf"?"golf":"normal",count:0,createdAt:Date.now()};await patch({tasks:arrayUnion(t)});lastClaimId=t.id;lastClaimAt=Date.now();view="week";render()})});
@@ -1690,7 +1751,8 @@ $("#newRequired")?.addEventListener("change",()=>{$("#newMoneyArea").dataset.ove
  $$("[data-chreject]").forEach(b=>b.onclick=async()=>{let logs=challengeLogs().map(x=>x.id===b.dataset.chreject?{...x,status:"rejected",approvedBy:user.email,approvedAt:Date.now()}:x);await patch({challengeLogs:logs})});
  $("#giveAward")?.addEventListener("click",async()=>{let kidId=$("#awardKid").value,cid=$("#awardType").value,c=challengeLibrary().find(x=>x.id===cid);if(!c)return;if(challengeHit(kidId,cid))return alert("Already awarded today.");await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),logs=d.challengeLogs||[];if(logs.some(x=>x.kidId===kidId&&x.challengeId===cid&&x.date===todayKey()&&x.status==="approved"))return;let now=Date.now(),xp=c.xp||10,pts=Math.max(0,+c.rewardPoints||defaultLevelPoints(c.id));let kids=d.kids.map(k=>k.id===kidId?{...k,xp:(k.xp||0)+xp,rewardPoints:(+k.rewardPoints||0)+pts,familyPoints:(+k.familyPoints||0)+pts}:k);let lid=newId();logs.push({id:lid,kidId,challengeId:cid,date:todayKey(),xp,points:pts,status:"approved",approvedBy:user.email,approvedAt:now,createdAt:now});let ledger=[...(d.ledger||[]),{id:newId(),type:"levelup_earning",challengeLogId:lid,kidId,label:c.name,xp,points:pts,cash:0,car:0,by:user.email,at:now}].slice(-300);tr.update(familyRef,{kids,challengeLogs:logs.slice(-1000),ledger})})});
 }
-onAuthStateChanged(auth,async u=>{user=u;if(u?.isAnonymous){if(["parent","paid","home"].includes(view))view="week";}else if(u){if(["home"].includes(view)||view==="week")view="parent";}if(unsub){unsub();unsub=null}if(!u){data=null;render();return}let snap=await getDoc(familyRef);if(!snap.exists()){data=false;render();return}unsub=onSnapshot(familyRef,s=>{data=s.exists()?s.data():false;render();if(data&&isParent()&&(+data.pointEconomyVersion||0)<2)setTimeout(()=>rebalancePointEconomyOnce().catch(console.error),50);if(data&&!vacationMode())setTimeout(()=>applyYesterdayMisses().catch(console.error),100)})});
+onAuthStateChanged(auth,async u=>{user=u;if(u?.isAnonymous){if(["parent","paid","home"].includes(view))view="week";}else if(u){if(["home"].includes(view)||view==="week")view="parent";}if(unsub){unsub();unsub=null}if(!u){data=null;render();return}let snap=await getDoc(familyRef);if(!snap.exists()){data=false;render();return}unsub=onSnapshot(familyRef,s=>{data=s.exists()?s.data():false;render();
+ setTimeout(maybeShowWeeklySettlePopup,120);if(data&&isParent()&&(+data.pointEconomyVersion||0)<2)setTimeout(()=>rebalancePointEconomyOnce().catch(console.error),50);if(data&&!vacationMode())setTimeout(()=>applyYesterdayMisses().catch(console.error),100)})});
 getRedirectResult(auth).catch(()=>{});
 </script>
 </body></html>
