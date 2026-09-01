@@ -199,6 +199,20 @@ input:focus,select:focus{outline:2px solid rgba(52,99,70,.18);border-color:#6d92
  .brandPeak{width:36px;height:36px}.brand{font-size:21px}.top .actions{width:100%;justify-content:space-between}
  .adventureSky{min-height:225px}.adventureTitle{font-size:42px}.kidChoice{min-height:132px}
 }
+
+/* ===== v47 illustrated adventure assets ===== */
+.adventureSky{min-height:350px!important;background:linear-gradient(rgba(248,238,210,.12),rgba(11,48,34,.18)),url("assets/hero-mountains.png") center/cover no-repeat!important;box-shadow:inset 0 -95px 95px rgba(14,46,32,.18)}
+.adventureSky:before,.adventureSky:after{display:none!important}
+.kidAvatarImg{width:84px;height:84px;border-radius:50%;object-fit:cover;display:block;border:3px solid rgba(255,255,255,.76);box-shadow:0 7px 18px rgba(0,0,0,.24)}
+.kidChoice .kidEmoji{display:flex;align-items:center;justify-content:center;filter:none!important}
+.adventureWorld{position:relative;overflow:hidden;background-image:linear-gradient(90deg,rgba(8,35,25,.91),rgba(18,57,40,.62) 58%,rgba(18,57,40,.24)),var(--world-art)!important;background-size:cover!important;background-position:center!important;color:white!important;padding:22px!important}
+.adventureWorld:before{display:none!important}.adventureWorld:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 46%,rgba(8,34,24,.44));pointer-events:none}.adventureWorld>*{position:relative;z-index:2}
+.worldIdentity{display:flex;align-items:center;gap:16px;margin-bottom:14px}.worldIdentity h2{margin:2px 0;color:white!important;font-family:Georgia,"Times New Roman",serif;font-size:clamp(25px,4vw,38px);text-shadow:0 2px 8px rgba(0,0,0,.28)}
+.worldIdentity .wsub{color:rgba(255,255,255,.9)!important}.worldAvatar{width:92px;height:92px;object-fit:cover;border-radius:50%;border:4px solid rgba(255,248,218,.9);box-shadow:0 8px 22px rgba(0,0,0,.26)}
+.miniAsset{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:4px}
+.cashCard:before{content:"";display:block;height:58px;margin:-4px -4px 10px;border-radius:14px;background:url("assets/watchtower-landscape.png") center/cover no-repeat;opacity:.82}
+.goalCard:first-of-type{position:relative;overflow:hidden}.goalCard:first-of-type:after{content:"";position:absolute;right:0;bottom:0;width:125px;height:72px;background:url("assets/beach-reward.png") center/cover no-repeat;opacity:.14;border-radius:18px 0 0 0;pointer-events:none}
+@media(max-width:700px){.adventureSky{min-height:285px!important}.kidAvatarImg{width:68px;height:68px}.worldAvatar{width:74px;height:74px}.adventureWorld{padding:16px!important}}
 </style>
 </head>
 <body><div id="app" class="app"></div>
@@ -475,7 +489,7 @@ function reliability(k){let d=+k.requiredDue||0,c=+k.requiredDone||0;return d?Ma
 function relClass(r){return r>=90?"good":r>=75?"mid":"low"}
 function kidChooser(){
  const icons={noah:"🐺",eli:"🦁",shepherd:"🐍",juniper:"🦄"};
- return `<div class="kidChooser"><div class="kidChooserTitle">👋 Who are you?</div><div class="kidChoices">${data.kids.map((x,i)=>`<button class="kidChoice kid-${x.id||"default"} ${i===kid?"on":""}" data-kidpick="${i}"><span class="kidEmoji">${icons[x.id]||"⭐"}</span><span class="kidName">${x.name}</span><span class="kidWorldLabel">${x.id==="noah"?"Mountain World":x.id==="eli"?"Savanna World":x.id==="shepherd"?"Forest World":x.id==="juniper"?"Meadow World":"Adventure World"}</span>${i===kid?`<span class="tiny kidSelected">Selected</span>`:""}</button>`).join("")}</div></div>`
+ return `<div class="kidChooser"><div class="kidChooserTitle">👋 Who are you?</div><div class="kidChoices">${data.kids.map((x,i)=>`<button class="kidChoice kid-${x.id||"default"} ${i===kid?"on":""}" data-kidpick="${i}"><span class="kidEmoji"><img class="kidAvatarImg" src="assets/${x.id}-avatar.png" alt="${x.name} avatar"></span><span class="kidName">${x.name}</span><span class="kidWorldLabel">${x.id==="noah"?"Mountain World":x.id==="eli"?"Savanna World":x.id==="shepherd"?"Forest World":x.id==="juniper"?"Meadow World":"Adventure World"}</span>${i===kid?`<span class="tiny kidSelected">Selected</span>`:""}</button>`).join("")}</div></div>`
 }
 function frequencyLabel(c){
   if(c.frequency==="needed")return "when needed";
@@ -672,7 +686,7 @@ function levelProgress(k){
  return {earned,goal};
 }
 
-function world(k){let t=theme(k),r=reliability(k),pct=Math.min(100,(+k.car||0)/(+k.target||7500)*100);return `<div class="world ${t[0]}"><div class="wicon">${t[1]}</div><h2>${k.name} — ${t[2]}</h2><div class="wsub">${t[3]}</div><div class="worldBadges"><span class="worldBadge">💵 Owed ${money(cashOwed(k))}</span><span class="worldBadge">🏦 Future Fund ${money(k.car||0)}</span><span class="worldBadge">💰 Week ${money(weeklyGross(k.id))}/${money(weeklyTotalCap())}</span><span class="worldBadge">💵 Cash ${money(weeklyCash(k.id))}/${money(weeklyCashCap())}</span><span class="worldBadge">⭐ ${k.xp||0} XP · ⭐ ${k.rewardPoints||0} Points</span><span class="worldBadge">🎯 ${r}% reliable</span></div><div class="progress" style="margin-top:13px;background:rgba(255,255,255,.45)"><div class="bar" style="width:${pct}%"></div></div><div class="worldBadge" style="margin-top:9px;display:inline-flex">🔥 Weekly Level Up ${levelProgress(k).earned}/${levelProgress(k).goal}</div></div>`}
+function world(k){let t=theme(k),r=reliability(k),pct=Math.min(100,(+k.car||0)/(+k.target||7500)*100);return `<div class="world ${t[0]} adventureWorld" style="--world-art:url('assets/hero-mountains.png')"><div class="worldIdentity"><img class="worldAvatar" src="assets/${k.id}-avatar.png" alt="${k.name}"><div><div class="wsub">${t[2]}</div><h2>${k.name.toUpperCase()}'S ADVENTURE</h2><div class="wsub">${t[3]}</div></div></div><div class="worldBadges"><span class="worldBadge">💵 Owed ${money(cashOwed(k))}</span><span class="worldBadge">🏦 Future Fund ${money(k.car||0)}</span><span class="worldBadge">💰 Week ${money(weeklyGross(k.id))}/${money(weeklyTotalCap())}</span><span class="worldBadge">💵 Cash ${money(weeklyCash(k.id))}/${money(weeklyCashCap())}</span><span class="worldBadge"><img class="miniAsset" src="assets/star-coin.png" alt=""> ${k.xp||0} XP · ${k.rewardPoints||0} Points</span><span class="worldBadge">🎯 ${r}% reliable</span></div><div class="progress" style="margin-top:13px;background:rgba(255,255,255,.45)"><div class="bar" style="width:${pct}%"></div></div><div class="worldBadge" style="margin-top:9px;display:inline-flex"><img class="miniAsset" src="assets/level-badge.png" alt=""> Weekly Level Up ${levelProgress(k).earned}/${levelProgress(k).goal}</div></div>`}
 function weeklyVerse(){
  const now=new Date(),sun=new Date(now.getFullYear(),now.getMonth(),now.getDate());
  sun.setDate(sun.getDate()-sun.getDay()); // Sunday is the start of each verse week
