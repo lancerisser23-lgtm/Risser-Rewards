@@ -252,10 +252,23 @@ async function applyYesterdayMisses(){
       // A newly created/activated/required chore never receives a penalty for that same calendar day.
       let startsAt=+c.requiredSince||+c.activatedAt||+c.createdAt||0;
       if(startsAt&&dateKeyFromMs(startsAt)>=date)continue;
+
+      // SHARED / FIRST-KID-ONLY RULE:
+      // One assigned kid completing the chore satisfies it for every assigned kid.
+      // Submitted work protects everyone even if the parent approves it the following day.
+      if(c.exclusive){
+        let sharedDone=(d.tasks||[]).some(t=>{
+          if(t.choreId!==c.id||!(c.assignedTo||[]).includes(t.kidId))return false;
+          let completedMs=+t.submittedAt||+t.approvedAt||0;
+          return completedMs&&dateKeyFromMs(completedMs)===date&&(t.status==="pending"||t.status==="approved");
+        });
+        if(sharedDone)continue;
+      }
+
       for(let k of kids.filter(k=>(c.assignedTo||[]).includes(k.id))){
         let key=`miss:${date}:${k.id}:${c.id}`;
         if(ledger.some(x=>x.type==="required_miss"&&x.key===key))continue;
-        // Submitted work counts as done for miss protection even if a parent approves it the next day.
+        // For non-shared chores, each assigned kid must complete their own chore.
         let done=(d.tasks||[]).some(t=>{
           if(t.kidId!==k.id||t.choreId!==c.id)return false;
           let completedMs=+t.submittedAt||+t.approvedAt||0;
@@ -684,6 +697,14 @@ function activityImpact(x){
   if(+x.cash)a.push(`${+x.cash>0?"+":""}${money(+x.cash)}`);
   return a.join(" · ");
 }
+function activeMissesInRange(startDate,endDate,d=data){
+  if(!startDate||!endDate)return [];
+  let a=startDate<=endDate?startDate:endDate,b=startDate<=endDate?endDate:startDate;
+  return (d?.ledger||[]).filter(x=>x.type==="required_miss"&&!x.undone&&x.forDate&&x.forDate>=a&&x.forDate<=b);
+}
+function yesterdayDateKey(){
+  let d=new Date();d.setDate(d.getDate()-1);return dateKeyFromMs(d.getTime());
+}
 function activityIcon(x){
   if(x.type==="behavior_deduction"||x.type==="required_miss")return "⚠️";
   if(x.type==="miss_reversal")return "↩️";
@@ -836,7 +857,25 @@ function parent(){
 </div>
 
  <div class="card"><h2 style="margin-top:0">↩️ Recent Approvals</h2><p class="muted">Accidentally approved something? Undo reverses that approval's cash, Future Fund and XP, then returns the chore to Waiting for Approval.</p>${recentApprovals().length?recentApprovals().map(t=>{let k=kidById(t.kidId);return `<div class="approval"><div><b>${t.icon} ${k?.name||""} — ${t.name}</b><div class="reward">💵 ${money(t.cash||0)} · 🏦 ${money(t.car||0)} · ⭐ ${t.xp||0} XP</div><div class="tiny muted">${t.approvedBy||""} · ${new Date(t.approvedAt||Date.now()).toLocaleString()}</div></div><button class="btn secondary small" data-undoapproval="${t.id}">↩️ Undo Approval</button></div>`}).join(""):`<p class="muted">No recent approvals yet.</p>`}</div>
- <div class="card"><h2 style="margin-top:0">🛟 Recent Missed-Chore Penalties</h2><p class="muted">If a required chore was actually completed or a miss should be excused, Undo restores the XP that was deducted.</p>${(data.ledger||[]).filter(x=>x.type==="required_miss"&&!x.undone).slice().sort((a,b)=>(b.at||0)-(a.at||0)).slice(0,12).map(x=>{let k=kidById(x.kidId);return `<div class="approval"><div><b>⚠️ ${k?.name||""} — ${x.label||"Missed required chore"}</b><div class="tiny muted">For ${x.forDate||""} · ${x.xp||0} XP</div></div><button class="btn secondary small" data-undomiss="${x.id}">↩️ Undo / Excuse</button></div>`}).join("")||`<p class="muted">No active missed-chore penalties.</p>`}</div>
+ <div class="card">
+ <div class="row wrap">
+   <div><h2 style="margin:0">🛟 Missed-Chore Excuses</h2><p class="muted" style="margin-bottom:0">Restore XP when a missed required chore should be excused. This only affects missed-chore penalties — never behavior consequences, earnings, points, or approvals.</p></div>
+ </div>
+ <div class="notice" style="margin-top:12px">
+   <b>Bulk Excuse</b>
+   <div class="actions" style="margin-top:9px">
+     <button id="bulkExcuseYesterday" class="btn secondary">↩️ Excuse Yesterday</button>
+   </div>
+   <div class="settingsGrid" style="grid-template-columns:1fr 1fr auto;margin-top:10px;align-items:end">
+     <div><label>Start date</label><input id="excuseStartDate" type="date" value="${yesterdayDateKey()}"></div>
+     <div><label>End date</label><input id="excuseEndDate" type="date" value="${yesterdayDateKey()}"></div>
+     <div><button id="bulkExcuseRange" class="btn secondary">Excuse Date Range</button></div>
+   </div>
+   <div class="tiny muted" style="margin-top:7px">You'll see a confirmation showing how many penalties and how much XP will be restored before anything changes. Already-excused misses are ignored automatically.</div>
+ </div>
+ <h3 style="margin-bottom:6px">Recent Active Penalties</h3>
+ ${(data.ledger||[]).filter(x=>x.type==="required_miss"&&!x.undone).slice().sort((a,b)=>(b.at||0)-(a.at||0)).slice(0,12).map(x=>{let k=kidById(x.kidId);return `<div class="approval"><div><b>⚠️ ${k?.name||""} — ${x.label||"Missed required chore"}</b><div class="tiny muted">For ${x.forDate||""} · ${x.xp||0} XP</div></div><button class="btn secondary small" data-undomiss="${x.id}">↩️ Undo / Excuse</button></div>`}).join("")||`<p class="muted">No active missed-chore penalties.</p>`}
+ </div>
  
  <div class="card parentPanel" id="choreSettings" style="display:none"><div class="row wrap"><div><h2 style="margin:0">🧰 Master Chore List</h2><p class="muted">Assign all four daily chores, or specific kids on any cadence.</p></div><div class="actions"><button id="addCustom" class="btn">＋ New Chore</button><button id="saveChores" class="btn secondary">Save Changes</button></div></div>
  <div id="customForm" class="notice" style="display:none;margin-top:12px"><div class="settingsGrid"><div><label>Name</label><input id="newName" placeholder="Clean chicken coop"></div><div><label>Emoji</label><input id="newIcon" value="⭐"></div><div><label>Responsibility</label><select id="newRequired"><option value="0" selected>Optional</option><option value="1">Required</option></select></div><div><label>Points earned</label><input id="newPoints" type="number" min="0" max="100" value="3"></div></div><div id="newMoneyArea" style="margin-top:10px"><label>Can this chore earn money?</label><select id="newPaid"><option value="0" selected>No — Points only</option><option value="1">Yes</option></select><div id="newPayFields" style="display:none;margin-top:10px"><label>Effort level</label><select id="newEffort"><option value="helping">🟢 Helping Hand — quick/easy extra job</option><option value="hard">🔵 Hard Work — meaningful time or effort</option><option value="big">🟣 Big Job — significant effort</option></select><div id="newAutoPreview" class="notice" style="margin-top:8px"></div><label><input id="newCustomToggle" type="checkbox"> Customize dollar amount</label><div id="newCustomWrap" style="display:none"><input id="newCustomAmount" type="number" min="0" step=".50" value="2"></div></div></div><div id="requiredMoneyOverride" class="tiny muted" style="display:none;margin-top:8px">Required chores default to no money. <button id="allowRequiredPay" type="button" class="btn secondary small">Allow earnings anyway</button></div><div class="tiny muted" style="margin-top:8px">Required = responsibility. Optional chores can be earning opportunities. Your weekly budget sets the automatic value.</div><div class="actions" style="margin-top:10px"><button id="createCustom" class="btn">Add Chore</button><button id="cancelCustom" class="btn secondary">Cancel</button></div></div>
@@ -1045,7 +1084,42 @@ function bind(){
  let pts=+cur.points||(cur.required?2:3);ledger.push({id:newId(),type:"reversal",taskId:tid,kidId:cur.kidId,label:`Undo approval — ${cur.name}`,cash:-cash,car:-car,xp:-xp,points:-pts,by:user.email,at:Date.now()});
  tr.update(familyRef,{kids,tasks,ledger:ledger.slice(-300)});
  })})});
- $$('[data-undomiss]').forEach(b=>b.onclick=()=>{let missId=b.dataset.undomiss,m=(data.ledger||[]).find(x=>x.id===missId&&x.type==="required_miss"&&!x.undone);if(!m)return;let k=kidById(m.kidId);askConfirm("Undo this missed-chore penalty?",`This restores ${Math.abs(+m.xp||0)} XP to ${k?.name||"this kid"} and marks the miss as excused.`,"Undo / Excuse",async()=>{await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),cur=(d.ledger||[]).find(x=>x.id===missId&&x.type==="required_miss"&&!x.undone);if(!cur)return;let restore=Math.abs(+cur.xp||0);let kids=(d.kids||[]).map(x=>x.id===cur.kidId?{...x,xp:(+x.xp||0)+restore}:x);let ledger=(d.ledger||[]).map(x=>x.id===missId?{...x,undone:true,undoneBy:user.email,undoneAt:Date.now()}:x);ledger.push({id:newId(),type:"miss_reversal",kidId:cur.kidId,choreId:cur.choreId,label:`Excused miss — ${String(cur.label||"").replace("Missed required chore — ","")}`,xp:restore,points:0,cash:0,by:user.email,at:Date.now(),reverses:missId});tr.update(familyRef,{kids,ledger:ledger.slice(-500)});})})});
+ async function bulkExcuseMissRange(startDate,endDate){
+   if(!startDate||!endDate)return alert("Choose a start and end date.");
+   let a=startDate<=endDate?startDate:endDate,b=startDate<=endDate?endDate:startDate;
+   let preview=activeMissesInRange(a,b);
+   if(!preview.length)return alert(`No active missed-chore penalties found from ${a} through ${b}.`);
+   let totalXp=preview.reduce((sum,x)=>sum+Math.abs(+x.xp||0),0);
+   let affected=[...new Set(preview.map(x=>x.kidId))].map(id=>kidById(id)?.name||id).join(", ");
+   askConfirm(
+     "Excuse missed chores?",
+     `This will excuse ${preview.length} missed-chore ${preview.length===1?"penalty":"penalties"} from ${a} through ${b} and restore ${totalXp} XP across ${affected}. Behavior consequences, earnings, Points and approvals will not change.`,
+     `Excuse ${preview.length}`,
+     async()=>{
+       await runTransaction(db,async tr=>{
+         let snap=await tr.get(familyRef),d=snap.data();
+         let current=activeMissesInRange(a,b,d);
+         if(!current.length)return;
+         let restoreByKid={};
+         current.forEach(m=>restoreByKid[m.kidId]=(restoreByKid[m.kidId]||0)+Math.abs(+m.xp||0));
+         let now=Date.now();
+         let kids=(d.kids||[]).map(k=>restoreByKid[k.id]?{...k,xp:(+k.xp||0)+restoreByKid[k.id]}:k);
+         let ids=new Set(current.map(m=>m.id));
+         let ledger=(d.ledger||[]).map(x=>ids.has(x.id)?{...x,undone:true,undoneBy:user.email,undoneAt:now,bulkExcused:true}:x);
+         current.forEach(m=>ledger.push({
+           id:newId(),type:"miss_reversal",kidId:m.kidId,choreId:m.choreId,
+           label:`Excused miss — ${String(m.label||"").replace("Missed required chore — ","")}`,
+           note:`Bulk excused by parent for ${m.forDate||""}`,
+           xp:Math.abs(+m.xp||0),points:0,cash:0,by:user.email,at:now,reverses:m.id,bulk:true,forDate:m.forDate
+         }));
+         tr.update(familyRef,{kids,ledger:ledger.slice(-500)});
+       });
+     }
+   );
+ }
+ $("#bulkExcuseYesterday")?.addEventListener("click",()=>{let y=yesterdayDateKey();bulkExcuseMissRange(y,y)});
+ $("#bulkExcuseRange")?.addEventListener("click",()=>bulkExcuseMissRange($("#excuseStartDate")?.value,$("#excuseEndDate")?.value));
+  $$('[data-undomiss]').forEach(b=>b.onclick=()=>{let missId=b.dataset.undomiss,m=(data.ledger||[]).find(x=>x.id===missId&&x.type==="required_miss"&&!x.undone);if(!m)return;let k=kidById(m.kidId);askConfirm("Undo this missed-chore penalty?",`This restores ${Math.abs(+m.xp||0)} XP to ${k?.name||"this kid"} and marks the miss as excused.`,"Undo / Excuse",async()=>{await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),cur=(d.ledger||[]).find(x=>x.id===missId&&x.type==="required_miss"&&!x.undone);if(!cur)return;let restore=Math.abs(+cur.xp||0);let kids=(d.kids||[]).map(x=>x.id===cur.kidId?{...x,xp:(+x.xp||0)+restore}:x);let ledger=(d.ledger||[]).map(x=>x.id===missId?{...x,undone:true,undoneBy:user.email,undoneAt:Date.now()}:x);ledger.push({id:newId(),type:"miss_reversal",kidId:cur.kidId,choreId:cur.choreId,label:`Excused miss — ${String(cur.label||"").replace("Missed required chore — ","")}`,xp:restore,points:0,cash:0,by:user.email,at:Date.now(),reverses:missId});tr.update(familyRef,{kids,ledger:ledger.slice(-500)});})})});
  $("#addParent")?.addEventListener("click",async()=>{let e=$("#parentEmail").value.trim().toLowerCase();if(!e.includes("@"))return alert("Enter a valid Google email.");await patch({parentEmails:arrayUnion(e)});$("#parentEmail").value=""});
 
  let challengeDraft=challengeLibrary().map(c=>({...c}));
