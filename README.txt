@@ -1,16 +1,24 @@
-Risser Rewards v47.3 — Kid Level Ups Navigation Fix
+Risser Rewards v48 — Official Four Adventure Worlds
 
-Fixes the missing Level Ups navigation from the kid's default My Missions screen.
+Makes the approved four-world adventure art official in the live app.
 
-Kid navigation now stays visible after selecting a child:
-- ✅ My Missions
-- 🧹 Chores / Jobs
-- 🔥 Level Ups
+Worlds:
+- Noah — illustrated mountain/wolf adventure
+- Eli — Golden Savanna lion adventure
+- Shepherd — illustrated forest/creek expedition
+- Juniper — illustrated meadow/rainbow/unicorn adventure
 
-The Level Ups screen title also now uses 🔥 Level Ups consistently.
+Also:
+- Eli uses original Golden Savanna language: “Be bold. Lead well. Keep exploring.”
+- Retains v47.3 kid navigation with 🔥 Level Ups
+- Retains v47.2 Settings quick navigation
+- Retains all existing functionality and Firebase structure
 
-Important: this was a navigation/rendering issue, not a Level Ups data issue. Existing Level Up opportunities and approval behavior are unchanged.
+New assets:
+assets/noah-world.png
+assets/eli-world.png
+assets/shepherd-world.png
+assets/juniper-world.png
 
-Includes all v47.2 Settings Quick Nav improvements and v47.1 kid world fixes.
-Upload the full package contents, including assets.
+Upload the ENTIRE package contents, including the assets folder.
 No Firebase rules changes expected.

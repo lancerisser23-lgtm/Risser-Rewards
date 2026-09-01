@@ -328,6 +328,46 @@ input:focus,select:focus{outline:2px solid rgba(52,99,70,.18);border-color:#6d92
    font-size:12px;
  }
 }
+
+/* ===== v48 Official Four Adventure Worlds ===== */
+.adventureWorld.kidWorld-noah{
+  background-image:
+    linear-gradient(90deg,rgba(7,31,29,.91),rgba(11,48,48,.56) 58%,rgba(11,48,48,.18)),
+    url("assets/noah-world.png")!important;
+  background-size:cover!important;background-position:center!important;
+}
+.adventureWorld.kidWorld-eli{
+  background-image:
+    linear-gradient(90deg,rgba(70,37,13,.88),rgba(105,59,20,.48) 58%,rgba(105,59,20,.10)),
+    url("assets/eli-world.png")!important;
+  background-size:cover!important;background-position:center!important;
+}
+.adventureWorld.kidWorld-shepherd{
+  background-image:
+    linear-gradient(90deg,rgba(8,42,24,.90),rgba(17,70,37,.48) 58%,rgba(17,70,37,.10)),
+    url("assets/shepherd-world.png")!important;
+  background-size:cover!important;background-position:center!important;
+}
+.adventureWorld.kidWorld-juniper{
+  background-image:
+    linear-gradient(90deg,rgba(65,40,86,.78),rgba(105,76,128,.34) 58%,rgba(105,76,128,.06)),
+    url("assets/juniper-world.png")!important;
+  background-size:cover!important;background-position:center!important;
+}
+.adventureWorld.kidWorld-noah:after,
+.adventureWorld.kidWorld-eli:after,
+.adventureWorld.kidWorld-shepherd:after,
+.adventureWorld.kidWorld-juniper:after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,transparent 50%,rgba(8,28,21,.34));
+  pointer-events:none;
+}
+@media(max-width:700px){
+ .adventureWorld.kidWorld-noah,
+ .adventureWorld.kidWorld-eli,
+ .adventureWorld.kidWorld-shepherd,
+ .adventureWorld.kidWorld-juniper{background-position:center!important}
+}
 </style>
 </head>
 <body><div id="app" class="app"></div>
@@ -420,7 +460,7 @@ const $=q=>document.querySelector(q),$$=q=>[...document.querySelectorAll(q)],mon
 function isParent(){return !!(user&&!user.isAnonymous&&data&&(data.ownerUid===user.uid||(data.parentEmails||[]).map(x=>x.toLowerCase()).includes((user.email||"").toLowerCase())))}
 function isKidSession(){return !!(user&&user.isAnonymous)}
 function modeLabel(){return isKidSession()?"🏠 Kid Mode":"👨‍👩‍👧 Parent"}
-function theme(k){return {Noah:["noahWorld","🐺","Wolf Forest","Run with the pack. Own your missions."],Eli:["eliWorld","🦁","Lion Kingdom","Lead the pride. Earn your crown."],Shepherd:["shepherdWorld","🐍","Jungle Quest","Track it. Own it. Strike with focus."],Juniper:["juniperWorld","🦄🌈","Rainbow Unicorn World","Sparkle through your missions!"]}[k.name]}
+function theme(k){return {Noah:["noahWorld","🐺","Wolf Forest","Run with the pack. Own your missions."],Eli:["eliWorld","🦁","Golden Savanna","Be bold. Lead well. Keep exploring."],Shepherd:["shepherdWorld","🐍","Jungle Quest","Track it. Own it. Strike with focus."],Juniper:["juniperWorld","🦄🌈","Rainbow Unicorn World","Sparkle through your missions!"]}[k.name]}
 const SCHOOL_CHORE_IDS=["lunch","lunchd","backpack","homework","completehomework","study"];
 function isSchoolChore(c){
   return SCHOOL_CHORE_IDS.includes(c.id);
