@@ -9,8 +9,8 @@
 <meta name="apple-mobile-web-app-title" content="Risser Rewards">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" sizes="180x180" href="risser-rewards-touch-v17.png">
-<title>Risser Rewards V50.3.1</title>
-<meta name="application-version" content="50.3.1">
+<title>Risser Rewards V50.3.2</title>
+<meta name="application-version" content="50.3.2">
 <style>
 :root{--g:#1f6848;--bg:#f5f5ef;--ink:#182019;--muted:#68736b;--line:#e0e6de;--gold:#d6a62f;--red:#b64e45;--amber:#986a14;--shadow:0 10px 28px rgba(28,64,41,.10)}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-family:ui-rounded,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
@@ -464,6 +464,18 @@ input:focus,select:focus{outline:2px solid rgba(52,99,70,.18);border-color:#6d92
 .v503WorldLink{display:flex;justify-content:flex-start;margin:2px 0 8px}
 .v503WorldLink button{border:0;background:transparent;color:var(--muted);font-weight:900;padding:5px 2px;text-decoration:underline}
 .v503DoneNote{font-size:12px;color:var(--muted);margin-top:6px}
+
+.v503PersistentCategories .v50Category.activeCategory{
+  transform:translateY(-2px);
+  box-shadow:0 0 0 3px rgba(255,255,255,.85),0 0 0 6px rgba(35,78,60,.20),0 12px 28px rgba(26,48,39,.14);
+}
+.v503PersistentCategories .v50Category.activeCategory .catTitle::after{
+  content:"  •  YOU'RE HERE";
+  font-size:10px;
+  letter-spacing:.06em;
+  opacity:.72;
+}
+
 @media(max-width:520px){.v503KidNav button{font-size:12px;padding:8px 4px}}
 </style>
 </head>
@@ -1071,12 +1083,25 @@ function login(){
 }
 function setup(){return `<div class="login card"><h2>🏡 Create Risser Family</h2><button id="createFamily" class="btn">Create Family</button></div>`}
 
-function kidExperienceNav(){
+function kidExperienceNav(k){
+ let responsibilities=library().filter(c=>isResponsibility(c)&&eligible(c,k.id));
+ let jobs=library().filter(c=>isJob(c)&&eligible(c,k.id));
+ let growth=challengeLibrary().filter(c=>!c.parentOnly&&c.active!==false);
+ let dueCount=responsibilities.filter(c=>canClaim(c,k.id)).length;
  return `<div class="v503WorldLink"><button data-v="week">← My World</button></div>
- <div class="v503KidNav">
-   <button data-v="responsibilities" class="${view==="responsibilities"?"on":""}"><span class="navIcon">✅</span>Responsibilities</button>
-   <button data-v="pick" class="${view==="pick"?"on":""}"><span class="navIcon">💼</span>Jobs</button>
-   <button data-v="level" class="${view==="level"?"on":""}"><span class="navIcon">🌱</span>Growth</button>
+ <div class="v50CategoryGrid v503PersistentCategories">
+   <button class="v50Category responsibility ${view==="responsibilities"?"activeCategory":""}" data-v="responsibilities">
+     <div class="catIcon">✅</div><div class="catTitle">Responsibilities</div>
+     <div class="catDesc">The things that are yours to handle.${dueCount?` ${dueCount} ready now.`:" You're current."}</div>
+   </button>
+   <button class="v50Category jobs ${view==="pick"?"activeCategory":""}" data-v="pick">
+     <div class="catIcon">💼</div><div class="catTitle">Jobs</div>
+     <div class="catDesc">${moneyEnabled()?"Want to earn? Pick a job and get after it.":"Extra ways to help the family."} ${jobs.length} available.</div>
+   </button>
+   <button class="v50Category growth ${view==="level"?"activeCategory":""}" data-v="level">
+     <div class="catIcon">🌱</div><div class="catTitle">Growth</div>
+     <div class="catDesc">Missions that build skills, habits and character. ${growth.length} missions.</div>
+   </button>
  </div>`;
 }
 function kidsLanding(){
@@ -1136,7 +1161,7 @@ function week(){
 }
 function responsibilityView(){
  let k=data.kids[kid],lib=library().filter(c=>isResponsibility(c)&&eligible(c,k.id));
- return header()+world(k)+kidExperienceNav()+`<div class="card">
+ return header()+world(k)+kidExperienceNav(k)+`<div class="card">
    <div class="v50SectionTitle"><div><h2 style="margin:0">✅ Responsibilities</h2><div class="muted">Your part of taking care of the family.</div></div></div>
    <div class="v50TaskGrid">${lib.map(c=>{
      let allowed=canClaim(c,k.id),owner=c.exclusive?sharedLive(c):null;
@@ -1151,7 +1176,7 @@ function responsibilityView(){
 }
 function pick(){
  let k=data.kids[kid],lib=library().filter(c=>isJob(c)&&eligible(c,k.id));
- return header()+world(k)+kidExperienceNav()+`<div class="card">
+ return header()+world(k)+kidExperienceNav(k)+`<div class="card">
    <div class="v50SectionTitle"><div><h2 style="margin:0">💼 Jobs</h2><div class="muted">${moneyEnabled()?"Pick a job. Do the work. Earn real money when the job is paid.":"Extra ways to pitch in and help."}</div></div></div>
    <div class="v50TaskGrid">${lib.map(c=>{
      let allowed=canClaim(c,k.id),owner=c.exclusive?sharedLive(c):null;
@@ -1167,7 +1192,7 @@ function pick(){
 }
 function level(){
  let k=data.kids[kid],dates=weekDates(),cs=challengeLibrary().filter(c=>!c.parentOnly&&c.active!==false),lp=levelProgress(k);
- return header()+world(k)+kidExperienceNav()+`<div class="card">
+ return header()+world(k)+kidExperienceNav(k)+`<div class="card">
    <div class="v50SectionTitle">
      <div><h2 style="margin:0">🌱 Growth</h2><div class="muted">Pick a Mission. Build skills, habits and character.</div></div>
      <div class="badge">🔥 ${k.xp||0} XP</div>
@@ -1508,7 +1533,7 @@ function paidParent(){
 }
 function paidKid(){
  let k=data.kids[kid],owed=cashOwed(k),waiting=futureWaiting(k);
- return header()+world(k)+kidExperienceNav()+`<div class="card">
+ return header()+world(k)+kidExperienceNav(k)+`<div class="card">
    <h2 style="margin-top:0">💰 My Money</h2>
    ${moneyEnabled()?`<div class="v50HubStatus">
      <div class="notice"><div class="tiny muted">READY TO SPEND</div><div class="metric">${money(owed)}</div></div>
