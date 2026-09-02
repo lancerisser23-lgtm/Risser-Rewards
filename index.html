@@ -9,8 +9,8 @@
 <meta name="apple-mobile-web-app-title" content="Risser Rewards">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" sizes="180x180" href="risser-rewards-touch-v17.png">
-<title>Risser Rewards V50.3.6</title>
-<meta name="application-version" content="50.3.6">
+<title>Risser Rewards V50.3.8</title>
+<meta name="application-version" content="50.3.7">
 <style>
 :root{--g:#1f6848;--bg:#f5f5ef;--ink:#182019;--muted:#68736b;--line:#e0e6de;--gold:#d6a62f;--red:#b64e45;--amber:#986a14;--shadow:0 10px 28px rgba(28,64,41,.10)}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-family:ui-rounded,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
@@ -484,8 +484,9 @@ input:focus,select:focus{outline:2px solid rgba(52,99,70,.18);border-color:#6d92
 .v5033PointStats span{display:block;margin-top:3px;font-size:10px;font-weight:800;color:var(--muted);line-height:1.15}
 
 
-/* V50.3.6 — Rewards completes the kid loop without turning it into a ranked leaderboard */
+/* V50.3.8 — Rewards completes the kid loop without turning it into a ranked leaderboard */
 .v50CategoryGrid{grid-template-columns:repeat(4,minmax(0,1fr))}
+.v5038KidEconomy{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}.v5038KidEconomy>div{background:rgba(255,253,244,.9);border:1px solid rgba(35,78,60,.13);border-radius:15px;padding:12px}.v5038KidEconomy b{display:block;font-size:22px}.v5038KidEconomy span{display:block;font-size:11px;font-weight:850;color:var(--muted);margin-top:3px}.v5038XpCard{margin-top:10px;background:rgba(35,78,60,.055);border:1px solid rgba(35,78,60,.10);border-radius:15px;padding:12px}.v5038XpRow{display:flex;justify-content:space-between;gap:10px;align-items:end;flex-wrap:wrap}.v5038XpBar{height:10px;border-radius:999px;background:rgba(35,78,60,.12);overflow:hidden;margin-top:8px}.v5038XpFill{height:100%;background:currentColor;border-radius:999px}.v5038PointPop{font-size:14px;font-weight:950}.v5038PointPop.positive{font-size:16px}
 .v5034KidRewardNumbers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}
 .v5034KidRewardNumbers>div{background:rgba(35,78,60,.055);border:1px solid rgba(35,78,60,.10);border-radius:14px;padding:11px;text-align:center}
 .v5034KidRewardNumbers b{display:block;font-size:23px;line-height:1.1}
@@ -510,6 +511,15 @@ input:focus,select:focus{outline:2px solid rgba(52,99,70,.18);border-color:#6d92
 .v5035Mode.on{background:var(--g);color:#fff;border-color:var(--g);box-shadow:0 4px 12px rgba(35,78,60,.14)}
 .v5035ModeNote{font-size:11px;color:var(--muted);margin:-2px 2px 8px;text-align:right}
 @media(max-width:620px){.v5035SettingsTop{align-items:flex-start}.v5035ModeControls{max-width:190px}.v5035Mode{padding:6px 8px}}
+
+
+/* V50.3.8 persistent kid timers */
+.v5037MiniTimer{margin-top:6px;display:inline-block;padding:5px 9px;border-radius:999px;background:var(--g);color:#fff;font-weight:950;font-variant-numeric:tabular-nums;letter-spacing:.04em}
+.v5037GrowthTimer{margin-top:9px;padding:12px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.7);text-align:center}
+.v5037BigTimer{font-size:38px;line-height:1;font-weight:950;font-variant-numeric:tabular-nums;letter-spacing:.02em;margin:2px 0 8px}
+.v5037GrowthTimer .btn{margin-top:10px}
+.v5037ActiveTask{align-items:center}
+@media(max-width:620px){.v5037BigTimer{font-size:34px}.v5037ActiveTask{gap:8px;align-items:flex-start}}
 
 </style>
 </head>
@@ -597,7 +607,7 @@ const DEFAULT_CHALLENGES=[
 
 
 const WEEKLY_VERSES=[{"ref":"Proverbs 3:5-6","text":"Trust in the LORD with all your heart, and don’t lean on your own understanding. In all your ways acknowledge him, and he will make your paths straight."},{"ref":"Joshua 1:9","text":"Haven’t I commanded you? Be strong and courageous. Don’t be afraid. Don’t be dismayed, for the LORD your God is with you wherever you go."},{"ref":"Philippians 4:13","text":"I can do all things through Christ, who strengthens me."},{"ref":"Psalm 119:105","text":"Your word is a lamp to my feet, and a light for my path."},{"ref":"Colossians 3:23","text":"And whatever you do, work heartily, as for the Lord and not for men."},{"ref":"Ephesians 4:32","text":"And be kind to one another, tenderhearted, forgiving each other, just as God also in Christ forgave you."},{"ref":"Galatians 6:9","text":"Let’s not be weary in doing good, for we will reap in due season if we don’t give up."},{"ref":"James 1:19","text":"So, then, my beloved brothers, let every man be swift to hear, slow to speak, and slow to anger."},{"ref":"Proverbs 15:1","text":"A gentle answer turns away wrath, but a harsh word stirs up anger."},{"ref":"Micah 6:8","text":"He has shown you, O man, what is good. What does the LORD require of you, but to act justly, to love mercy, and to walk humbly with your God?"},{"ref":"Luke 6:31","text":"As you would like people to do to you, do exactly so to them."},{"ref":"Matthew 5:16","text":"Even so, let your light shine before men, that they may see your good works and glorify your Father who is in heaven."},{"ref":"Proverbs 27:17","text":"Iron sharpens iron; so a man sharpens his friend’s countenance."},{"ref":"1 Corinthians 16:14","text":"Let all that you do be done in love."},{"ref":"Romans 12:10","text":"In love of the brothers be tenderly affectionate to one another; in honor preferring one another."},{"ref":"Proverbs 17:17","text":"A friend loves at all times; and a brother is born for adversity."},{"ref":"Psalm 118:24","text":"This is the day that the LORD has made. We will rejoice and be glad in it!"},{"ref":"1 Thessalonians 5:16-18","text":"Always rejoice. Pray without ceasing. In everything give thanks, for this is God’s will for you in Christ Jesus."},{"ref":"Matthew 5:9","text":"Blessed are the peacemakers, for they shall be called children of God."},{"ref":"Psalm 90:12","text":"So teach us to count our days, that we may gain a heart of wisdom."},{"ref":"2 Timothy 1:7","text":"For God didn’t give us a spirit of fear, but of power, love, and self-control."},{"ref":"Philippians 2:3-4","text":"Doing nothing through rivalry or through conceit, but in humility, each counting others better than himself; each of you not just looking to his own things, but each of you also to the things of others."},{"ref":"Romans 12:12","text":"Rejoicing in hope, enduring in troubles, continuing steadfastly in prayer."},{"ref":"Matthew 22:39","text":"You shall love your neighbor as yourself."},{"ref":"Acts 20:35","text":"It is more blessed to give than to receive."},{"ref":"Psalm 34:8","text":"Oh taste and see that the LORD is good. Blessed is the man who takes refuge in him."},{"ref":"Isaiah 41:10","text":"Don’t you be afraid, for I am with you. Don’t be dismayed, for I am your God. I will strengthen you. Yes, I will help you."},{"ref":"Psalm 56:3","text":"When I am afraid, I will put my trust in you."},{"ref":"Proverbs 16:3","text":"Commit your deeds to the LORD, and your plans shall succeed."},{"ref":"Matthew 6:33","text":"But seek first God’s Kingdom and his righteousness; and all these things will be given to you as well."},{"ref":"Romans 8:28","text":"We know that all things work together for good for those who love God, to those who are called according to his purpose."},{"ref":"Psalm 46:10","text":"Be still, and know that I am God."},{"ref":"1 Peter 5:7","text":"Casting all your worries on him, because he cares for you."},{"ref":"Hebrews 12:1","text":"Let us run with perseverance the race that is set before us."},{"ref":"Proverbs 4:23","text":"Keep your heart with all diligence, for out of it is the wellspring of life."},{"ref":"Psalm 139:14","text":"I will give thanks to you, for I am fearfully and wonderfully made."},{"ref":"Isaiah 40:31","text":"But those who wait for the LORD will renew their strength. They will mount up with wings like eagles."},{"ref":"Psalm 37:4","text":"Also delight yourself in the LORD, and he will give you the desires of your heart."},{"ref":"Matthew 11:28","text":"Come to me, all you who labor and are heavily burdened, and I will give you rest."},{"ref":"James 1:5","text":"But if any of you lacks wisdom, let him ask of God, who gives to all liberally and without reproach, and it will be given to him."},{"ref":"Romans 15:13","text":"Now may the God of hope fill you with all joy and peace in believing."},{"ref":"Psalm 19:14","text":"Let the words of my mouth and the meditation of my heart be acceptable in your sight, LORD, my rock, and my redeemer."},{"ref":"Matthew 7:7","text":"Ask, and it will be given you. Seek, and you will find. Knock, and it will be opened for you."},{"ref":"John 8:32","text":"You will know the truth, and the truth will make you free."},{"ref":"1 John 4:19","text":"We love him, because he first loved us."},{"ref":"Matthew 19:26","text":"With men this is impossible, but with God all things are possible."},{"ref":"Ephesians 6:1","text":"Children, obey your parents in the Lord, for this is right."},{"ref":"Colossians 3:20","text":"Children, obey your parents in all things, for this pleases the Lord."},{"ref":"1 Samuel 16:7","text":"Man looks at the outward appearance, but the LORD looks at the heart."},{"ref":"Psalm 133:1","text":"See how good and how pleasant it is for brothers to live together in unity!"},{"ref":"Psalm 55:22","text":"Cast your burden on the LORD and he will sustain you."},{"ref":"Lamentations 3:22-23","text":"It is because of the LORD’s loving kindnesses that we are not consumed, because his compassion doesn’t fail. They are new every morning. Great is your faithfulness."}];
-let user=null,data=null,view="home",kid=0,unsub=null,golfCount=0,pushupCount=0,lastClaimId=null,lastClaimAt=0;
+let user=null,data=null,view="home",kid=0,unsub=null,golfCount=0,pushupCount=0,lastClaimId=null,lastClaimAt=0,timerUiInterval=null;
 const $=q=>document.querySelector(q),$$=q=>[...document.querySelectorAll(q)],money=n=>"$"+Number(n||0).toFixed(Number(n)%1?2:0),newId=()=>crypto.randomUUID();
 
 function isParent(){return !!(user&&!user.isAnonymous&&data&&(data.ownerUid===user.uid||(data.parentEmails||[]).map(x=>x.toLowerCase()).includes((user.email||"").toLowerCase())))}
@@ -914,6 +924,13 @@ function requiredLeft(k){
   let chores=library().filter(c=>c.required&&eligible(c,k.id)&&["daily","weekdays","weekly","everyx","everyhours"].includes(c.frequency));
   let left=0;chores.forEach(c=>{if(c.exclusive&&(c.assignedTo||[]).length>1){if(!sharedApproved(c))left++}else if(!approved(c,k.id))left++});return left
 }
+function defaultTimerMinutes(id){return ({outside:30,reading:20,basketball:15,weeds:30}[id]||0)}
+function timerMinutesFor(x){return x?.timerMinutes!=null?Math.max(0,+x.timerMinutes||0):defaultTimerMinutes(x?.id)}
+function timerEndMs(x){let mins=Math.max(0,+x?.timerMinutes||0),start=+x?.timerStartedAt||+x?.createdAt||0;return mins&&start?start+mins*60000:0}
+function timerRemainingMs(x){let end=timerEndMs(x);return end?Math.max(0,end-Date.now()):0}
+function timerReady(x){return !timerEndMs(x)||Date.now()>=timerEndMs(x)}
+function formatTimer(ms){let total=Math.max(0,Math.ceil(ms/1000)),m=Math.floor(total/60),s=total%60;return `${m}:${String(s).padStart(2,"0")}`}
+function challengeOpen(kidId,cid){return challengeLogs().find(x=>x.kidId===kidId&&x.challengeId===cid&&x.status==="open")||null}
 function challengeLibrary(){
   const saved=Array.isArray(data?.challenges)?data.challenges:[];
   const map=new Map(saved.map(c=>[c.id,c]));
@@ -942,13 +959,14 @@ function lastChallengeApproval(cid,kidId=null){
   return arr[0]||null;
 }
 function liveChallenge(cid,kidId=null){
-  return challengeLogs().some(x=>x.challengeId===cid&&x.status==="pending"&&(!kidId||x.kidId===kidId));
+  return challengeLogs().some(x=>x.challengeId===cid&&["open","pending"].includes(x.status)&&(!kidId||x.kidId===kidId));
 }
 function challengeAvailabilityLabel(c){
   if(c.frequency==="everyhours")return `Every ${Math.max(1,+c.intervalHours||1)} hours`;
   if(c.frequency==="everyx")return `Every ${Math.max(1,+c.intervalDays||1)} days`;
   return ({anytime:"Anytime",daily:"Once a day",weekdays:"Weekdays",weekly:"Once a week",once:"One-time"}[c.frequency]||"Once a day");
 }
+function timerRequirementLabel(c){let n=timerMinutesFor(c);return n?` · ⏱ ${n} min timer`:""}
 function challengeAvailable(c,kidId){
   let shared=c.claimType==="shared";
   if(liveChallenge(c.id,shared?null:kidId))return false;
@@ -1076,6 +1094,19 @@ function visibleFamilyProgress(r){
  return {pct:Math.min(100,Math.round(raw/cost*100)),ready:raw>=cost};
 }
 
+const XP_LEVELS=[
+ {name:"Trailhead",min:0},{name:"Explorer",min:250},{name:"Adventurer",min:750},{name:"Pathfinder",min:1500},{name:"Trailblazer",min:2500}
+];
+function xpLevel(k){
+ let xp=Math.max(0,+k?.xp||0),idx=0;
+ for(let i=0;i<XP_LEVELS.length;i++)if(xp>=XP_LEVELS[i].min)idx=i;
+ let cur=XP_LEVELS[idx],next=XP_LEVELS[idx+1]||null;
+ let pct=next?Math.min(100,Math.round((xp-cur.min)/(next.min-cur.min)*100)):100;
+ return {xp,cur,next,pct,toGo:next?Math.max(0,next.min-xp):0};
+}
+function xpProgressCard(k){let l=xpLevel(k);return `<div class="v5038XpCard"><div class="v5038XpRow"><div><div class="tiny muted">🔥 ADVENTURE LEVEL</div><b>${l.cur.name}</b></div><div style="text-align:right"><b>${l.xp} XP</b><div class="tiny muted">${l.next?`${l.toGo} XP to ${l.next.name}`:"Top level reached"}</div></div></div><div class="v5038XpBar"><div class="v5038XpFill" style="width:${l.pct}%"></div></div></div>`}
+function kidPointsSummary(k){let ps=rewardPointStats(k.id);return `<div class="v5038KidEconomy"><div><b>⭐ ${Math.max(0,+k.rewardPoints||0)}</b><span>Reward Points</span></div><div><b>+${ps.week}</b><span>Earned This Week</span></div></div>`}
+
 function world(k){
  let t=theme(k),r=reliability(k),goal=rewardGoal(k),rp=visibleRewardProgress(k,goal);
  let worldArt=k.id==="noah"?"url('assets/hero-mountains.png')":"none";
@@ -1085,7 +1116,7 @@ function world(k){
      <div><div class="wsub">${t[2]}</div><h2>${k.name.toUpperCase()}'S ADVENTURE</h2><div class="wsub">${t[3]}</div></div>
    </div>
    <div class="worldBadges">
-     <span class="worldBadge">🔥 ${k.xp||0} XP</span>
+     <span class="worldBadge">⭐ ${Math.max(0,+k.rewardPoints||0)} Reward Points</span><span class="worldBadge">🔥 ${xpLevel(k).cur.name} · ${k.xp||0} XP</span>
      ${moneyEnabled()?`<span class="worldBadge">💵 ${money(cashOwed(k))} ready to spend</span><span class="worldBadge">🌱 ${money(k.car||0)} Future Fund</span>`:""}
      <span class="worldBadge">🎯 ${r}% responsibilities</span>
    </div>
@@ -1186,7 +1217,7 @@ function week(){
  let jobs=library().filter(c=>isJob(c)&&eligible(c,k.id));
  let growth=challengeLibrary().filter(c=>!c.parentOnly&&c.active!==false);
  let dueCount=responsibilities.filter(c=>canClaim(c,k.id)).length;
- return header()+world(k)+`
+ return header()+world(k)+kidPointsSummary(k)+xpProgressCard(k)+`
    <div class="v50CategoryGrid">
      <button class="v50Category responsibility" data-v="responsibilities">
        <div class="catIcon">✅</div><div class="catTitle">Responsibilities</div>
@@ -1205,7 +1236,7 @@ function week(){
        <div class="catDesc">See your goal, your progress and how everyone's doing.</div>
      </button>
    </div>
-   ${active.length?`<div class="card"><h2 style="margin-top:0">▶️ What I'm Doing</h2>${active.map(t=>`<div class="task"><div><b>${t.icon} ${t.name}</b><div class="tiny muted">${t.status==="pending"?"Waiting for parent":"In progress"}</div></div>${t.status==="open"?`<button data-done="${t.id}" class="btn small">${t.type==="golf"?"Count":"I'm Done"}</button>`:`<span class="pill due">Submitted</span>`}</div>`).join("")}</div>`:""}
+   ${active.length?`<div class="card"><h2 style="margin-top:0">▶️ What I'm Doing</h2>${active.map(t=>{let timed=t.status==="open"&&(+t.timerMinutes||0)>0,ready=!timed||timerReady(t);return `<div class="task v5037ActiveTask"><div><b>${t.icon} ${t.name}</b><div class="tiny muted">${t.status==="pending"?"Waiting for parent":timed?(ready?"Timer complete — ready to finish":"Timer running"):`In progress`}</div>${timed?`<div class="v5037MiniTimer" data-timer-end="${timerEndMs(t)}">${ready?"✅ TIME COMPLETE":formatTimer(timerRemainingMs(t))}</div>`:""}</div>${t.status==="open"?`<button data-done="${t.id}" class="btn small" ${timed&&!ready?"disabled":""}>${t.type==="golf"?"Count":timed?(ready?"I'm Done":"Timer Running"):"I'm Done"}</button>`:`<span class="pill due">Submitted</span>`}</div>`}).join("")}</div>`:""}
    <div class="card">
      <div class="v50SectionTitle"><div><div class="tiny muted">WHAT AM I WORKING TOWARD?</div><h2 style="margin:3px 0">${goal.icon} ${goal.name}</h2></div><b>${rp.pct}%</b></div>
      <div class="goalBar"><div class="goalFill" style="width:${rp.pct}%"></div></div>
@@ -1225,8 +1256,8 @@ function responsibilityView(){
      let done=(c.frequency!=="anytime")&&(c.exclusive?sharedApproved(c):approved(c,k.id));
      return `<button class="v50Task" data-c="${c.id}" ${allowed?"":"disabled"}>
        <div class="bigIcon">${c.icon}</div><div class="taskName">${c.name}</div>
-       <div class="taskMeta">${frequencyLabel(c)} · responsibility</div>
-       ${owner?`<div class="tiny" style="margin-top:8px">🔒 ${kidById(owner.kidId)?.name} has it</div>`:done?`<div class="tiny" style="margin-top:8px">✅ Done for now</div>`:allowed?`<div class="v503DoneNote"><b>Tap when you’re done</b></div>`:""}
+       <div class="taskMeta">${frequencyLabel(c)}${timerRequirementLabel(c)} · responsibility</div>
+       ${owner?`<div class="tiny" style="margin-top:8px">🔒 ${kidById(owner.kidId)?.name} has it</div>`:done?`<div class="tiny" style="margin-top:8px">✅ Done for now</div>`:allowed?`<div class="v503DoneNote"><b>${timerMinutesFor(c)?"Start timer":"Tap when you’re done"}</b></div>`:""}
      </button>`;
    }).join("")||`<p class="muted">Nothing assigned right now.</p>`}</div>
  </div>`;
@@ -1241,8 +1272,8 @@ function pick(){
      let q=autoChorePreview(c);
      return `<button class="v50Task" data-c="${c.id}" ${allowed?"":"disabled"}>
        <div class="bigIcon">${c.icon}</div><div class="taskName">${c.name}</div>
-       <div class="taskMeta">${frequencyLabel(c)}${moneyEnabled()&&c.paid&&q.gross?` · 💵 ${money(q.gross)}`:""}</div>
-       ${owner?`<div class="tiny" style="margin-top:8px">🔒 ${kidById(owner.kidId)?.name} has it</div>`:done?`<div class="tiny" style="margin-top:8px">✅ Done for now</div>`:allowed?`<div class="v503DoneNote"><b>Tap when you’re done</b></div>`:""}
+       <div class="taskMeta">${frequencyLabel(c)}${timerRequirementLabel(c)}${moneyEnabled()&&c.paid&&q.gross?` · 💵 ${money(q.gross)}`:""}</div>
+       ${owner?`<div class="tiny" style="margin-top:8px">🔒 ${kidById(owner.kidId)?.name} has it</div>`:done?`<div class="tiny" style="margin-top:8px">✅ Done for now</div>`:allowed?`<div class="v503DoneNote"><b>${timerMinutesFor(c)?"Start timer":"Tap when you’re done"}</b></div>`:""}
      </button>`;
    }).join("")||`<p class="muted">No jobs available right now.</p>`}</div>
  </div>`;
@@ -1252,12 +1283,13 @@ function level(){
  return header()+world(k)+kidExperienceNav(k)+`<div class="card">
    <div class="v50SectionTitle">
      <div><h2 style="margin:0">🌱 Growth</h2><div class="muted">Pick a Mission. Build skills, habits and character.</div></div>
-     <div class="badge">🔥 ${k.xp||0} XP</div>
+     <div class="badge">🔥 ${xpLevel(k).cur.name}</div>
    </div>
+   ${xpProgressCard(k)}
    <div class="notice v50GrowNote"><b>Progress over perfection.</b><div class="tiny muted" style="margin-top:4px">Vacation days and delayed parent approvals don't erase the XP you've already earned. Streaks are only a bonus.</div></div>
    <div class="notice" style="margin-top:10px"><b>This week: ${lp.earned}/${lp.goal} Growth wins</b><div class="progress" style="margin-top:7px"><div class="bar" style="width:${lp.goal?Math.min(100,lp.earned/lp.goal*100):0}%"></div></div></div>
    <div class="v50TaskGrid" style="margin-top:13px">${cs.map(c=>{
-      let hits=weeklyHits(k.id,c.id),pend=challengePending(k.id,c.id),available=challengeAvailable(c,k.id);
+      let hits=weeklyHits(k.id,c.id),pend=challengePending(k.id,c.id),open=challengeOpen(k.id,c.id),available=challengeAvailable(c,k.id),mins=timerMinutesFor(c);
       if(c.id==="pushups"){
         let todayLog=challengeLogs().find(x=>x.kidId===k.id&&x.challengeId==="pushups"&&x.date===todayKey()&&["pending","approved"].includes(x.status));
         return `<div class="v50Task"><div class="bigIcon">💪</div><div class="taskName">Pushup Power</div><div class="taskMeta">Mission · build strength</div>
@@ -1266,10 +1298,10 @@ function level(){
         </div>`;
       }
       return `<div class="v50Task"><div class="bigIcon">${c.icon}</div><div class="taskName">${c.name}</div>
-        <div class="taskMeta">${c.desc}<br>⏱️ ${challengeAvailabilityLabel(c)}</div>
+        <div class="taskMeta">${c.desc}<br>🗓️ ${challengeAvailabilityLabel(c)}${mins?` · ⏱️ ${mins} min`:""}</div>
         ${c.target?`<div class="v50ProgressText">${hits}/${c.target} this week</div>`:""}
         <div class="weekTrack">${dates.map((d,i)=>`<span class="dayDot ${challengeHit(k.id,c.id,d)?"hit":""}">${["M","T","W","T","F","S","S"][i]}</span>`).join("")}</div>
-        <div style="margin-top:10px">${pend?`<span class="pill due">Waiting for parent</span>`:c.parentOnly?`<span class="pill due">Parent verifies</span>`:available?`<button class="btn small" data-challenge="${c.id}">I Did It</button>`:`<span class="pill opt">Done for now</span>`}</div>
+        <div style="margin-top:10px">${open?`<div class="v5037GrowthTimer"><div class="v5037BigTimer" data-timer-end="${timerEndMs(open)}">${timerReady(open)?"0:00":formatTimer(timerRemainingMs(open))}</div><div class="tiny muted">${timerReady(open)?"🎉 Time complete!":"Keep going — your timer keeps running even if you leave this page."}</div><button class="btn small" data-challenge-done="${open.id}" ${timerReady(open)?"":"disabled"}>${timerReady(open)?"I Did It":"Timer Running"}</button></div>`:pend?`<span class="pill due">Waiting for parent</span>`:c.parentOnly?`<span class="pill due">Parent verifies</span>`:available?`<button class="btn small" data-challenge="${c.id}">${mins?"Start Timer":"I Did It"}</button>`:`<span class="pill opt">Done for now</span>`}</div>
       </div>`;
    }).join("")}</div>
  </div>`;
@@ -1324,8 +1356,9 @@ function kidActivity(kidId){
 }
 function activityImpact(x){
   let a=[];
-  if(+x.xp)a.push(`${+x.xp>0?"+":""}${+x.xp} XP`);
-  if(+x.cash)a.push(`${+x.cash>0?"+":""}${money(+x.cash)}`);
+  if(+x.points)a.push(`⭐ ${+x.points>0?"+":""}${+x.points} Reward Points`);
+  if(+x.xp)a.push(`🔥 ${+x.xp>0?"+":""}${+x.xp} XP`);
+  if(+x.cash)a.push(`💵 ${+x.cash>0?"+":""}${money(+x.cash)}`);
   return a.join(" · ");
 }
 function activeMissesInRange(startDate,endDate,d=data){
@@ -1371,10 +1404,11 @@ function rewards(){
      <div class="v50SectionTitle"><div><div class="tiny muted">MY REWARD</div><h2 style="margin:3px 0">${g.icon} ${g.name}</h2></div><b>${rp.pct}%</b></div>
      <div class="goalBar"><div class="goalFill" style="width:${rp.pct}%"></div></div>
      <div class="v5034KidRewardNumbers">
-       <div><b>${current}</b><span>My Points</span></div>
+       <div><b>${current}</b><span>Reward Points</span></div>
        <div><b>${rp.ready?"READY!":toGo}</b><span>${rp.ready?"Goal Reached":"Points To Go"}</span></div>
      </div>
-     <div class="v5034RewardMessage">${rp.ready?"🎉 You did it! Show a parent when you're ready to complete your reward.":"Keep building points through Responsibilities, Jobs and Growth."}</div>
+     <div class="v5034RewardMessage">${rp.ready?"🎉 You did it! Show a parent when you're ready to complete your reward.":`⭐ +${rewardPointStats(k.id).week} Reward Points earned this week. Keep going!`}</div>
+     ${xpProgressCard(k)}
    </div>
    <div class="card">
      <div class="v50SectionTitle"><div><div class="tiny muted">FAMILY PROGRESS</div><h2 style="margin:3px 0">⭐ How We're Doing</h2><div class="muted">A little friendly competition. Everybody's working toward their own goal.</div></div></div>
@@ -1503,6 +1537,7 @@ function settings(){
        <div data-effort-wrap="${i}" style="${c.paid?"":"display:none"}"><label>Job size</label><select data-effort="${i}"><option value="helping" ${(c.effortLevel||"helping")==="helping"?"selected":""}>Small</option><option value="hard" ${c.effortLevel==="hard"?"selected":""}>Medium</option><option value="big" ${c.effortLevel==="big"?"selected":""}>Big</option></select></div>
        <div><label>Shared?</label><select data-exclusive="${i}"><option value="0" ${!c.exclusive?"selected":""}>Each kid</option><option value="1" ${c.exclusive?"selected":""}>First kid only</option></select></div>
        <div><label>☀️ Shut off in Summer Mode?</label><select data-summeroff="${i}"><option value="0" ${!shutsOffInSummer(c)?"selected":""}>No</option><option value="1" ${shutsOffInSummer(c)?"selected":""}>Yes</option></select></div>
+       <div><label>⏱ Required minutes</label><input data-timer-minutes="${i}" type="number" min="0" max="180" step="5" value="${timerMinutesFor(c)}"><div class="tiny muted">0 = no timer</div></div>
        <div><label>Missed responsibility</label><select data-miss="${i}"><option value="0" ${+c.missXp===0?"selected":""}>No XP loss</option><option value="5" ${+c.missXp===5?"selected":""}>-5 XP</option><option value="10" ${+c.missXp===10?"selected":""}>-10 XP</option></select></div>
        <input data-points="${i}" type="hidden" value="${Math.max(0,c.points!=null?+c.points:(c.required?2:3))}">
      </div>${c.custom?`<button data-delete="${i}" class="btn red small" style="margin-top:8px">Delete Custom Item</button>`:""}
@@ -1539,6 +1574,7 @@ function settings(){
            <div data-chours-wrap="${i}" style="${c.frequency==="everyhours"?"":"display:none"}"><label>Hours</label><input data-chours="${i}" type="number" min="1" max="168" value="${Math.max(1,+c.intervalHours||4)}"></div>
            <div data-cdays-wrap="${i}" style="${c.frequency==="everyx"?"":"display:none"}"><label>Days</label><input data-cdays="${i}" type="number" min="1" max="365" value="${Math.max(1,+c.intervalDays||1)}"></div>
            <div><label>Who can complete?</label><select data-cclaim="${i}"><option value="each" ${c.claimType!=="shared"?"selected":""}>Each kid</option><option value="shared" ${c.claimType==="shared"?"selected":""}>First kid only</option></select></div>
+           <div><label>⏱ Required minutes</label><input data-ctimer="${i}" type="number" min="0" max="180" step="5" value="${timerMinutesFor(c)}"><div class="tiny muted">0 = no timer</div></div>
            <input data-cpoints="${i}" type="hidden" value="${c.id==="pushups"?pushupPoints(20):Math.max(0,+c.rewardPoints||defaultLevelPoints(c.id))}">
          </div>
          <button class="btn red small" style="margin-top:10px" data-growth-remove="${c.id}">Remove Mission</button>
@@ -1556,6 +1592,7 @@ function settings(){
          <div style="grid-column:1/-1"><label>What should they do?</label><input id="newGrowthDesc" placeholder="Practice for at least 20 minutes"></div>
          <div><label>XP earned</label><input id="newGrowthXp" type="number" min="0" max="100" value="10"></div>
          <div><label>Schedule</label><select id="newGrowthFreq"><option value="daily">Every Day</option><option value="weekdays">Certain Days</option><option value="weekly">Weekly</option><option value="anytime">Anytime</option></select></div>
+         <div><label>⏱ Required minutes</label><input id="newGrowthTimer" type="number" min="0" max="180" step="5" value="0"><div class="tiny muted">0 = no timer</div></div>
        </div>
        <button id="addGrowthMission" class="btn secondary" style="margin-top:10px">Add Growth Mission</button>
      </div>
@@ -1705,7 +1742,14 @@ function undoBanner(){
   if(!lastClaimId||Date.now()-lastClaimAt>60000)return "";
   return `<div class="undoToast"><span>Mission claimed.</span><button id="undoClaim" class="btn secondary small">Undo</button></div>`;
 }
+function updateTimerDisplays(){
+  let finished=false;
+  $$('[data-timer-end]').forEach(el=>{let end=+el.dataset.timerEnd||0,ms=Math.max(0,end-Date.now());if(el.classList.contains('v5037MiniTimer'))el.textContent=ms>0?formatTimer(ms):'✅ TIME COMPLETE';else el.textContent=formatTimer(ms);if(ms<=0)finished=true});
+  if(finished){$$('[data-done],[data-challenge-done]').forEach(b=>{let id=b.dataset.done||b.dataset.challengeDone,t=(data?.tasks||[]).find(x=>x.id===id)||(data?.challengeLogs||[]).find(x=>x.id===id);if(t&&timerReady(t)){b.disabled=false;b.textContent="I'm Done"}})}
+}
+function startTimerUi(){if(timerUiInterval)clearInterval(timerUiInterval);updateTimerDisplays();if(document.querySelector('[data-timer-end]'))timerUiInterval=setInterval(updateTimerDisplays,1000)}
 function render(){
+ if(timerUiInterval){clearInterval(timerUiInterval);timerUiInterval=null}
  if(!user){$("#app").innerHTML=login();bind();return}
  if(data===null){$("#app").innerHTML=`<div class="login card">Loading family…</div>`;return}
  if(data===false){$("#app").innerHTML=setup();bind();return}
@@ -1723,6 +1767,7 @@ function render(){
    view==="golf"?golf():
    (isKidSession()?kidsLanding():parent());
  bind();
+ startTimerUi();
 }
 async function patch(p){await updateDoc(familyRef,p)}
 
@@ -1773,16 +1818,22 @@ $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCoun
    let c=library().find(x=>x.id===b.dataset.c),k=data.kids[kid];
    if(!c||!canClaim(c,k.id))return;
    if(isKidSession()){
-     let kind=c.required?"responsibility":"job";
-     askConfirm(`Finished ${c.icon} ${c.name}?`,`Confirm you completed this ${kind}. It will be sent to a parent for approval.`,"Yes, I Did It",async()=>{
-       let t={id:newId(),choreId:c.id,kidId:k.id,icon:c.icon,name:c.name,cash:0,car:0,xp:0,exclusive:!!c.exclusive,required:!!c.required,frequency:c.frequency,periodKey:periodKey(c),status:"pending",type:c.id==="golf"?"golf":"normal",count:0,createdAt:Date.now(),submittedAt:Date.now()};
-       await patch({tasks:arrayUnion(t)});
-       render();
-     });
+     let kind=c.required?"responsibility":"job",mins=timerMinutesFor(c);
+     if(mins){
+       askConfirm(`Start ${c.icon} ${c.name}?`,`This needs ${mins} minutes. Your timer will keep running even if you leave this screen. You can't submit it until time is up.`,`Start ${mins}-Minute Timer`,async()=>{
+         let now=Date.now(),t={id:newId(),choreId:c.id,kidId:k.id,icon:c.icon,name:c.name,cash:0,car:0,xp:0,exclusive:!!c.exclusive,required:!!c.required,frequency:c.frequency,periodKey:periodKey(c),status:"open",type:c.id==="golf"?"golf":"normal",count:0,timerMinutes:mins,timerStartedAt:now,createdAt:now};
+         await patch({tasks:arrayUnion(t)});view="week";render();
+       });
+     }else{
+       askConfirm(`Finished ${c.icon} ${c.name}?`,`Confirm you completed this ${kind}. It will be sent to a parent for approval.`,"Yes, I Did It",async()=>{
+         let t={id:newId(),choreId:c.id,kidId:k.id,icon:c.icon,name:c.name,cash:0,car:0,xp:0,exclusive:!!c.exclusive,required:!!c.required,frequency:c.frequency,periodKey:periodKey(c),status:"pending",type:c.id==="golf"?"golf":"normal",count:0,createdAt:Date.now(),submittedAt:Date.now()};
+         await patch({tasks:arrayUnion(t)});render();
+       });
+     }
      return;
    }
    askConfirm(`Start ${c.icon} ${c.name}?`,`This adds it to ${k.name}'s active list.${c.exclusive?" Other kids will not be able to claim it while it is active.":""}`,"Start",async()=>{
-     let t={id:newId(),choreId:c.id,kidId:k.id,icon:c.icon,name:c.name,cash:c.paid?+c.cash||0:0,car:c.paid?+c.car||0:0,xp:+c.xp||10,exclusive:!!c.exclusive,required:!!c.required,frequency:c.frequency,periodKey:periodKey(c),status:"open",type:c.id==="golf"?"golf":"normal",count:0,createdAt:Date.now()};
+     let now=Date.now(),mins=timerMinutesFor(c),t={id:newId(),choreId:c.id,kidId:k.id,icon:c.icon,name:c.name,cash:c.paid?+c.cash||0:0,car:c.paid?+c.car||0:0,xp:+c.xp||10,exclusive:!!c.exclusive,required:!!c.required,frequency:c.frequency,periodKey:periodKey(c),status:"open",type:c.id==="golf"?"golf":"normal",count:0,timerMinutes:mins,timerStartedAt:mins?now:0,createdAt:now};
      await patch({tasks:arrayUnion(t)});
      render();
    });
@@ -1792,6 +1843,7 @@ $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCoun
 
  $$("[data-done]").forEach(b=>b.onclick=()=>{
    let t=data.tasks.find(x=>x.id===b.dataset.done);if(!t)return;
+   if((+t.timerMinutes||0)>0&&!timerReady(t))return alert(`Keep going! ${formatTimer(timerRemainingMs(t))} left.`);
    if(t.type==="golf"){golfCount=t.count||0;view="golf";render();return}
    askConfirm(`Finished ${t.icon} ${t.name}?`,`Confirm you completed it. It will be sent to a parent for approval.`,"Yes, I Did It",async()=>{
      let tasks=data.tasks.map(x=>x.id===t.id?{...x,status:"pending",submittedAt:Date.now()}:x);
@@ -1978,6 +2030,7 @@ $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCoun
  $$("[data-cdays]").forEach(e=>e.addEventListener("change",()=>{let c=challengeDraft[+e.dataset.cdays];if(c)c.intervalDays=Math.max(1,+e.value||1)}));
  $$("[data-cpoints]").forEach(e=>e.addEventListener("change",()=>{let c=challengeDraft[+e.dataset.cpoints];if(c&&c.id!=="pushups")c.rewardPoints=Math.max(0,Math.min(100,+e.value||0))}));
  $$("[data-cclaim]").forEach(e=>e.addEventListener("change",()=>{let c=challengeDraft[+e.dataset.cclaim];if(c)c.claimType=e.value}));
+ $$("[data-ctimer]").forEach(e=>e.addEventListener("input",()=>{let c=challengeDraft[+e.dataset.ctimer];if(c)c.timerMinutes=Math.max(0,Math.min(180,+e.value||0))}));
  $("#saveLevelAvailability")?.addEventListener("click",async()=>{
    challengeDraft=challengeDraft.map(c=>({...c,name:(c.name||"Growth Mission").trim(),icon:(c.icon||"🌱").trim(),desc:(c.desc||"").trim(),xp:Math.max(0,Math.min(100,+c.xp||0)),days:c.frequency==="weekdays"?(Array.isArray(c.days)&&c.days.length?c.days:[1,2,3,4,5]):(c.days||[])}));
    await patch({challenges:challengeDraft});
@@ -1987,7 +2040,7 @@ $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCoun
  $("#addGrowthMission")?.addEventListener("click",async()=>{
    let name=$("#newGrowthName")?.value.trim();
    if(!name)return alert("Give the Growth Mission a name.");
-   let mission={id:"growth_"+newId(),icon:$("#newGrowthIcon")?.value.trim()||"🌱",name,desc:$("#newGrowthDesc")?.value.trim()||"",target:0,xp:Math.max(0,Math.min(100,+$("#newGrowthXp")?.value||10)),weekdaysOnly:false,parentOnly:false,frequency:$("#newGrowthFreq")?.value||"daily",days:($("#newGrowthFreq")?.value==="weekdays"?[1,2,3,4,5]:[]),intervalHours:4,intervalDays:1,claimType:"each",rewardPoints:5,active:true,custom:true};
+   let mission={id:"growth_"+newId(),icon:$("#newGrowthIcon")?.value.trim()||"🌱",name,desc:$("#newGrowthDesc")?.value.trim()||"",target:0,xp:Math.max(0,Math.min(100,+$("#newGrowthXp")?.value||10)),weekdaysOnly:false,parentOnly:false,frequency:$("#newGrowthFreq")?.value||"daily",days:($("#newGrowthFreq")?.value==="weekdays"?[1,2,3,4,5]:[]),intervalHours:4,intervalDays:1,claimType:"each",rewardPoints:5,timerMinutes:Math.max(0,Math.min(180,+$("#newGrowthTimer")?.value||0)),active:true,custom:true};
    await patch({challenges:[...challengeLibrary().map(c=>({...c})),mission]});
    alert("Growth Mission added.");
  });
@@ -2072,7 +2125,7 @@ $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCoun
  $("#newPaid")?.addEventListener("change",e=>{$("#newPayFields").style.display=e.target.value==="1"?"grid":"none"});
  $("#newRequired")?.addEventListener("change",e=>{if(e.target.value==="1"&&+$("#newPoints").value===3)$("#newPoints").value="2";if(e.target.value==="0"&&+$("#newPoints").value===2)$("#newPoints").value="3"});
  $$("[data-frequency]").forEach(e=>e.addEventListener("change",()=>{let i=e.dataset.frequency,w=document.querySelector(`[data-interval-wrap="${i}"]`),h=document.querySelector(`[data-hours-wrap="${i}"]`),days=document.querySelector(`[data-days-wrap="chore-${i}"]`);if(w)w.style.display=e.value==="everyx"?"block":"none";if(h)h.style.display=e.value==="everyhours"?"block":"none";if(days)days.style.display=e.value==="weekdays"?"block":"none"}));
- $("#createCustom")?.addEventListener("click",async()=>{let name=$("#newName").value.trim();if(!name)return;let required=$("#newRequired").value==="1",paid=$("#newPaid").value==="1";let c={id:"custom_"+newId(),name,icon:$("#newIcon").value||"⭐",category:"Custom",frequency:"anytime",intervalDays:7,intervalHours:1,required,paid,points:Math.max(0,+$("#newPoints").value||0),xp:10,missXp:required?5:0,assignedTo:data.kids.map(k=>k.id),active:true,custom:true,createdAt:Date.now(),effortLevel:$("#newEffort")?.value||"helping",useCustomAmount:!!$("#newCustomToggle")?.checked,customAmount:Math.max(0,+$("#newCustomAmount")?.value||0)};await patch({choreLibrary:[...library(),c]})});
+ $("#createCustom")?.addEventListener("click",async()=>{let name=$("#newName").value.trim();if(!name)return;let required=$("#newRequired").value==="1",paid=$("#newPaid").value==="1";let c={id:"custom_"+newId(),name,icon:$("#newIcon").value||"⭐",category:"Custom",frequency:"anytime",intervalDays:7,intervalHours:1,required,paid,points:Math.max(0,+$("#newPoints").value||0),xp:10,missXp:required?5:0,assignedTo:data.kids.map(k=>k.id),active:true,custom:true,createdAt:Date.now(),effortLevel:$("#newEffort")?.value||"helping",useCustomAmount:!!$("#newCustomToggle")?.checked,customAmount:Math.max(0,+$("#newCustomAmount")?.value||0),timerMinutes:0};await patch({choreLibrary:[...library(),c]})});
 function refreshNewChoreMoney(){let required=$("#newRequired")?.value==="1",area=$("#newMoneyArea"),ov=$("#requiredMoneyOverride"),pay=$("#newPaid"),fields=$("#newPayFields");if(!area)return;if(required&&area.dataset.override!=="1"){area.style.display="none";ov.style.display="block";pay.value="0"}else{area.style.display="block";ov.style.display="none"}fields.style.display=pay.value==="1"?"block":"none";let gross=$("#newCustomToggle")?.checked?Math.max(0,+$("#newCustomAmount")?.value||0):autoBaseReward()*effortMultiplier($("#newEffort")?.value||"helping"),cash=+(gross*cashPct()/100).toFixed(2),future=+(gross-cash).toFixed(2);$("#newAutoPreview").innerHTML=`<b>This job can earn ${money(gross)}</b><br>💵 ${money(cash)} Spend Now · 🌱 ${money(future)} Future Fund`;$("#newCustomWrap").style.display=$("#newCustomToggle")?.checked?"block":"none"}
 $("#newRequired")?.addEventListener("change",()=>{$("#newMoneyArea").dataset.override="";refreshNewChoreMoney()});$("#allowRequiredPay")?.addEventListener("click",()=>{$("#newMoneyArea").dataset.override="1";refreshNewChoreMoney()});["newPaid","newEffort","newCustomToggle"].forEach(id=>$(`#${id}`)?.addEventListener("change",refreshNewChoreMoney));$("#newCustomAmount")?.addEventListener("input",refreshNewChoreMoney);refreshNewChoreMoney();
  $("#saveChores")?.addEventListener("click",async()=>{
@@ -2086,7 +2139,7 @@ $("#newRequired")?.addEventListener("change",()=>{$("#newMoneyArea").dataset.ove
    $$("[data-points]").forEach(e=>lib[+e.dataset.points].points=Math.max(0,Math.min(100,+e.value||0)));
    $$("[data-paid]").forEach(e=>lib[+e.dataset.paid].paid=e.value==="1");
    $$("[data-effort]").forEach(e=>lib[+e.dataset.effort].effortLevel=e.value);
-   $$("[data-exclusive]").forEach(e=>lib[+e.dataset.exclusive].exclusive=e.value==="1");    $$("[data-summeroff]").forEach(e=>lib[+e.dataset.summeroff].summerOff=e.value==="1");
+   $$("[data-exclusive]").forEach(e=>lib[+e.dataset.exclusive].exclusive=e.value==="1");    $$("[data-summeroff]").forEach(e=>lib[+e.dataset.summeroff].summerOff=e.value==="1");    $$("[data-timer-minutes]").forEach(e=>lib[+e.dataset.timerMinutes].timerMinutes=Math.max(0,Math.min(180,+e.value||0)));
    $$("[data-miss]").forEach(e=>lib[+e.dataset.miss].missXp=+e.value);
    $$("[data-assign]").forEach(e=>{if(e.checked){let [i,kidId]=e.dataset.assign.split("|");lib[+i].assignedTo.push(kidId)}});
    await patch({choreLibrary:lib});
@@ -2117,7 +2170,8 @@ $("#newRequired")?.addEventListener("change",()=>{$("#newMoneyArea").dataset.ove
    pushupCount=0;
    render();
  });
- $$("[data-challenge]").forEach(b=>b.onclick=async()=>{let cid=b.dataset.challenge,k=data.kids[kid],c=challengeLibrary().find(x=>x.id===cid);if(!c||!challengeAvailable(c,k.id))return;let log={id:newId(),kidId:k.id,challengeId:cid,date:todayKey(),status:"pending",createdAt:Date.now()};await patch({challengeLogs:arrayUnion(log)})});
+ $$("[data-challenge]").forEach(b=>b.onclick=()=>{let cid=b.dataset.challenge,k=data.kids[kid],c=challengeLibrary().find(x=>x.id===cid);if(!c||!challengeAvailable(c,k.id))return;let mins=timerMinutesFor(c);if(mins){askConfirm(`Start ${c.icon} ${c.name}?`,`Your ${mins}-minute timer will keep running even if you leave this screen. You can't submit the Mission until it reaches zero.`,`Start ${mins}-Minute Timer`,async()=>{let now=Date.now(),log={id:newId(),kidId:k.id,challengeId:cid,date:todayKey(),status:"open",timerMinutes:mins,timerStartedAt:now,createdAt:now};await patch({challengeLogs:arrayUnion(log)});render()})}else{askConfirm(`Finished ${c.icon} ${c.name}?`,`Send this Growth Mission to a parent for approval?`,`Yes, I Did It`,async()=>{let log={id:newId(),kidId:k.id,challengeId:cid,date:todayKey(),status:"pending",createdAt:Date.now()};await patch({challengeLogs:arrayUnion(log)});render()})}});
+ $$("[data-challenge-done]").forEach(b=>b.onclick=async()=>{let id=b.dataset.challengeDone,log=challengeLogs().find(x=>x.id===id&&x.status==="open");if(!log)return;if(!timerReady(log))return alert(`Keep going! ${formatTimer(timerRemainingMs(log))} left.`);let logs=challengeLogs().map(x=>x.id===id?{...x,status:"pending",submittedAt:Date.now()}:x);await patch({challengeLogs:logs});render()});
  $$("[data-chapp]").forEach(b=>b.onclick=async()=>{let id=b.dataset.chapp;await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),logs=d.challengeLogs||[],log=logs.find(x=>x.id===id);if(!log||log.status!=="pending")return;
  let base=DEFAULT_CHALLENGES.find(x=>x.id===log.challengeId);
  let saved=(d.challenges||[]).find(x=>x.id===log.challengeId);
