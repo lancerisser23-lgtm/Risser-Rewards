@@ -9,8 +9,8 @@
 <meta name="apple-mobile-web-app-title" content="Risser Rewards">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" sizes="180x180" href="risser-rewards-touch-v17.png">
-<title>Risser Rewards V50.2</title>
-<meta name="application-version" content="50.2">
+<title>Risser Rewards V50.3</title>
+<meta name="application-version" content="50.3">
 <style>
 :root{--g:#1f6848;--bg:#f5f5ef;--ink:#182019;--muted:#68736b;--line:#e0e6de;--gold:#d6a62f;--red:#b64e45;--amber:#986a14;--shadow:0 10px 28px rgba(28,64,41,.10)}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-family:ui-rounded,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
@@ -456,6 +456,15 @@ input:focus,select:focus{outline:2px solid rgba(52,99,70,.18);border-color:#6d92
 .dayPicker input{position:absolute;opacity:0;pointer-events:none}
 .dayPicker label:has(input:checked){background:var(--g);color:#fff;border-color:var(--g)}
 .dayPickerWrap{grid-column:1/-1;padding:10px 12px;border:1px dashed var(--line);border-radius:14px;background:#fafbf8}
+
+.v503KidNav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0 14px}
+.v503KidNav button{border:1px solid var(--line);background:#fff;border-radius:16px;padding:10px 8px;font-weight:950;min-height:58px;line-height:1.15}
+.v503KidNav button.on{background:var(--g);color:#fff;border-color:var(--g)}
+.v503KidNav .navIcon{display:block;font-size:20px;margin-bottom:3px}
+.v503WorldLink{display:flex;justify-content:flex-start;margin:2px 0 8px}
+.v503WorldLink button{border:0;background:transparent;color:var(--muted);font-weight:900;padding:5px 2px;text-decoration:underline}
+.v503DoneNote{font-size:12px;color:var(--muted);margin-top:6px}
+@media(max-width:520px){.v503KidNav button{font-size:12px;padding:8px 4px}}
 </style>
 </head>
 <body><div id="app" class="app"></div>
@@ -1033,7 +1042,7 @@ function header(){
  if(isKidSession()){
    return `<div class="v50KidTop">
      <div class="brandWrap"><span class="brandPeak">▲</span><div><div class="brand">RISSER REWARDS</div><div class="sub">Responsibilities. Jobs. Growth.</div></div></div>
-     ${view!=="kids"?`<button class="v50Back" data-v="kids">← Family</button>`:""}
+     ${view!=="kids"?`<button class="v50Back" data-v="kids">← Switch Kid</button>`:""}
    </div>${vacationMode()?`<div class="notice" style="margin-bottom:10px"><b>🏖️ Vacation Mode</b> — Responsibilities are paused. Growth is still open.</div>`:""}`;
  }
  return `<div class="top">
@@ -1063,11 +1072,11 @@ function login(){
 function setup(){return `<div class="login card"><h2>🏡 Create Risser Family</h2><button id="createFamily" class="btn">Create Family</button></div>`}
 
 function kidExperienceNav(){
- return `<div class="v50MiniNav">
-   <button data-v="week" class="${view==="week"?"on":""}">🏡 My World</button>
-   <button data-v="responsibilities" class="${view==="responsibilities"?"on":""}">✅ Responsibilities</button>
-   <button data-v="pick" class="${view==="pick"?"on":""}">💼 Jobs</button>
-   <button data-v="level" class="${view==="level"?"on":""}">🌱 Growth</button>
+ return `<div class="v503WorldLink"><button data-v="week">← My World</button></div>
+ <div class="v503KidNav">
+   <button data-v="responsibilities" class="${view==="responsibilities"?"on":""}"><span class="navIcon">✅</span>Responsibilities</button>
+   <button data-v="pick" class="${view==="pick"?"on":""}"><span class="navIcon">💼</span>Jobs</button>
+   <button data-v="level" class="${view==="level"?"on":""}"><span class="navIcon">🌱</span>Growth</button>
  </div>`;
 }
 function kidsLanding(){
@@ -1127,7 +1136,7 @@ function week(){
 }
 function responsibilityView(){
  let k=data.kids[kid],lib=library().filter(c=>isResponsibility(c)&&eligible(c,k.id));
- return header()+kidExperienceNav()+world(k)+`<div class="card">
+ return header()+world(k)+kidExperienceNav()+`<div class="card">
    <div class="v50SectionTitle"><div><h2 style="margin:0">✅ Responsibilities</h2><div class="muted">Your part of taking care of the family.</div></div></div>
    <div class="v50TaskGrid">${lib.map(c=>{
      let allowed=canClaim(c,k.id),owner=c.exclusive?sharedLive(c):null;
@@ -1135,14 +1144,14 @@ function responsibilityView(){
      return `<button class="v50Task" data-c="${c.id}" ${allowed?"":"disabled"}>
        <div class="bigIcon">${c.icon}</div><div class="taskName">${c.name}</div>
        <div class="taskMeta">${frequencyLabel(c)} · responsibility</div>
-       ${owner?`<div class="tiny" style="margin-top:8px">🔒 ${kidById(owner.kidId)?.name} has it</div>`:done?`<div class="tiny" style="margin-top:8px">✅ Done for now</div>`:allowed?`<div class="tiny" style="margin-top:8px"><b>Tap to start</b></div>`:""}
+       ${owner?`<div class="tiny" style="margin-top:8px">🔒 ${kidById(owner.kidId)?.name} has it</div>`:done?`<div class="tiny" style="margin-top:8px">✅ Done for now</div>`:allowed?`<div class="v503DoneNote"><b>Tap when you’re done</b></div>`:""}
      </button>`;
    }).join("")||`<p class="muted">Nothing assigned right now.</p>`}</div>
  </div>`;
 }
 function pick(){
  let k=data.kids[kid],lib=library().filter(c=>isJob(c)&&eligible(c,k.id));
- return header()+kidExperienceNav()+world(k)+`<div class="card">
+ return header()+world(k)+kidExperienceNav()+`<div class="card">
    <div class="v50SectionTitle"><div><h2 style="margin:0">💼 Jobs</h2><div class="muted">${moneyEnabled()?"Pick a job. Do the work. Earn real money when the job is paid.":"Extra ways to pitch in and help."}</div></div></div>
    <div class="v50TaskGrid">${lib.map(c=>{
      let allowed=canClaim(c,k.id),owner=c.exclusive?sharedLive(c):null;
@@ -1151,14 +1160,14 @@ function pick(){
      return `<button class="v50Task" data-c="${c.id}" ${allowed?"":"disabled"}>
        <div class="bigIcon">${c.icon}</div><div class="taskName">${c.name}</div>
        <div class="taskMeta">${frequencyLabel(c)}${moneyEnabled()&&c.paid&&q.gross?` · 💵 ${money(q.gross)}`:""}</div>
-       ${owner?`<div class="tiny" style="margin-top:8px">🔒 ${kidById(owner.kidId)?.name} has it</div>`:done?`<div class="tiny" style="margin-top:8px">✅ Done for now</div>`:allowed?`<div class="tiny" style="margin-top:8px"><b>Tap to start</b></div>`:""}
+       ${owner?`<div class="tiny" style="margin-top:8px">🔒 ${kidById(owner.kidId)?.name} has it</div>`:done?`<div class="tiny" style="margin-top:8px">✅ Done for now</div>`:allowed?`<div class="v503DoneNote"><b>Tap when you’re done</b></div>`:""}
      </button>`;
    }).join("")||`<p class="muted">No jobs available right now.</p>`}</div>
  </div>`;
 }
 function level(){
  let k=data.kids[kid],dates=weekDates(),cs=challengeLibrary().filter(c=>!c.parentOnly&&c.active!==false),lp=levelProgress(k);
- return header()+kidExperienceNav()+world(k)+`<div class="card">
+ return header()+world(k)+kidExperienceNav()+`<div class="card">
    <div class="v50SectionTitle">
      <div><h2 style="margin:0">🌱 Growth</h2><div class="muted">Pick a Mission. Build skills, habits and character.</div></div>
      <div class="badge">🔥 ${k.xp||0} XP</div>
@@ -1499,7 +1508,7 @@ function paidParent(){
 }
 function paidKid(){
  let k=data.kids[kid],owed=cashOwed(k),waiting=futureWaiting(k);
- return header()+kidExperienceNav()+world(k)+`<div class="card">
+ return header()+world(k)+kidExperienceNav()+`<div class="card">
    <h2 style="margin-top:0">💰 My Money</h2>
    ${moneyEnabled()?`<div class="v50HubStatus">
      <div class="notice"><div class="tiny muted">READY TO SPEND</div><div class="metric">${money(owed)}</div></div>
@@ -1632,11 +1641,36 @@ function bind(){
 $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCount=0;view="week";render()});
  $("#createFamily")?.addEventListener("click",async()=>setDoc(familyRef,{ownerUid:user.uid,ownerEmail:user.email,parentEmails:[user.email.toLowerCase()],kids:KIDS,tasks:[],payments:[],futureFundDeposits:[],ledger:[],choreLibrary:DEFAULTS,challenges:DEFAULT_CHALLENGES,challengeLogs:[],golfCash:.05,golfCar:.10,weeklyCashCap:25,weeklyTotalCap:25,cashSplitPct:60,moneyEnabled:true,v50Economy:"money_xp_visible",createdAt:serverTimestamp()}));
 
- $$("[data-c]").forEach(b=>b.onclick=()=>{let c=library().find(x=>x.id===b.dataset.c),k=data.kids[kid];if(!c||!canClaim(c,k.id))return;askConfirm(`Claim ${c.icon} ${c.name}?`,`This adds the mission to ${k.name}'s list.${c.exclusive?" Other kids will not be able to claim it while it is active.":""}`,"Yes, Claim It",async()=>{let t={id:newId(),choreId:c.id,kidId:k.id,icon:c.icon,name:c.name,cash:isKidSession()?0:(c.paid?+c.cash||0:0),car:isKidSession()?0:(c.paid?+c.car||0:0),xp:isKidSession()?0:(+c.xp||10),exclusive:!!c.exclusive,required:!!c.required,frequency:c.frequency,periodKey:periodKey(c),status:"open",type:c.id==="golf"?"golf":"normal",count:0,createdAt:Date.now()};await patch({tasks:arrayUnion(t)});lastClaimId=t.id;lastClaimAt=Date.now();view="week";render()})});
+ $$("[data-c]").forEach(b=>b.onclick=()=>{
+   let c=library().find(x=>x.id===b.dataset.c),k=data.kids[kid];
+   if(!c||!canClaim(c,k.id))return;
+   if(isKidSession()){
+     let kind=c.required?"responsibility":"job";
+     askConfirm(`Finished ${c.icon} ${c.name}?`,`Confirm you completed this ${kind}. It will be sent to a parent for approval.`,"Yes, I Did It",async()=>{
+       let t={id:newId(),choreId:c.id,kidId:k.id,icon:c.icon,name:c.name,cash:0,car:0,xp:0,exclusive:!!c.exclusive,required:!!c.required,frequency:c.frequency,periodKey:periodKey(c),status:"pending",type:c.id==="golf"?"golf":"normal",count:0,createdAt:Date.now(),submittedAt:Date.now()};
+       await patch({tasks:arrayUnion(t)});
+       render();
+     });
+     return;
+   }
+   askConfirm(`Start ${c.icon} ${c.name}?`,`This adds it to ${k.name}'s active list.${c.exclusive?" Other kids will not be able to claim it while it is active.":""}`,"Start",async()=>{
+     let t={id:newId(),choreId:c.id,kidId:k.id,icon:c.icon,name:c.name,cash:c.paid?+c.cash||0:0,car:c.paid?+c.car||0:0,xp:+c.xp||10,exclusive:!!c.exclusive,required:!!c.required,frequency:c.frequency,periodKey:periodKey(c),status:"open",type:c.id==="golf"?"golf":"normal",count:0,createdAt:Date.now()};
+     await patch({tasks:arrayUnion(t)});
+     render();
+   });
+ });
 
  $$("[data-quick]").forEach(b=>b.onclick=()=>{let c=library().find(x=>x.id===b.dataset.quick),k=data.kids[kid];if(!c||!canClaim(c,k.id))return;askConfirm(`Start ${c.icon} ${c.name}?`,`This adds the mission to ${k.name}'s active list.${c.exclusive?" Other kids will not be able to claim it while it is active.":""}`,"Yes, Start It",async()=>{let t={id:newId(),choreId:c.id,kidId:k.id,icon:c.icon,name:c.name,cash:isKidSession()?0:(c.paid?+c.cash||0:0),car:isKidSession()?0:(c.paid?+c.car||0:0),xp:isKidSession()?0:(+c.xp||10),exclusive:!!c.exclusive,required:!!c.required,frequency:c.frequency,periodKey:periodKey(c),status:"open",type:c.id==="golf"?"golf":"normal",count:0,createdAt:Date.now()};await patch({tasks:arrayUnion(t)});lastClaimId=t.id;lastClaimAt=Date.now();view="week";render()})});
 
- $$("[data-done]").forEach(b=>b.onclick=()=>{let t=data.tasks.find(x=>x.id===b.dataset.done);if(t.type==="golf"){golfCount=t.count||0;view="golf";render();return}askConfirm("Send this to Parent?",`${t.icon} ${t.name} will be marked complete and sent for approval.`,"Submit",async()=>{let tasks=data.tasks.map(x=>x.id===t.id?{...x,status:"pending",submittedAt:Date.now()}:x);await patch({tasks})})});
+ $$("[data-done]").forEach(b=>b.onclick=()=>{
+   let t=data.tasks.find(x=>x.id===b.dataset.done);if(!t)return;
+   if(t.type==="golf"){golfCount=t.count||0;view="golf";render();return}
+   askConfirm(`Finished ${t.icon} ${t.name}?`,`Confirm you completed it. It will be sent to a parent for approval.`,"Yes, I Did It",async()=>{
+     let tasks=data.tasks.map(x=>x.id===t.id?{...x,status:"pending",submittedAt:Date.now()}:x);
+     await patch({tasks});
+     render();
+   });
+ });
  $$("[data-n]").forEach(b=>b.onclick=()=>{golfCount=Math.max(0,Math.min(100,golfCount+(+b.dataset.n)));render()});
  $("#submitGolf")?.addEventListener("click",async()=>{if(!golfCount)return;let t=(data.tasks||[]).find(x=>x.kidId===data.kids[kid].id&&x.type==="golf"&&x.status==="open");if(!t)return;let tasks=data.tasks.map(x=>x.id===t.id?{...x,count:golfCount,cash:+(golfCount*(data.golfCash||.05)).toFixed(2),car:+(golfCount*(data.golfCar||.10)).toFixed(2),status:"pending",submittedAt:Date.now()}:x);await patch({tasks});view="week"});
  $$("[data-back]").forEach(b=>b.onclick=async()=>{let tasks=data.tasks.map(x=>x.id===b.dataset.back?{...x,status:"open"}:x);await patch({tasks})});
