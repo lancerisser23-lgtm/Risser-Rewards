@@ -9,8 +9,8 @@
 <meta name="apple-mobile-web-app-title" content="Risser Rewards">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" sizes="180x180" href="risser-rewards-touch-v17.png">
-<title>Risser Rewards V50.3.2</title>
-<meta name="application-version" content="50.3.2">
+<title>Risser Rewards V50.3.3</title>
+<meta name="application-version" content="50.3.3">
 <style>
 :root{--g:#1f6848;--bg:#f5f5ef;--ink:#182019;--muted:#68736b;--line:#e0e6de;--gold:#d6a62f;--red:#b64e45;--amber:#986a14;--shadow:0 10px 28px rgba(28,64,41,.10)}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-family:ui-rounded,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
@@ -477,6 +477,12 @@ input:focus,select:focus{outline:2px solid rgba(52,99,70,.18);border-color:#6d92
 }
 
 @media(max-width:520px){.v503KidNav button{font-size:12px;padding:8px 4px}}
+
+.v5033PointStats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:10px}
+.v5033PointStats>div{background:rgba(35,78,60,.055);border:1px solid rgba(35,78,60,.10);border-radius:12px;padding:8px 6px;text-align:center}
+.v5033PointStats b{display:block;font-size:18px;line-height:1.1}
+.v5033PointStats span{display:block;margin-top:3px;font-size:10px;font-weight:800;color:var(--muted);line-height:1.15}
+
 </style>
 </head>
 <body><div id="app" class="app"></div>
@@ -1022,6 +1028,20 @@ function visibleRewardProgress(k,r){
  const raw=Math.max(0,+k.rewardPoints||0),cost=Math.max(1,+r.cost||1);
  return {pct:Math.min(100,Math.round(raw/cost*100)),ready:raw>=cost};
 }
+function sundayWeekStartMs(){
+ let d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-d.getDay());return d.getTime();
+}
+function rewardPointStats(kidId){
+ let rows=data?.ledger||[];
+ let earned=rows.filter(x=>x.kidId===kidId&&["earning","levelup_earning","points_earning"].includes(x.type))
+   .reduce((s,x)=>s+Math.max(0,+x.points||0),0);
+ let redeemed=rows.filter(x=>x.kidId===kidId&&x.type==="points_redemption")
+   .reduce((s,x)=>s+Math.abs(+x.points||0),0);
+ let weekStart=sundayWeekStartMs();
+ let week=rows.filter(x=>x.kidId===kidId&&["earning","levelup_earning","points_earning"].includes(x.type)&&(x.at||0)>=weekStart)
+   .reduce((s,x)=>s+Math.max(0,+x.points||0),0);
+ return {earned,redeemed,week};
+}
 function visibleFamilyProgress(r){
  const raw=Math.max(0,familyPoints()),cost=Math.max(1,+r.cost||1);
  return {pct:Math.min(100,Math.round(raw/cost*100)),ready:raw>=cost};
@@ -1317,6 +1337,11 @@ function rewards(){
        return `<div class="v50RewardChoice active">
          <div class="row wrap"><div><div class="tiny muted">${k.name.toUpperCase()}'S GOAL</div><h2 style="margin:4px 0">${g.icon} ${g.name}</h2></div><b>${rp.pct}%</b></div>
          <div class="goalBar"><div class="goalFill" style="width:${rp.pct}%"></div></div>
+         ${!isKidSession()?(()=>{let ps=rewardPointStats(k.id);return `<div class="v5033PointStats">
+           <div><b>${ps.earned}</b><span>Total Earned</span></div>
+           <div><b>${ps.redeemed}</b><span>Redeemed</span></div>
+           <div><b>${ps.week}</b><span>This Week</span></div>
+         </div>`})():""}
          <div class="tiny muted" style="margin-top:7px">${rp.ready?"🎉 Goal reached — show a parent!":"Keep doing Responsibilities, Jobs and Growth Missions."}</div>
          <div style="margin-top:11px"><label>Working toward</label><select data-goal="${k.id}">${individualRewards().slice(0,5).map(r=>`<option value="${r.id}" ${g.id===r.id?"selected":""}>${r.icon} ${r.name}</option>`).join("")}</select></div>
          ${!isKidSession()&&rp.ready?`<button class="btn small" style="margin-top:10px" data-rredeem="${g.id}" data-rkid="${k.id}">Complete Goal</button>`:""}
