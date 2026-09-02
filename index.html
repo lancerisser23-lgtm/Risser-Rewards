@@ -9,8 +9,8 @@
 <meta name="apple-mobile-web-app-title" content="Risser Rewards">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" sizes="180x180" href="risser-rewards-touch-v17.png">
-<title>Risser Rewards V50.3.4</title>
-<meta name="application-version" content="50.3.4">
+<title>Risser Rewards V50.3.6</title>
+<meta name="application-version" content="50.3.6">
 <style>
 :root{--g:#1f6848;--bg:#f5f5ef;--ink:#182019;--muted:#68736b;--line:#e0e6de;--gold:#d6a62f;--red:#b64e45;--amber:#986a14;--shadow:0 10px 28px rgba(28,64,41,.10)}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-family:ui-rounded,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
@@ -484,7 +484,7 @@ input:focus,select:focus{outline:2px solid rgba(52,99,70,.18);border-color:#6d92
 .v5033PointStats span{display:block;margin-top:3px;font-size:10px;font-weight:800;color:var(--muted);line-height:1.15}
 
 
-/* V50.3.4 — Rewards completes the kid loop without turning it into a ranked leaderboard */
+/* V50.3.6 — Rewards completes the kid loop without turning it into a ranked leaderboard */
 .v50CategoryGrid{grid-template-columns:repeat(4,minmax(0,1fr))}
 .v5034KidRewardNumbers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}
 .v5034KidRewardNumbers>div{background:rgba(35,78,60,.055);border:1px solid rgba(35,78,60,.10);border-radius:14px;padding:11px;text-align:center}
@@ -501,6 +501,15 @@ input:focus,select:focus{outline:2px solid rgba(52,99,70,.18);border-color:#6d92
  .v50CategoryGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
  .v5034FamilyPoints{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+
+
+.v5035SettingsTop{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:2px 0 10px;padding:2px 2px 0}
+.v5035ModeControls{display:flex;gap:7px;justify-content:flex-end;flex-wrap:wrap}
+.v5035Mode{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 10px;font-size:11px;font-weight:900;cursor:pointer;white-space:nowrap}
+.v5035Mode span{font-size:9px;opacity:.68;margin-left:3px}
+.v5035Mode.on{background:var(--g);color:#fff;border-color:var(--g);box-shadow:0 4px 12px rgba(35,78,60,.14)}
+.v5035ModeNote{font-size:11px;color:var(--muted);margin:-2px 2px 8px;text-align:right}
+@media(max-width:620px){.v5035SettingsTop{align-items:flex-start}.v5035ModeControls{max-width:190px}.v5035Mode{padding:6px 8px}}
 
 </style>
 </head>
@@ -690,9 +699,10 @@ function rawLibrary(){
   return merged;
 }
 
+function shutsOffInSummer(c){return c?.summerOff!=null?!!c.summerOff:isSchoolChore(c)}
 function library(){
   return rawLibrary().map(c=>{
-    if(summerMode()&&isSchoolChore(c))return {...c,active:false};
+    if(summerMode()&&shutsOffInSummer(c))return {...c,active:false,summerPaused:true};
     if(vacationMode()&&c.required)return {...c,active:false,vacationPaused:true};
     return c;
   });
@@ -715,7 +725,7 @@ async function applyYesterdayMisses(){
     let kids=(d.kids||[]).map(k=>({...k})),ledger=[...(d.ledger||[])],changed=false;
     let saved=Array.isArray(d.choreLibrary)&&d.choreLibrary.length?d.choreLibrary:DEFAULTS;
     let lib=saved.map(normalize).filter(c=>c.active!==false&&c.required&&requiredDueOnDate(c,date));
-    if(d.summerMode)lib=lib.filter(c=>!isSchoolChore(c));
+    if(d.summerMode)lib=lib.filter(c=>!shutsOffInSummer(c));
     for(let c of lib){
       // A newly created/activated/required chore never receives a penalty for that same calendar day.
       let startsAt=+c.requiredSince||+c.activatedAt||+c.createdAt||0;
@@ -1094,13 +1104,13 @@ function header(){
    return `<div class="v50KidTop">
      <div class="brandWrap"><span class="brandPeak">▲</span><div><div class="brand">RISSER REWARDS</div><div class="sub">Responsibilities. Jobs. Growth.</div></div></div>
      ${view!=="kids"?`<button class="v50Back" data-v="kids">← Switch Kid</button>`:""}
-   </div>${vacationMode()?`<div class="notice" style="margin-bottom:10px"><b>🏖️ Vacation Mode</b> — Responsibilities are paused. Growth is still open.</div>`:""}`;
+   </div>${summerMode()?`<div class="notice" style="margin-bottom:10px"><b>☀️ Summer Mode</b> — School responsibilities are taking a break.</div>`:""}${vacationMode()?`<div class="notice" style="margin-bottom:10px"><b>🏖️ Vacation Mode</b> — Responsibilities are paused. Growth is still open.</div>`:""}`;
  }
  return `<div class="top">
    <div><div class="brandWrap"><span class="brandPeak">▲</span><div><div class="brand">RISSER REWARDS</div><div class="sub">Responsibilities. Jobs. Growth.</div></div></div></div>
    <div class="actions"><span class="badge">${modeLabel()}</span><span class="tiny muted">${user?.email||""}</span><button id="logout" class="btn secondary">Sign out</button></div>
  </div>
- ${verseBanner()}${vacationMode()?`<div class="notice" style="margin-top:8px"><b>🏖️ Vacation Mode</b> — Required responsibilities are paused. Growth Missions remain open.</div>`:""}
+ ${verseBanner()}${summerMode()?`<div class="notice" style="margin-top:8px"><b>☀️ Summer Mode</b> — School responsibilities are hidden.</div>`:""}${vacationMode()?`<div class="notice" style="margin-top:8px"><b>🏖️ Vacation Mode</b> — Required responsibilities are paused. Growth Missions remain open.</div>`:""}
  <div class="tabs v50ParentTabs">
    <button data-v="kids" class="tab ${["kids","week","responsibilities","pick","level","golf"].includes(view)?"on":""}">🏡 Kids</button>
    <button data-v="parent" class="tab ${view==="parent"?"on":""}">🔒 Parent HQ${waitingApprovalCount()?` (${waitingApprovalCount()})`:""}</button>
@@ -1447,6 +1457,16 @@ function parent(){
 function settings(){
  let lib=rawLibrary();
  return header()+`
+ <div class="v5035SettingsTop">
+   <div><div class="tiny muted">SETTINGS</div><h2 style="margin:3px 0">Family Controls</h2></div>
+   <div class="v5035ModeControls">
+     <button id="summerToggleTop" class="v5035Mode ${summerMode()?"on":""}">☀️ Summer <span>${summerMode()?"ON":"OFF"}</span></button>
+     <button id="vacationToggleTop" class="v5035Mode ${vacationMode()?"on":""}">🏖️ Vacation <span>${vacationMode()?"ON":"OFF"}</span></button>
+   </div>
+ </div>
+ ${summerMode()?`<div class="v5035ModeNote">☀️ <b>Summer Mode is on.</b> School responsibilities are hidden.</div>`:""}
+ ${vacationMode()?`<div class="v5035ModeNote">🏖️ <b>Vacation Mode is on.</b> Required responsibilities and missed-chore penalties are paused.</div>`:""}
+
  <div class="card">
    <div class="tiny muted">QUICK EDIT</div>
    <h2 style="margin:4px 0">What do you want to update?</h2>
@@ -1470,7 +1490,7 @@ function settings(){
  </div>
 
  <div class="card" id="workSettingsV50">
-   <div class="v50SectionTitle"><div><h2 style="margin:0">✅ Responsibilities & 💼 Jobs</h2><div class="muted">Assign work and choose a simple schedule. Certain Days lets you pick exactly which days — school items default to Monday–Friday.</div></div></div>
+   <div class="v50SectionTitle"><div><h2 style="margin:0">✅ Responsibilities & 💼 Jobs</h2><div class="muted">Assign work, choose a schedule, and decide what shuts off in Summer Mode. School items default to shutting off in summer.</div></div></div>
    <div style="display:grid;gap:10px">${lib.map((c,i)=>`<details class="v50Advanced masterCard"><summary>${c.icon} ${c.name} <span class="tiny muted">· ${c.required?"Responsibility":"Job"} · ${frequencyLabel(c)}</span></summary><div class="v50AdvancedBody">
      <div class="assignments">${data.kids.map(k=>`<label><input data-assign="${i}|${k.id}" type="checkbox" ${(c.assignedTo||[]).includes(k.id)?"checked":""}> ${k.name}</label>`).join("")}</div>
      <div class="settingsGrid">
@@ -1482,6 +1502,7 @@ function settings(){
        <div data-interval-wrap="${i}" style="${c.frequency==="everyx"?"":"display:none"}"><label>Every X days</label><input data-interval="${i}" type="number" min="1" max="365" value="${Math.max(1,+c.intervalDays||7)}"></div>
        <div data-effort-wrap="${i}" style="${c.paid?"":"display:none"}"><label>Job size</label><select data-effort="${i}"><option value="helping" ${(c.effortLevel||"helping")==="helping"?"selected":""}>Small</option><option value="hard" ${c.effortLevel==="hard"?"selected":""}>Medium</option><option value="big" ${c.effortLevel==="big"?"selected":""}>Big</option></select></div>
        <div><label>Shared?</label><select data-exclusive="${i}"><option value="0" ${!c.exclusive?"selected":""}>Each kid</option><option value="1" ${c.exclusive?"selected":""}>First kid only</option></select></div>
+       <div><label>☀️ Shut off in Summer Mode?</label><select data-summeroff="${i}"><option value="0" ${!shutsOffInSummer(c)?"selected":""}>No</option><option value="1" ${shutsOffInSummer(c)?"selected":""}>Yes</option></select></div>
        <div><label>Missed responsibility</label><select data-miss="${i}"><option value="0" ${+c.missXp===0?"selected":""}>No XP loss</option><option value="5" ${+c.missXp===5?"selected":""}>-5 XP</option><option value="10" ${+c.missXp===10?"selected":""}>-10 XP</option></select></div>
        <input data-points="${i}" type="hidden" value="${Math.max(0,c.points!=null?+c.points:(c.required?2:3))}">
      </div>${c.custom?`<button data-delete="${i}" class="btn red small" style="margin-top:8px">Delete Custom Item</button>`:""}
@@ -1553,7 +1574,7 @@ function settings(){
        <h3>Family Team Goal</h3><div id="familyRewardEditor">${(data.familyRewards&&data.familyRewards.length?data.familyRewards:DEFAULT_FAMILY_REWARDS).slice(0,1).map((r,i)=>`<div class="approval"><div style="display:grid;grid-template-columns:70px 1fr 120px;gap:8px;flex:1"><input data-fr-icon="${i}" value="${r.icon||"🌳"}"><input data-fr-name="${i}" value="${r.name||""}"><input data-fr-cost="${i}" type="number" min="1" value="${Math.max(1,+r.cost||1)}"></div></div>`).join("")}</div>
        <button id="addFamilyReward" class="btn secondary" style="display:none">+ Add Family Reward</button><button id="saveRewards" class="btn" style="margin-top:10px">Save Reward Goals</button>
      </div>
-     <div class="card flat"><h2>🏖️ Family Modes</h2><div class="actions"><button id="summerToggle" class="btn secondary">Toggle Summer Mode</button><button id="vacationToggle" class="btn secondary">${vacationMode()?"Turn Vacation Off":"Turn Vacation On"}</button></div></div>
+     
    </div>
  </details>
 
@@ -1707,14 +1728,18 @@ async function patch(p){await updateDoc(familyRef,p)}
 
 function bind(){
  $$("[data-togglepanel]").forEach(b=>b.onclick=()=>{let p=$("#"+b.dataset.togglepanel);if(p){p.style.display=p.style.display==="none"?"block":"none";if(p.style.display==="block")p.scrollIntoView({behavior:"smooth",block:"start"})}});
- $("#summerToggleTop")?.addEventListener("click",async()=>await patch({summerMode:!summerMode()}));
- $("#vacationToggle")?.addEventListener("click",async()=>{
-   let on=!vacationMode(),h=[...(data.vacationHistory||[])],now=Date.now();
-   if(on)h.push({start:now,end:null});else{for(let i=h.length-1;i>=0;i--){if(!h[i].end){h[i]={...h[i],end:now};break}}}
-   await patch({vacationMode:on,vacationHistory:h.slice(-50)});
- });
-
- $("#google")?.addEventListener("click",async()=>{try{await signInWithPopup(auth,provider)}catch(e){if(/popup|blocked|cancelled/i.test(e.code||""))await signInWithRedirect(auth,provider);else alert(e.message)}});
+ $("#summerToggleTop")?.addEventListener("click",async()=>{
+    let on=!summerMode();
+    data={...data,summerMode:on};render();
+    try{await patch({summerMode:on})}catch(err){console.error("Could not update Summer Mode",err);alert("Could not update Summer Mode. Please try again.")}
+  });
+  $("#vacationToggleTop")?.addEventListener("click",async()=>{
+    let on=!vacationMode(),h=[...(data.vacationHistory||[])],now=Date.now();
+    if(on)h.push({start:now,end:null});else{for(let i=h.length-1;i>=0;i--){if(!h[i].end){h[i]={...h[i],end:now};break}}}
+    h=h.slice(-50);data={...data,vacationMode:on,vacationHistory:h};render();
+    try{await patch({vacationMode:on,vacationHistory:h})}catch(err){console.error("Could not update Vacation Mode",err);alert("Could not update Vacation Mode. Please try again.")}
+  });
+  $("#google")?.addEventListener("click",async()=>{try{await signInWithPopup(auth,provider)}catch(e){if(/popup|blocked|cancelled/i.test(e.code||""))await signInWithRedirect(auth,provider);else alert(e.message)}});
  $("#kidLogin")?.addEventListener("click",async()=>{try{await signInAnonymously(auth)}catch(e){alert("Kid Mode needs Anonymous sign-in enabled in Firebase first.")}});
  $("#parentLogin")?.addEventListener("click",async()=>{await signOut(auth);try{await signInWithPopup(auth,provider)}catch(e){if(/popup|blocked|cancelled/i.test(e.code||""))await signInWithRedirect(auth,provider);else alert(e.message)}});
  $("#logout")?.addEventListener("click",()=>signOut(auth));
@@ -1818,7 +1843,7 @@ $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCoun
 
 
 
- $("#summerToggle")?.addEventListener("click",async()=>{await patch({summerMode:!summerMode()})});
+ 
  $$("[data-goal]").forEach(e=>e.onchange=async()=>{
    let kidId=e.dataset.goal,goalId=e.value;
 
@@ -2061,7 +2086,7 @@ $("#newRequired")?.addEventListener("change",()=>{$("#newMoneyArea").dataset.ove
    $$("[data-points]").forEach(e=>lib[+e.dataset.points].points=Math.max(0,Math.min(100,+e.value||0)));
    $$("[data-paid]").forEach(e=>lib[+e.dataset.paid].paid=e.value==="1");
    $$("[data-effort]").forEach(e=>lib[+e.dataset.effort].effortLevel=e.value);
-   $$("[data-exclusive]").forEach(e=>lib[+e.dataset.exclusive].exclusive=e.value==="1");
+   $$("[data-exclusive]").forEach(e=>lib[+e.dataset.exclusive].exclusive=e.value==="1");    $$("[data-summeroff]").forEach(e=>lib[+e.dataset.summeroff].summerOff=e.value==="1");
    $$("[data-miss]").forEach(e=>lib[+e.dataset.miss].missXp=+e.value);
    $$("[data-assign]").forEach(e=>{if(e.checked){let [i,kidId]=e.dataset.assign.split("|");lib[+i].assignedTo.push(kidId)}});
    await patch({choreLibrary:lib});
