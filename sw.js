@@ -1,4 +1,4 @@
-const CACHE='risser-rewards-v50-3-3-3';
+const CACHE='risser-rewards-v50-3-4-3';
 const CORE=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png',
 './assets/noah-avatar.png','./assets/eli-avatar.png','./assets/shepherd-avatar.png','./assets/juniper-avatar.png',
 './assets/noah-world.png','./assets/eli-world.png','./assets/shepherd-world.png','./assets/juniper-world.png'];

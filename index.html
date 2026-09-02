@@ -9,8 +9,8 @@
 <meta name="apple-mobile-web-app-title" content="Risser Rewards">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" sizes="180x180" href="risser-rewards-touch-v17.png">
-<title>Risser Rewards V50.3.3</title>
-<meta name="application-version" content="50.3.3">
+<title>Risser Rewards V50.3.4</title>
+<meta name="application-version" content="50.3.4">
 <style>
 :root{--g:#1f6848;--bg:#f5f5ef;--ink:#182019;--muted:#68736b;--line:#e0e6de;--gold:#d6a62f;--red:#b64e45;--amber:#986a14;--shadow:0 10px 28px rgba(28,64,41,.10)}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-family:ui-rounded,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
@@ -482,6 +482,25 @@ input:focus,select:focus{outline:2px solid rgba(52,99,70,.18);border-color:#6d92
 .v5033PointStats>div{background:rgba(35,78,60,.055);border:1px solid rgba(35,78,60,.10);border-radius:12px;padding:8px 6px;text-align:center}
 .v5033PointStats b{display:block;font-size:18px;line-height:1.1}
 .v5033PointStats span{display:block;margin-top:3px;font-size:10px;font-weight:800;color:var(--muted);line-height:1.15}
+
+
+/* V50.3.4 — Rewards completes the kid loop without turning it into a ranked leaderboard */
+.v50CategoryGrid{grid-template-columns:repeat(4,minmax(0,1fr))}
+.v5034KidRewardNumbers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}
+.v5034KidRewardNumbers>div{background:rgba(35,78,60,.055);border:1px solid rgba(35,78,60,.10);border-radius:14px;padding:11px;text-align:center}
+.v5034KidRewardNumbers b{display:block;font-size:23px;line-height:1.1}
+.v5034KidRewardNumbers span{display:block;margin-top:4px;font-size:11px;font-weight:850;color:var(--muted)}
+.v5034RewardMessage{margin-top:10px;font-size:12px;color:var(--muted);font-weight:750}
+.v5034FamilyPoints{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}
+.v5034FamilyPoints>div{border:1px solid var(--line);border-radius:15px;padding:10px 6px;text-align:center;background:#fff}
+.v5034FamilyPoints>div.me{box-shadow:0 0 0 2px rgba(35,78,60,.18);background:rgba(35,78,60,.035)}
+.v5034FamilyPoints img{width:52px;height:52px;object-fit:cover;border-radius:50%;display:block;margin:0 auto 6px}
+.v5034FamilyName{font-weight:950;font-size:12px}
+.v5034FamilyTotal{font-weight:950;font-size:17px;margin-top:3px}
+@media(max-width:760px){
+ .v50CategoryGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .v5034FamilyPoints{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
 
 </style>
 </head>
@@ -1122,6 +1141,10 @@ function kidExperienceNav(k){
      <div class="catIcon">🌱</div><div class="catTitle">Growth</div>
      <div class="catDesc">Missions that build skills, habits and character. ${growth.length} missions.</div>
    </button>
+   <button class="v50Category rewards ${view==="rewards"?"activeCategory":""}" data-v="rewards">
+     <div class="catIcon">🏆</div><div class="catTitle">Rewards</div>
+     <div class="catDesc">See what you're working toward and how everyone's doing.</div>
+   </button>
  </div>`;
 }
 function kidsLanding(){
@@ -1166,6 +1189,10 @@ function week(){
      <button class="v50Category growth" data-v="level">
        <div class="catIcon">🌱</div><div class="catTitle">Growth</div>
        <div class="catDesc">Missions that build skills, habits and character. ${growth.length} missions.</div>
+     </button>
+     <button class="v50Category rewards" data-v="rewards">
+       <div class="catIcon">🏆</div><div class="catTitle">Rewards</div>
+       <div class="catDesc">See your goal, your progress and how everyone's doing.</div>
      </button>
    </div>
    ${active.length?`<div class="card"><h2 style="margin-top:0">▶️ What I'm Doing</h2>${active.map(t=>`<div class="task"><div><b>${t.icon} ${t.name}</b><div class="tiny muted">${t.status==="pending"?"Waiting for parent":"In progress"}</div></div>${t.status==="open"?`<button data-done="${t.id}" class="btn small">${t.type==="golf"?"Count":"I'm Done"}</button>`:`<span class="pill due">Submitted</span>`}</div>`).join("")}</div>`:""}
@@ -1328,23 +1355,49 @@ function recentActivityCard(kidId){
 }
 function rewards(){
  let familyGoal=familyRewards()[0]||{icon:"🌳",name:"Family Goal",cost:1},fp=visibleFamilyProgress(familyGoal);
- let shown=isKidSession()?[data.kids[kid]]:data.kids;
- return header()+`${isKidSession()?kidExperienceNav():""}<div class="card">
-   <div class="v50SectionTitle"><div><div class="tiny muted">REWARDS</div><h2 style="margin:3px 0">🏆 What am I working toward?</h2><div class="muted">A few meaningful goals — not a store.</div></div></div>
+ if(isKidSession()){
+   let k=data.kids[kid],g=rewardGoal(k),rp=visibleRewardProgress(k,g),current=Math.max(0,+k.rewardPoints||0),toGo=Math.max(0,(+g.cost||1)-current);
+   return header()+world(k)+kidExperienceNav(k)+`<div class="card">
+     <div class="v50SectionTitle"><div><div class="tiny muted">MY REWARD</div><h2 style="margin:3px 0">${g.icon} ${g.name}</h2></div><b>${rp.pct}%</b></div>
+     <div class="goalBar"><div class="goalFill" style="width:${rp.pct}%"></div></div>
+     <div class="v5034KidRewardNumbers">
+       <div><b>${current}</b><span>My Points</span></div>
+       <div><b>${rp.ready?"READY!":toGo}</b><span>${rp.ready?"Goal Reached":"Points To Go"}</span></div>
+     </div>
+     <div class="v5034RewardMessage">${rp.ready?"🎉 You did it! Show a parent when you're ready to complete your reward.":"Keep building points through Responsibilities, Jobs and Growth."}</div>
+   </div>
+   <div class="card">
+     <div class="v50SectionTitle"><div><div class="tiny muted">FAMILY PROGRESS</div><h2 style="margin:3px 0">⭐ How We're Doing</h2><div class="muted">A little friendly competition. Everybody's working toward their own goal.</div></div></div>
+     <div class="v5034FamilyPoints">${data.kids.map(x=>{let ps=rewardPointStats(x.id);return `<div class="${x.id===k.id?"me":""}">
+       <img src="assets/${x.id}-avatar.png" alt="${x.name}">
+       <div class="v5034FamilyName">${x.name}</div>
+       <div class="v5034FamilyTotal">⭐ ${Math.max(0,+x.rewardPoints||0)}</div>
+       <div class="tiny muted">+${ps.week} this week</div>
+     </div>`}).join("")}</div>
+   </div>
+   <div class="card v50FamilyGoal">
+     <div class="tiny muted">FAMILY TEAM GOAL</div><h2 style="margin:4px 0">${familyGoal.icon} ${familyGoal.name}</h2>
+     <div class="row"><span class="muted">Everyone contributes</span><b>${fp.pct}%</b></div>
+     <div class="goalBar"><div class="goalFill" style="width:${fp.pct}%"></div></div>
+   </div>`;
+ }
+ let shown=data.kids;
+ return header()+`<div class="card">
+   <div class="v50SectionTitle"><div><div class="tiny muted">REWARDS</div><h2 style="margin:3px 0">🏆 What are they working toward?</h2><div class="muted">Goals and point progress at a glance.</div></div></div>
    <div class="v50RewardFocus">
      <div>${shown.map(k=>{
-       let g=rewardGoal(k),rp=visibleRewardProgress(k,g);
+       let g=rewardGoal(k),rp=visibleRewardProgress(k,g),ps=rewardPointStats(k.id);
        return `<div class="v50RewardChoice active">
          <div class="row wrap"><div><div class="tiny muted">${k.name.toUpperCase()}'S GOAL</div><h2 style="margin:4px 0">${g.icon} ${g.name}</h2></div><b>${rp.pct}%</b></div>
          <div class="goalBar"><div class="goalFill" style="width:${rp.pct}%"></div></div>
-         ${!isKidSession()?(()=>{let ps=rewardPointStats(k.id);return `<div class="v5033PointStats">
+         <div class="v5033PointStats">
            <div><b>${ps.earned}</b><span>Total Earned</span></div>
            <div><b>${ps.redeemed}</b><span>Redeemed</span></div>
            <div><b>${ps.week}</b><span>This Week</span></div>
-         </div>`})():""}
-         <div class="tiny muted" style="margin-top:7px">${rp.ready?"🎉 Goal reached — show a parent!":"Keep doing Responsibilities, Jobs and Growth Missions."}</div>
+         </div>
+         <div class="tiny muted" style="margin-top:7px">${rp.ready?"🎉 Goal reached!":"Keep doing Responsibilities, Jobs and Growth Missions."}</div>
          <div style="margin-top:11px"><label>Working toward</label><select data-goal="${k.id}">${individualRewards().slice(0,5).map(r=>`<option value="${r.id}" ${g.id===r.id?"selected":""}>${r.icon} ${r.name}</option>`).join("")}</select></div>
-         ${!isKidSession()&&rp.ready?`<button class="btn small" style="margin-top:10px" data-rredeem="${g.id}" data-rkid="${k.id}">Complete Goal</button>`:""}
+         ${rp.ready?`<button class="btn small" style="margin-top:10px" data-rredeem="${g.id}" data-rkid="${k.id}">Complete Goal</button>`:""}
        </div>`;
      }).join("")}</div>
      <div class="v50RewardChoice v50FamilyGoal">
