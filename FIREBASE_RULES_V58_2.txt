@@ -1,0 +1,62 @@
+Oak & Arrow V58.2 — Kid Profile Cross-Device Sync Rules
+
+IMPORTANT:
+Replace the V58.1 kidProfiles block with THIS V58.2 block.
+Keep your existing main family-document rules unchanged.
+
+Place inside:
+match /databases/{database}/documents {
+  ...
+}
+
+match /families/{familyId}/kidProfiles/{kidId} {
+  // Authenticated Parent Mode and anonymous Kid Mode may read cosmetic profiles.
+  allow read: if request.auth != null;
+
+  // This document is deliberately isolated from money, XP, chores,
+  // approvals, rewards, parent emails, and the main family document.
+  allow create, update: if request.auth != null
+    && familyId == "risser"
+    && request.resource.data.keys().hasOnly([
+      'kidId',
+      'familyId',
+      'updatedByUid',
+      'oaExplorer',
+      'oaWorld',
+      'updatedAt'
+    ])
+    && request.resource.data.keys().hasAll([
+      'kidId',
+      'familyId',
+      'updatedByUid',
+      'oaExplorer',
+      'oaWorld',
+      'updatedAt'
+    ])
+    && request.resource.data.kidId == kidId
+    && request.resource.data.familyId == familyId
+    && request.resource.data.updatedByUid == request.auth.uid
+    && request.resource.data.oaExplorer in [
+      'lion','wolf','snake','unicorn','dinosaur',
+      'astronaut','sea-turtle','whale','elephant','fox'
+    ]
+    && request.resource.data.oaWorld in [
+      'wildwood','golden-plains','deep-blue','starbound','lost-world',
+      'high-country','jungle-trail','enchanted-meadow',
+      'coastal-adventure','basecamp'
+    ]
+    && request.resource.data.updatedAt is timestamp;
+
+  allow delete: if false;
+}
+
+WHY V58.2:
+V58.1 allowed the cosmetic fields, but the app had no positive write/read-back
+confirmation and localStorage could mask a rejected write. V58.2 records the
+authenticated writer UID and verifies the Firestore document immediately after
+each change.
+
+SECURITY BOUNDARY:
+This still does NOT grant anonymous users write access to:
+families/risser
+or any XP, money, points, tasks, approvals, rewards, or parent data.
