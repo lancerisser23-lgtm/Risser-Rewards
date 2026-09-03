@@ -487,7 +487,7 @@ input:focus,select:focus{outline:2px solid rgba(52,99,70,.18);border-color:#6d92
 .v5033PointStats span{display:block;margin-top:3px;font-size:10px;font-weight:800;color:var(--muted);line-height:1.15}
 
 
-/* V54.2.1 — Rewards completes the kid loop without turning it into a ranked leaderboard */
+/* V54.3.1 — Rewards completes the kid loop without turning it into a ranked leaderboard */
 .v50CategoryGrid{grid-template-columns:repeat(4,minmax(0,1fr))}
 .v5038KidEconomy{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}.v5038KidEconomy>div{background:rgba(255,253,244,.9);border:1px solid rgba(35,78,60,.13);border-radius:15px;padding:12px}.v5038KidEconomy b{display:block;font-size:22px}.v5038KidEconomy span{display:block;font-size:11px;font-weight:850;color:var(--muted);margin-top:3px}.v5038XpCard{margin-top:10px;background:rgba(35,78,60,.055);border:1px solid rgba(35,78,60,.10);border-radius:15px;padding:12px}.v5038XpRow{display:flex;justify-content:space-between;gap:10px;align-items:end;flex-wrap:wrap}.v5038XpBar{height:10px;border-radius:999px;background:rgba(35,78,60,.12);overflow:hidden;margin-top:8px}.v5038XpFill{height:100%;background:currentColor;border-radius:999px}.v5038PointPop{font-size:14px;font-weight:950}.v5038PointPop.positive{font-size:16px}
 .v5034KidRewardNumbers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}
@@ -516,7 +516,7 @@ input:focus,select:focus{outline:2px solid rgba(52,99,70,.18);border-color:#6d92
 @media(max-width:620px){.v5035SettingsTop{align-items:flex-start}.v5035ModeControls{max-width:190px}.v5035Mode{padding:6px 8px}}
 
 
-/* V54.2.1 persistent kid timers */
+/* V54.3.1 persistent kid timers */
 .v5037MiniTimer{margin-top:6px;display:inline-block;padding:5px 9px;border-radius:999px;background:var(--g);color:#fff;font-weight:950;font-variant-numeric:tabular-nums;letter-spacing:.04em}
 .v5037GrowthTimer{margin-top:9px;padding:12px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.7);text-align:center}
 .v5037BigTimer{font-size:38px;line-height:1;font-weight:950;font-variant-numeric:tabular-nums;letter-spacing:.02em;margin:2px 0 8px}
@@ -525,7 +525,7 @@ input:focus,select:focus{outline:2px solid rgba(52,99,70,.18);border-color:#6d92
 @media(max-width:620px){.v5037BigTimer{font-size:34px}.v5037ActiveTask{gap:8px;align-items:flex-start}}
 
 
-/* ===== V54.2.1 Parent Premium Typography ===== */
+/* ===== V54.3.1 Parent Premium Typography ===== */
 .parentPremium{
  font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
  letter-spacing:-.006em
@@ -544,7 +544,7 @@ input:focus,select:focus{outline:2px solid rgba(52,99,70,.18);border-color:#6d92
 .parentPremium .muted{line-height:1.38}
 
 
-/* V54.2.1.1 Parent Typography Strong Override */
+/* V54.3.1.1 Parent Typography Strong Override */
 .parentPremium,.parentPremium *,body.parentMode,body.parentMode *{
  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif !important
 }
@@ -564,7 +564,7 @@ body.parentMode button,body.parentMode .btn,body.parentMode summary,body.parentM
 .parentPremium b,.parentPremium strong,body.parentMode b,body.parentMode strong{font-weight:650 !important}
 
 
-/* ===== V54.2 Parent Premium UI — approved mockup direction ===== */
+/* ===== V54.3 Parent Premium UI — approved mockup direction ===== */
 body.parentMode{
   background:
     radial-gradient(circle at 8% 0%, rgba(20,76,55,.055), transparent 28rem),
@@ -694,7 +694,7 @@ body.parentMode .parentPremium summary{
 }
 
 
-/* ===== V54.2 Brand Serif Refinement ===== */
+/* ===== V54.3 Brand Serif Refinement ===== */
 body.parentMode .brandTitle,
 body.parentMode .top h1,
 body.parentMode header h1{
@@ -721,7 +721,7 @@ body.parentMode .parentPremium h2{
 }
 
 
-/* ===== V54.2 Exact Brand + Verse Selector Fix ===== */
+/* ===== V54.3 Exact Brand + Verse Selector Fix ===== */
 /* The live markup uses .brand and .verseBanner, so target those directly. */
 body.parentMode .brand{
   font-family:"Iowan Old Style","Baskerville","Palatino Linotype",Palatino,"Book Antiqua",Georgia,"Times New Roman",serif !important;
@@ -753,11 +753,11 @@ body.parentMode .verseBanner .muted{
 }
 
 
-/* ===== V54.2 Restore Weekly Verse to Kid Mode ===== */
+/* ===== V54.3 Restore Weekly Verse to Kid Mode ===== */
 .v50KidTop + .verseBanner{margin-top:12px}
 
 
-/* ===== V54.2 Explicit Kid Verse Rendering ===== */
+/* ===== V54.3 Explicit Kid Verse Rendering ===== */
 body:not(.parentMode) .verseBanner{
   margin:12px 0 14px;
 }
@@ -827,7 +827,7 @@ body.parentMode .oaBrandName{color:#173b31}
 }
 
 
-/* ===== V54.2 VISUAL CLARITY / MOCKUP MATCH ===== */
+/* ===== V54.3 VISUAL CLARITY / MOCKUP MATCH ===== */
 .oaKidShell{
  background-image:
    linear-gradient(180deg,rgba(4,20,13,.05) 0%,rgba(4,20,13,.24) 28%,rgba(4,20,13,.78) 66%,rgba(4,20,13,.97) 100%),
@@ -858,7 +858,7 @@ body.parentMode .oaBrandName{color:#173b31}
 }
 
 
-/* ===== OAK & ARROW V54.2 — FULL KID EXPERIENCE ===== */
+/* ===== OAK & ARROW V54.3 — FULL KID EXPERIENCE ===== */
 body:not(.parentMode){background:#06180f !important}
 body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
 .oaKidShell{
@@ -903,7 +903,7 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
 @media(max-width:850px){.oaGrowthGrid{grid-template-columns:1fr}.oaFamilyMini{grid-template-columns:repeat(2,1fr)}.oaMoneyGrid{grid-template-columns:1fr}.oaPageTop{align-items:center}.oaPageSub{display:none}}
 
 
-/* ===== OAK & ARROW V54.2 — BRAND TYPOGRAPHY SYSTEM ===== */
+/* ===== OAK & ARROW V54.3 — BRAND TYPOGRAPHY SYSTEM ===== */
 :root{
   --oa-serif:"Iowan Old Style","Baskerville","Palatino Linotype",Palatino,"Book Antiqua",Georgia,"Times New Roman",serif;
   --oa-sans:-apple-system,BlinkMacSystemFont,"SF Pro Display","Avenir Next","Segoe UI",sans-serif;
@@ -1025,7 +1025,7 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
 }
 
 
-/* ===== OAK & ARROW V54.2 — APPROVED WORLD ART ASSETS ===== */
+/* ===== OAK & ARROW V54.3 — APPROVED WORLD ART ASSETS ===== */
 .oaKidShell{
   background-image:
     linear-gradient(180deg,rgba(4,18,12,.02) 0%,rgba(4,18,12,.14) 35%,rgba(4,18,12,.62) 72%,rgba(4,18,12,.94) 100%),
@@ -1048,7 +1048,7 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
 }
 
 
-/* ===== OAK & ARROW V54.2 — 8-YEAR-OLD NAVIGATION PASS ===== */
+/* ===== OAK & ARROW V54.3 — 8-YEAR-OLD NAVIGATION PASS ===== */
 .oaKidSectionNav{
   display:grid;
   grid-template-columns:repeat(4,minmax(0,1fr));
@@ -1085,7 +1085,7 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
 }
 
 
-/* ===== OAK & ARROW V54.2 — CLASSY ASSET + TYPOGRAPHY RESET ===== */
+/* ===== OAK & ARROW V54.3 — CLASSY ASSET + TYPOGRAPHY RESET ===== */
 .v50ParentTabs{
   gap:10px!important;
   margin:18px 0 22px!important;
@@ -1231,7 +1231,7 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
 }
 
 
-/* ===== OAK & ARROW V54.2 — CUSTOM ICON + UI SYSTEM ===== */
+/* ===== OAK & ARROW V54.3 — CUSTOM ICON + UI SYSTEM ===== */
 :root{
   --oa-forest:#173f2e;
   --oa-forest-2:#214d3a;
@@ -1323,7 +1323,7 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
 }
 
 
-/* ===== OAK & ARROW V54.2 — PRODUCTION ART ASSET PACK ===== */
+/* ===== OAK & ARROW V54.3 — PRODUCTION ART ASSET PACK ===== */
 .oaAvatarWrap{position:relative;display:inline-block;flex:0 0 auto}
 .oaExplorerAvatar{
   display:block!important;
@@ -1368,7 +1368,7 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
 }
 
 
-/* ===== OAK & ARROW V54.2 QUICK UX FIX ===== */
+/* ===== OAK & ARROW V54.3 QUICK UX FIX ===== */
 .oaChooserHero,.kidChooserHero,.oaFamilyChooser{position:relative!important}
 .oaChooserTitle,.chooseAdventureTitle{position:relative!important;z-index:4!important;margin-bottom:30px!important}
 .oaChooserGrid,.kidGrid,.kidChoices{position:relative!important;z-index:2!important;margin-top:34px!important}
@@ -1403,7 +1403,7 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
 .oaChooserLanding .kidGrid,.oaChooserLanding .kidChoices{margin-top:0!important}
 
 
-/* ===== OAK & ARROW V54.2 — PHASE 3 WORLD CONSISTENCY ===== */
+/* ===== OAK & ARROW V54.3 — PHASE 3 WORLD CONSISTENCY ===== */
 .oaKidPage{
   position:relative!important;
   isolation:isolate!important;
@@ -1443,7 +1443,7 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
   border:1px solid #ddd1bd!important;
 }
 
-/* ===== OAK & ARROW V54.2 — PREMIUM PARENT HQ ===== */
+/* ===== OAK & ARROW V54.3 — PREMIUM PARENT HQ ===== */
 .parentMode{
   background:#f5efe4!important;
   color:#253b31!important;
@@ -1500,7 +1500,7 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
   background:#fff!important;border:1px solid #d9cebd!important;border-radius:11px!important;
 }
 
-/* ===== OAK & ARROW V54.2 — CHOOSER / LITTLE-KID UX ===== */
+/* ===== OAK & ARROW V54.3 — CHOOSER / LITTLE-KID UX ===== */
 .oaChooserLanding{
   padding:24px 28px 30px!important;
 }
@@ -1557,7 +1557,7 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
 }
 
 
-/* ===== OAK & ARROW V54.2 — PHASE 4 WORLD CUSTOMIZATION ===== */
+/* ===== OAK & ARROW V54.3 — PHASE 4 WORLD CUSTOMIZATION ===== */
 .oaMakeYours{margin-top:9px;border:1px solid rgba(231,199,119,.62);background:rgba(12,49,34,.72);color:#fff8e8;border-radius:999px;padding:7px 11px;font-family:var(--oa-serif);font-weight:700}
 .oaMakeYours .oaIcon{width:15px;height:15px;filter:brightness(0) invert(1)}
 .oaCustomize{max-width:1450px;margin:auto;padding:24px;background:#f7f1e6;color:#173f2e}
@@ -1581,7 +1581,7 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
 @media(max-width:540px){.oaWorldPicker{grid-template-columns:1fr}.oaCurrentWorld{grid-template-columns:80px 1fr}.oaCurrentWorld>img:first-child{width:76px;height:76px}.oaCurrentEmblem{display:none}}
 
 
-/* ===== OAK & ARROW V54.2 — PARENT REPAIR ===== */
+/* ===== OAK & ARROW V54.3 — PARENT REPAIR ===== */
 .oaIconSelectRow{display:grid;grid-template-columns:42px 1fr;gap:8px;align-items:center}
 .oaIconPreview{width:40px;height:40px;border:1px solid #d8cdbb;border-radius:11px;background:#f8f2e7;display:grid;place-items:center}
 .oaIconPreview .oaIcon{width:23px;height:23px}
@@ -1591,9 +1591,35 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
 .parentMode .oaIcon.inline{width:1em!important;height:1em!important;vertical-align:-.12em!important;margin-right:.28em!important}
 .parentMode select[data-r-icon],.parentMode select[data-fr-icon]{min-width:130px}
 
+
+/* ===== OAK & ARROW V54.3 — VISUAL ICON PICKER ===== */
+.oaVisualIconPicker{position:relative}
+.oaIconPickerSelect{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important}
+.oaIconPickerButton{
+ width:100%;min-height:46px;display:grid;grid-template-columns:34px 1fr 22px;align-items:center;gap:8px;
+ padding:7px 10px;border:1px solid #d9cebd;border-radius:11px;background:#fff;color:#173f2e;text-align:left;
+ font-family:inherit;font-size:14px;cursor:pointer
+}
+.oaPickerCurrentIcon{width:32px;height:32px;border-radius:9px;background:#f6efe2;display:grid;place-items:center}
+.oaPickerCurrentIcon .oaIcon{width:21px;height:21px}
+.oaPickerCurrentText{font-weight:750}
+.oaPickerChevron{font-size:20px;color:#8b7142;text-align:center}
+.oaIconPickerMenu{
+ position:absolute;z-index:100;left:0;right:0;top:calc(100% + 6px);max-height:330px;overflow:auto;
+ padding:7px;background:#fffdf8;border:1px solid #d5c7b0;border-radius:14px;box-shadow:0 16px 36px rgba(23,63,46,.16)
+}
+.oaIconPickerOption{
+ width:100%;display:grid;grid-template-columns:32px 1fr auto;gap:9px;align-items:center;
+ padding:8px 9px;border:0;border-radius:10px;background:transparent;color:#173f2e;text-align:left;cursor:pointer
+}
+.oaIconPickerOption:hover,.oaIconPickerOption.on{background:#f2eadb}
+.oaIconPickerOption .oaIcon{width:22px;height:22px}
+.oaIconPickerOption span:nth-child(2){font-weight:700}
+.oaPickerSelected{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#9a6d20;font-weight:900}
+
 </style>
 
-<!-- V54.2 full audit hardening: kid styling, school visibility persistence, accurate availability counts, Sunday settlement restoration -->
+<!-- V54.3 full audit hardening: kid styling, school visibility persistence, accurate availability counts, Sunday settlement restoration -->
 </head>
 <body><div id="app" class="app"></div>
 <script type="module">
@@ -2325,6 +2351,31 @@ const OA_TASK_ICON_CHOICES=[
 const OA_REWARD_ICON_CHOICES=[["rewards","Reward"],["star","Star"],["journey","Adventure"],["family","Family"],["outside","Experience"],["money","Money"],["sports","Sports"],["book","Book"],["golf","Golf"],["kindness","Special"]];
 function oaIconOptions(selected,kind="task"){const choices=kind==="reward"?OA_REWARD_ICON_CHOICES:OA_TASK_ICON_CHOICES;return choices.map(([v,label])=>`<option value="${v}" ${v===selected?"selected":""}>${label}</option>`).join("")}
 
+function oaIconLabel(value,kind="task"){
+ const choices=kind==="reward"?OA_REWARD_ICON_CHOICES:OA_TASK_ICON_CHOICES;
+ return choices.find(([v])=>v===value)?.[1]||"Other";
+}
+function oaVisualIconPicker(selected,inputAttr,inputValue,kind="task"){
+ const choices=kind==="reward"?OA_REWARD_ICON_CHOICES:OA_TASK_ICON_CHOICES;
+ const label=oaIconLabel(selected,kind);
+ return `<div class="oaVisualIconPicker">
+   <button type="button" class="oaIconPickerButton" data-icon-picker-toggle>
+     <span class="oaPickerCurrentIcon">${oaIcon(selected)}</span>
+     <span class="oaPickerCurrentText">${label}</span>
+     <span class="oaPickerChevron">⌄</span>
+   </button>
+   <div class="oaIconPickerMenu" hidden>
+     ${choices.map(([v,l])=>`<button type="button" class="oaIconPickerOption ${v===selected?"on":""}" data-icon-choice="${v}">
+       ${oaIcon(v)}<span>${l}</span>${v===selected?`<span class="oaPickerSelected">Selected</span>`:""}
+     </button>`).join("")}
+   </div>
+   <select ${inputAttr}="${inputValue}" class="oaIconPickerSelect" aria-hidden="true" tabindex="-1">
+     ${oaIconOptions(selected,kind)}
+   </select>
+ </div>`;
+}
+
+
 function oaBrand(){
  return `<div class="oaBrand">${`<img src="assets/oak-arrow-mark.png" alt="Oak & Arrow">`}<div><div class="oaBrandName">OAK &amp; ARROW</div><div class="oaBrandTag">Less scrolling. More childhood.</div></div></div>`
 }
@@ -2767,7 +2818,7 @@ function settings(){
      <div class="tiny muted" style="margin-bottom:6px"><b>Who does this?</b></div><div class="assignments">${data.kids.map(k=>`<label><input data-assign="${i}|${k.id}" type="checkbox" ${(c.assignedTo||[]).includes(k.id)?"checked":""}> ${k.name}</label>`).join("")}</div>
      <div class="settingsGrid v505SimpleWork">
        <div><label>Name</label><input data-chore-name="${i}" value="${c.name||""}"></div>
-       <div><label>Oak & Arrow Icon</label><div class="oaIconSelectRow"><span class="oaIconPreview">${oaIcon(oaTaskIcon(c,c.required?"resp":"job"))}</span><select data-chore-icon="${i}">${oaIconOptions(oaTaskIcon(c,c.required?"resp":"job"))}</select></div></div>
+       <div><label>Oak & Arrow Icon</label>${oaVisualIconPicker(oaTaskIcon(c,c.required?"resp":"job"),"data-chore-icon",i)}</div>
        <div><label>What is it?</label><select data-required="${i}"><option value="1" ${c.required?"selected":""}>Responsibility — expected</option><option value="0" ${!c.required?"selected":""}>Job — optional earning</option></select></div>
        <div><label>When?</label><select data-frequency="${i}">${v50FreqOptions(c)}</select></div>${v502DayPicker(c,"chore",i)}
        <div data-effort-wrap="${i}" style="${!c.required&&c.paid?"":"display:none"}"><label>Job size</label><select data-effort="${i}"><option value="helping" ${(c.effortLevel||"helping")==="helping"?"selected":""}>Small</option><option value="hard" ${c.effortLevel==="hard"?"selected":""}>Medium</option><option value="big" ${c.effortLevel==="big"?"selected":""}>Big</option></select></div>
@@ -2788,7 +2839,7 @@ function settings(){
 
    <details class="v50Advanced"><summary>Add a Custom Responsibility or Job</summary><div class="v50AdvancedBody">
      <div class="settingsGrid">
-       <div><label>Name</label><input id="newName"></div><div><label>Oak & Arrow Icon</label><select id="newIcon">${oaIconOptions("star")}</select></div>
+       <div><label>Name</label><input id="newName"></div><div><label>Oak & Arrow Icon</label>${oaVisualIconPicker("star","id","newIcon")}</div>
        <div><label>Type</label><select id="newRequired"><option value="1">Responsibility</option><option value="0" selected>Job</option></select></div>
        <div><label>Earn money?</label><select id="newPaid"><option value="0">No</option><option value="1">Yes</option></select></div>
      </div>
@@ -3091,7 +3142,34 @@ try{document.body.classList.toggle("parentMode",!!user && !isKidSession() && !is
 }
 async function patch(p){await updateDoc(familyRef,p)}
 
+
+function bindVisualIconPickers(){
+ $$("[data-icon-picker-toggle]").forEach(btn=>btn.onclick=e=>{
+   e.preventDefault();
+   const picker=btn.closest(".oaVisualIconPicker"),menu=picker?.querySelector(".oaIconPickerMenu");
+   if(!menu)return;
+   const willOpen=menu.hidden;
+   $$(".oaIconPickerMenu").forEach(m=>m.hidden=true);
+   menu.hidden=!willOpen;
+ });
+ $$("[data-icon-choice]").forEach(btn=>btn.onclick=e=>{
+   e.preventDefault();
+   const picker=btn.closest(".oaVisualIconPicker"),menu=picker?.querySelector(".oaIconPickerMenu"),sel=picker?.querySelector(".oaIconPickerSelect");
+   if(!picker||!sel)return;
+   sel.value=btn.dataset.iconChoice;
+   sel.dispatchEvent(new Event("change",{bubbles:true}));
+   picker.querySelector(".oaPickerCurrentIcon").innerHTML=oaIcon(sel.value);
+   picker.querySelector(".oaPickerCurrentText").textContent=oaIconLabel(sel.value);
+   picker.querySelectorAll(".oaIconPickerOption").forEach(x=>x.classList.toggle("on",x.dataset.iconChoice===sel.value));
+   if(menu)menu.hidden=true;
+ });
+ document.addEventListener("click",e=>{
+   if(!e.target.closest(".oaVisualIconPicker"))$$(".oaIconPickerMenu").forEach(m=>m.hidden=true);
+ },{once:true});
+}
+
 function bind(){
+ bindVisualIconPickers();
  $$("[data-togglepanel]").forEach(b=>b.onclick=()=>{let p=$("#"+b.dataset.togglepanel);if(p){p.style.display=p.style.display==="none"?"block":"none";if(p.style.display==="block")p.scrollIntoView({behavior:"smooth",block:"start"})}});
  $("#summerToggleTop")?.addEventListener("click",async()=>{
     let on=!summerMode();
@@ -3135,12 +3213,7 @@ function bind(){
      document.querySelector(sel)?.scrollIntoView({behavior:"smooth",block:"center"});
    },60);
  });
-
- $$("[data-chore-icon]").forEach(sel=>sel.addEventListener("change",()=>{
-   const box=sel.closest(".oaIconSelectRow")?.querySelector(".oaIconPreview");
-   if(box)box.innerHTML=oaIcon(sel.value);
- }));
- $("#futureFundSimple")?.addEventListener("change",e=>{let w=$("#futureFundSimpleWrap");if(w)w.style.display=e.target.value==="1"?"block":"none"});
+$("#futureFundSimple")?.addEventListener("change",e=>{let w=$("#futureFundSimpleWrap");if(w)w.style.display=e.target.value==="1"?"block":"none"});
  $$("[data-active-select]").forEach(e=>e.onchange=()=>{let box=$(`[data-active="${e.dataset.activeSelect}"]`);if(box)box.checked=e.value==="1"});
 $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCount=0;view="week";render()});
 
