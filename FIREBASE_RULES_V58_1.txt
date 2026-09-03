@@ -1,0 +1,37 @@
+Oak & Arrow V58.1 — Kid Profile Sync Rules
+
+Add this match block INSIDE your existing:
+match /databases/{database}/documents {
+  ...
+}
+
+Do not replace your existing family rules. Add only this kidProfiles block.
+
+match /families/{familyId}/kidProfiles/{kidId} {
+  allow read: if request.auth != null;
+
+  allow create, update: if request.auth != null
+    && request.resource.data.keys().hasOnly([
+      'kidId',
+      'oaExplorer',
+      'oaWorld',
+      'updatedAt'
+    ])
+    && request.resource.data.kidId == kidId
+    && request.resource.data.oaExplorer in [
+      'lion','wolf','snake','unicorn','dinosaur',
+      'astronaut','sea-turtle','whale','elephant','fox'
+    ]
+    && request.resource.data.oaWorld in [
+      'wildwood','golden-plains','deep-blue','starbound','lost-world',
+      'high-country','jungle-trail','enchanted-meadow',
+      'coastal-adventure','basecamp'
+    ]
+    && request.resource.data.updatedAt is timestamp;
+
+  allow delete: if false;
+}
+
+This subcollection contains cosmetic choices only.
+Kid Mode still has NO write access to the main family document through this rule.
+No XP, money, points, chores, approvals, parent emails, or financial data can be changed here.
