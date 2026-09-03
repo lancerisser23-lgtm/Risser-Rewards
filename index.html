@@ -3938,7 +3938,89 @@ $("#newRequired")?.addEventListener("change",()=>{$("#newMoneyArea").dataset.ove
    await patch({futureFundDeposits:arrayUnion(deposit),ledger});
  });
 
- $("#bulkBasics")?.addEventListener("click",async()=>{let basics=pending().filter(t=>t.required&&(+t.cash||0)===0&&(+t.car||0)===0);if(!basics.length)return alert("No unpaid required basics are waiting.");if(!confirm(`Approve ${basics.length} required basics?`))return;for(const t of basics){await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),cur=d.tasks.find(x=>x.id===t.id);if(!cur||cur.status!=="pending")return;let now=Date.now(),xp=cur.xp||10,pts=2;let kids=d.kids.map(k=>k.id===cur.kidId?{...k,xp:(k.xp||0)+xp,rewardPoints:(+k.rewardPoints||0)+pts,familyPoints:(+k.familyPoints||0)+pts,requiredDone:(k.requiredDone||0)+1,requiredDue:(k.requiredDue||0)+1}:k);let tasks=d.tasks.map(x=>x.id===cur.id?{...x,xp,points:pts,status:"approved",approvedBy:user.email,approvedAt:now}:x);let ledger=[...(d.ledger||[]),{id:newId(),type:"points_earning",taskId:cur.id,kidId:cur.kidId,label:cur.name,xp,points:pts,cash:0,car:0,by:user.email,at:now}].slice(-300);tr.update(familyRef,{kids,tasks,ledger})})}});
+ 
+ $$("[data-back]").forEach(b=>b.onclick=async()=>{
+   const taskId=b.dataset.back;
+   const tasks=(data.tasks||[]).map(x=>x.id===taskId?{...x,status:"open"}:x);
+   await patch({tasks});
+ });
+
+ $$("[data-app]").forEach(b=>b.onclick=async()=>{
+   const tid=b.dataset.app;
+   b.disabled=true;
+   try{
+     await runTransaction(db,async tr=>{
+       const snap=await tr.get(familyRef),d=snap.data(),task=(d.tasks||[]).find(x=>x.id===tid);
+       if(!task||task.status!=="pending")return;
+
+       const lib=(Array.isArray(d.choreLibrary)&&d.choreLibrary.length?d.choreLibrary:DEFAULTS).map(normalize);
+       const chore=lib.find(x=>x.id===task.choreId);
+       if(!chore)throw new Error(`Unknown chore: ${task.choreId}`);
+
+       const moneyOn=(d.moneyEnabled??true);
+       const rawGross=!moneyOn?0:chore.required?0:
+         (task.type==="golf"
+           ?Math.max(0,Math.min(100,+task.count||0))*((d.golfCash||.05)+(d.golfCar||.10))
+           :(chore.paid?(+chore.cash||0)+(+chore.car||0):0));
+
+       const totalCap=Math.max(0,+d.weeklyTotalCap||25);
+       const cashCap=Math.max(0,+d.weeklyCashCap||15);
+       const now=Date.now(),dd=new Date(),day=(dd.getDay()+6)%7;
+       dd.setHours(0,0,0,0);
+       dd.setDate(dd.getDate()-day);
+       const ws=dd.getTime();
+
+       const weekRows=(d.ledger||[]).filter(x=>x.type==="earning"&&x.kidId===task.kidId&&(x.at||0)>=ws);
+       const usedGross=weekRows.reduce((sum,x)=>sum+(+x.gross||(+x.cash||0)+(+x.car||0)),0);
+       const usedCash=weekRows.reduce((sum,x)=>sum+(+x.cash||0),0);
+
+       const gross=+Math.min(rawGross,Math.max(0,totalCap-usedGross)).toFixed(2);
+       const pct=Math.min(100,Math.max(0,+d.cashSplitPct||60));
+       const desiredCash=+(gross*pct/100).toFixed(2);
+       const cash=+Math.min(desiredCash,Math.max(0,cashCap-usedCash)).toFixed(2);
+       const car=+(gross-cash).toFixed(2);
+       const xp=+chore.xp||10;
+
+       let pts=(chore.points!=null?+chore.points:(chore.required?2:3));
+       if(chore.maxRewardedClaimsPerDay&&rewardedClaimsToday(chore)>=chore.maxRewardedClaimsPerDay)pts=0;
+
+       const kids=(d.kids||[]).map(k=>k.id===task.kidId?{
+         ...k,
+         cash:+((k.cash||0)+cash).toFixed(2),
+         car:+((k.car||0)+car).toFixed(2),
+         xp:(k.xp||0)+xp,
+         rewardPoints:(+k.rewardPoints||0)+pts,
+         familyPoints:(+k.familyPoints||0)+pts,
+         requiredDone:(k.requiredDone||0)+(chore.required?1:0),
+         requiredDue:(k.requiredDue||0)+(chore.required?1:0)
+       }:k);
+
+       const tasks=(d.tasks||[]).map(x=>x.id===tid?{
+         ...x,
+         gross,cash,car,xp,points:pts,status:"approved",
+         approvedBy:user.email,approvedAt:now,
+         capLimited:gross<rawGross||cash<desiredCash
+       }:x);
+
+       const ledger=[...(d.ledger||[]),{
+         id:newId(),type:"earning",taskId:task.id,kidId:task.kidId,label:chore.name,
+         gross,cash,car,xp,points:pts,rawGross,
+         capLimited:gross<rawGross||cash<desiredCash,
+         by:user.email,at:now
+       }].slice(-300);
+
+       tr.update(familyRef,{kids,tasks,ledger});
+     });
+   }catch(err){
+     console.error("Task approval failed",err);
+     alert(`Could not approve this task.
+
+${err?.message||"Please try again."}`);
+     b.disabled=false;
+   }
+ });
+
+$("#bulkBasics")?.addEventListener("click",async()=>{let basics=pending().filter(t=>t.required&&(+t.cash||0)===0&&(+t.car||0)===0);if(!basics.length)return alert("No unpaid required basics are waiting.");if(!confirm(`Approve ${basics.length} required basics?`))return;for(const t of basics){await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),cur=d.tasks.find(x=>x.id===t.id);if(!cur||cur.status!=="pending")return;let now=Date.now(),xp=cur.xp||10,pts=2;let kids=d.kids.map(k=>k.id===cur.kidId?{...k,xp:(k.xp||0)+xp,rewardPoints:(+k.rewardPoints||0)+pts,familyPoints:(+k.familyPoints||0)+pts,requiredDone:(k.requiredDone||0)+1,requiredDue:(k.requiredDue||0)+1}:k);let tasks=d.tasks.map(x=>x.id===cur.id?{...x,xp,points:pts,status:"approved",approvedBy:user.email,approvedAt:now}:x);let ledger=[...(d.ledger||[]),{id:newId(),type:"points_earning",taskId:cur.id,kidId:cur.kidId,label:cur.name,xp,points:pts,cash:0,car:0,by:user.email,at:now}].slice(-300);tr.update(familyRef,{kids,tasks,ledger})})}});
 
  $$("[data-pushn]").forEach(b=>b.onclick=()=>{pushupCount=Math.max(0,Math.min(100,pushupCount+(+b.dataset.pushn)));render()});
  $("#submitPushups")?.addEventListener("click",async()=>{
