@@ -2077,7 +2077,7 @@ function kidChooser(){
 }
 
 function oaCustomizeKid(){
- const k=data.kids[kid],w=oaWorld(k),t=oaTheme(k);
+ const baseKid=data.kids[kid],k=oaEffectiveKid(baseKid),w=oaWorld(k),t=oaTheme(k);
  return header()+`<main class="oaCustomize" style="--oa-custom-accent:${t.accent}">
    <div class="oaCustomizeHead">
      <button class="oaBack" data-v="week">${oaIcon("arrow-left")} Back</button>
@@ -2431,11 +2431,16 @@ const OA_EXPLORER_CATALOG=[
 const OA_DEFAULT_EXPLORER_BY_KID={noah:"wolf",eli:"lion",shepherd:"snake",juniper:"unicorn"};
 function oaExplorerId(k){return k?.oaExplorer||OA_DEFAULT_EXPLORER_BY_KID[k?.id]||"wolf"}
 function oaExplorerById(id){return OA_EXPLORER_CATALOG.find(x=>x.id===id)||OA_EXPLORER_CATALOG[0]}
-function oaExplorer(k){return oaExplorerById(oaExplorerId(k))}
+function oaExplorer(k){return oaExplorerById(oaExplorerId(oaEffectiveKid(k)))}
+const OA_KID_PREFS_KEY="oakArrowKidPrefsV1";
+function oaLocalKidPrefs(){try{return JSON.parse(localStorage.getItem(OA_KID_PREFS_KEY)||"{}")||{}}catch(e){return {}}}
+function oaLocalKidPref(kidId){return oaLocalKidPrefs()[kidId]||{}}
+function oaSaveLocalKidPref(kidId,changes){if(!kidId)return;const all=oaLocalKidPrefs();all[kidId]={...(all[kidId]||{}),...changes};localStorage.setItem(OA_KID_PREFS_KEY,JSON.stringify(all))}
+function oaEffectiveKid(k){if(!k)return k;return {...k,...oaLocalKidPref(k.id)}}
 
 function oaWorldId(k){return k?.oaWorld||OA_DEFAULT_WORLD_BY_KID[k?.id]||"basecamp"}
 function oaWorldById(id){return OA_WORLD_CATALOG.find(w=>w.id===id)||OA_WORLD_CATALOG[9]}
-function oaWorld(k){return oaWorldById(oaWorldId(k))}
+function oaWorld(k){return oaWorldById(oaWorldId(oaEffectiveKid(k)))}
 
 const OA_THEMES={
  noah:{name:"Wildwood",hero:"assets/worlds/wildwood-native-v570.jpeg",avatar:"assets/avatars/noah.png",emblem:"assets/emblems/wildwood.svg",accent:"#315b49"},
@@ -2444,9 +2449,9 @@ const OA_THEMES={
  juniper:{name:"Enchanted Meadow",hero:"assets/worlds/enchanted-meadow-native-v570.jpeg",avatar:"assets/avatars/juniper.png",emblem:"assets/emblems/enchanted-meadow.svg",accent:"#80648e"}
 };
 function oaTheme(k){
- const w=oaWorld(k),legacy=OA_THEMES[k?.id]||{};
- const explorerAsset=k?.oaExplorer?oaExplorer(k).asset:(k?.oaAvatar||oaExplorer(k).asset||legacy.avatar||`assets/avatars/${k?.id}.png`);
- return {name:w.name,hero:w.hero,avatar:explorerAsset,emblem:k?.oaEmblem||w.emblem||legacy.emblem,accent:k?.oaAccent||w.accent,traits:w.traits};
+ const effective=oaEffectiveKid(k),w=oaWorld(effective),legacy=OA_THEMES[effective?.id]||{};
+ const explorerAsset=effective?.oaExplorer?oaExplorer(effective).asset:(effective?.oaAvatar||oaExplorer(effective).asset||legacy.avatar||`assets/avatars/${effective?.id}.png`);
+ return {name:w.name,hero:w.hero,avatar:explorerAsset,emblem:effective?.oaEmblem||w.emblem||legacy.emblem,accent:effective?.oaAccent||w.accent,traits:w.traits};
 }
 function oaEmblem(k){return oaTheme(k).emblem||"assets/oak-arrow-mark.png"}
 function oaAvatar(k){return oaTheme(k).avatar||`assets/avatars/${k.id}.png`}
@@ -3367,145 +3372,22 @@ $("#futureFundSimple")?.addEventListener("change",e=>{let w=$("#futureFundSimple
  $$("[data-active-select]").forEach(e=>e.onchange=()=>{let box=$(`[data-active="${e.dataset.activeSelect}"]`);if(box)box.checked=e.value==="1"});
 $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCount=0;view="week";render()});
 
- $$("[data-worldpick]").forEach(b=>b.onclick=async e=>{
+ $$("[data-worldpick]").forEach(b=>b.onclick=e=>{
    e.preventDefault();
    const world=b.dataset.worldpick,k=data.kids[kid],kidId=k?.id;
    if(!OA_WORLD_CATALOG.some(x=>x.id===world)||!kidId)return;
-   const kids=data.kids.map(x=>x.id===kidId?{...x,oaWorld:world}:x);
-   b.disabled=true;
-   try{
-     await patch({kids});
-     data={...data,kids};
-     render();
-   }catch(err){
-     b.disabled=false;
-     console.error("Could not save world",err);
-     alert("Could not save this World. Please try again.");
-   }
+   oaSaveLocalKidPref(kidId,{oaWorld:world});
+   render();
  });
 
- $$("[data-explorerpick]").forEach(b=>b.onclick=async e=>{
+ $$("[data-explorerpick]").forEach(b=>b.onclick=e=>{
    e.preventDefault();
    const explorer=b.dataset.explorerpick,k=data.kids[kid],kidId=k?.id,choice=OA_EXPLORER_CATALOG.find(x=>x.id===explorer);
    if(!choice||!kidId)return;
-   const kids=data.kids.map(x=>x.id===kidId?{...x,oaExplorer:explorer,oaAvatar:choice.asset}:x);
-   b.disabled=true;
-   try{
-     await patch({kids});
-     data={...data,kids};
-     render();
-   }catch(err){
-     b.disabled=false;
-     console.error("Could not save explorer",err);
-     alert("Could not save this Explorer. Please try again.");
-   }
- });
-
- $$("[data-parent-world]").forEach(b=>b.onclick=()=>{kid=+b.dataset.parentWorld;view="customize";render()});
-
- $("#createFamily")?.addEventListener("click",async()=>setDoc(familyRef,{ownerUid:user.uid,ownerEmail:user.email,parentEmails:[user.email.toLowerCase()],kids:KIDS,tasks:[],payments:[],futureFundDeposits:[],ledger:[],choreLibrary:DEFAULTS,challenges:DEFAULT_CHALLENGES,challengeLogs:[],golfCash:.05,golfCar:.10,weeklyCashCap:25,weeklyTotalCap:25,cashSplitPct:60,moneyEnabled:true,v50Economy:"money_xp_visible",createdAt:serverTimestamp()}));
-
- $$("[data-c]").forEach(b=>b.onclick=()=>{
-   let c=library().find(x=>x.id===b.dataset.c),k=data.kids[kid];
-   if(!c||!canClaim(c,k.id))return;
-   if(isKidExperience()){
-     let kind=c.required?"responsibility":"job",mins=timerMinutesFor(c);
-     if(mins){
-       askConfirm(`Start ${c.icon} ${c.name}?`,`This needs ${mins} minutes. Your timer will keep running even if you leave this screen. You can't submit it until time is up.`,`Start ${mins}-Minute Timer`,async()=>{
-         let now=Date.now(),t={id:newId(),choreId:c.id,kidId:k.id,icon:c.icon,name:c.name,cash:0,car:0,xp:0,exclusive:!!c.exclusive,required:!!c.required,frequency:c.frequency,periodKey:periodKey(c),status:"open",type:c.id==="golf"?"golf":"normal",count:0,timerMinutes:mins,timerStartedAt:now,createdAt:now};
-         await patch({tasks:arrayUnion(t)});view="week";render();
-       });
-     }else{
-       askConfirm(`Finished ${c.icon} ${c.name}?`,`Confirm you completed this ${kind}. It will be sent to a parent for approval.`,"Yes, I Did It",async()=>{
-         let t={id:newId(),choreId:c.id,kidId:k.id,icon:c.icon,name:c.name,cash:0,car:0,xp:0,exclusive:!!c.exclusive,required:!!c.required,frequency:c.frequency,periodKey:periodKey(c),status:"pending",type:c.id==="golf"?"golf":"normal",count:0,createdAt:Date.now(),submittedAt:Date.now()};
-         await patch({tasks:arrayUnion(t)});render();
-       });
-     }
-     return;
-   }
-   askConfirm(`Start ${c.icon} ${c.name}?`,`This adds it to ${k.name}'s active list.${c.exclusive?" Other kids will not be able to claim it while it is active.":""}`,"Start",async()=>{
-     let now=Date.now(),mins=timerMinutesFor(c),t={id:newId(),choreId:c.id,kidId:k.id,icon:c.icon,name:c.name,cash:c.paid?+c.cash||0:0,car:c.paid?+c.car||0:0,xp:+c.xp||10,exclusive:!!c.exclusive,required:!!c.required,frequency:c.frequency,periodKey:periodKey(c),status:"open",type:c.id==="golf"?"golf":"normal",count:0,timerMinutes:mins,timerStartedAt:mins?now:0,createdAt:now};
-     await patch({tasks:arrayUnion(t)});
-     render();
-   });
- });
-
- $$("[data-quick]").forEach(b=>b.onclick=()=>{let c=library().find(x=>x.id===b.dataset.quick),k=data.kids[kid];if(!c||!canClaim(c,k.id))return;askConfirm(`Start ${c.icon} ${c.name}?`,`This adds the mission to ${k.name}'s active list.${c.exclusive?" Other kids will not be able to claim it while it is active.":""}`,"Yes, Start It",async()=>{let t={id:newId(),choreId:c.id,kidId:k.id,icon:c.icon,name:c.name,cash:isKidExperience()?0:(c.paid?+c.cash||0:0),car:isKidExperience()?0:(c.paid?+c.car||0:0),xp:isKidExperience()?0:(+c.xp||10),exclusive:!!c.exclusive,required:!!c.required,frequency:c.frequency,periodKey:periodKey(c),status:"open",type:c.id==="golf"?"golf":"normal",count:0,createdAt:Date.now()};await patch({tasks:arrayUnion(t)});lastClaimId=t.id;lastClaimAt=Date.now();view="week";render()})});
-
- $$("[data-done]").forEach(b=>b.onclick=()=>{
-   let t=data.tasks.find(x=>x.id===b.dataset.done);if(!t)return;
-   if((+t.timerMinutes||0)>0&&!timerReady(t))return alert(`Keep going! ${formatTimer(timerRemainingMs(t))} left.`);
-   if(t.type==="golf"){golfCount=t.count||0;view="golf";render();return}
-   askConfirm(`Finished ${t.icon} ${t.name}?`,`Confirm you completed it. It will be sent to a parent for approval.`,"Yes, I Did It",async()=>{
-     let tasks=data.tasks.map(x=>x.id===t.id?{...x,status:"pending",submittedAt:Date.now()}:x);
-     await patch({tasks});
-     render();
-   });
- });
- $$("[data-n]").forEach(b=>b.onclick=()=>{golfCount=Math.max(0,Math.min(100,golfCount+(+b.dataset.n)));render()});
- $("#submitGolf")?.addEventListener("click",async()=>{if(!golfCount)return;let t=(data.tasks||[]).find(x=>x.kidId===data.kids[kid].id&&x.type==="golf"&&x.status==="open");if(!t)return;let tasks=data.tasks.map(x=>x.id===t.id?{...x,count:golfCount,cash:+(golfCount*(data.golfCash||.05)).toFixed(2),car:+(golfCount*(data.golfCar||.10)).toFixed(2),status:"pending",submittedAt:Date.now()}:x);await patch({tasks});view="week"});
- $$("[data-back]").forEach(b=>b.onclick=async()=>{let tasks=data.tasks.map(x=>x.id===b.dataset.back?{...x,status:"open"}:x);await patch({tasks})});
-
- $$("[data-app]").forEach(b=>b.onclick=async()=>{let tid=b.dataset.app;await runTransaction(db,async tr=>{let snap=await tr.get(familyRef),d=snap.data(),t=d.tasks.find(x=>x.id===tid);if(!t||t.status!=="pending")return;let lib=(Array.isArray(d.choreLibrary)&&d.choreLibrary.length?d.choreLibrary:DEFAULTS).map(normalize),c=lib.find(x=>x.id===t.choreId);if(!c)return;
- let rawGross=!((d.moneyEnabled??true))?0:c.required?0:(t.type==="golf"?Math.max(0,Math.min(100,+t.count||0))*((d.golfCash||.05)+(d.golfCar||.10)):(c.paid?(+c.cash||0)+(+c.car||0):0));
- let totalCap=Math.max(0,+d.weeklyTotalCap||25),cashCap=Math.max(0,+d.weeklyCashCap||15),now=Date.now(),dd=new Date(),day=(dd.getDay()+6)%7;dd.setHours(0,0,0,0);dd.setDate(dd.getDate()-day);let ws=dd.getTime();
- let weekRows=(d.ledger||[]).filter(x=>x.type==="earning"&&x.kidId===t.kidId&&(x.at||0)>=ws),usedGross=weekRows.reduce((s,x)=>s+(+x.gross||(+x.cash||0)+(+x.car||0)),0),usedCash=weekRows.reduce((s,x)=>s+(+x.cash||0),0);
- let gross=+Math.min(rawGross,Math.max(0,totalCap-usedGross)).toFixed(2),pct=Math.min(100,Math.max(0,+d.cashSplitPct||60)),desiredCash=+(gross*pct/100).toFixed(2),cash=+Math.min(desiredCash,Math.max(0,cashCap-usedCash)).toFixed(2),car=+(gross-cash).toFixed(2),xp=+c.xp||10;
- let pts=(c.points!=null?+c.points:(c.required?2:3)); if(c.maxRewardedClaimsPerDay&&rewardedClaimsToday(c)>=c.maxRewardedClaimsPerDay)pts=0; let kids=d.kids.map(k=>k.id===t.kidId?{...k,cash:+((k.cash||0)+cash).toFixed(2),car:+((k.car||0)+car).toFixed(2),xp:(k.xp||0)+xp,rewardPoints:(+k.rewardPoints||0)+pts,familyPoints:(+k.familyPoints||0)+pts,requiredDone:(k.requiredDone||0)+(c.required?1:0),requiredDue:(k.requiredDue||0)+(c.required?1:0)}:k);
- let tasks=d.tasks.map(x=>x.id===tid?{...x,gross,cash,car,xp,points:pts,status:"approved",approvedBy:user.email,approvedAt:now,capLimited:gross<rawGross||cash<desiredCash}:x);
- let ledger=[...(d.ledger||[]),{id:newId(),type:"earning",taskId:t.id,kidId:t.kidId,label:c.name,gross,cash,car,xp,points:pts,rawGross,capLimited:gross<rawGross||cash<desiredCash,by:user.email,at:now}].slice(-300);
- tr.update(familyRef,{kids,tasks,ledger})})});
- $("#saveMoneyRules")?.addEventListener("click",async()=>{
- let enabled=$("#moneyEnabled")?.value!=="0";
- let total=Math.max(0,+$("#weeklyTotalCap")?.value||0);
- let futureOn=$("#futureFundSimple")?.value!=="0";
- let future=futureOn?Math.min(100,Math.max(0,+$("#futureFundPct")?.value||40)):0;
- let penaltyChoices={};
- $$("[data-required-penalty]").forEach(el=>penaltyChoices[el.dataset.requiredPenalty]=!!el.checked);
- try{
-   await runTransaction(db,async tr=>{
-     const snap=await tr.get(familyRef),d=snap.data();
-     const kids=(d.kids||[]).map(k=>({...k,requiredChorePenalties:penaltyChoices[k.id]!==undefined?penaltyChoices[k.id]:(k.requiredChorePenalties!==false)}));
-     const legacyCashCap=Math.max(0,+$("#weeklyCashCapAdvanced")?.value||total);
-     tr.update(familyRef,{
-       moneyEnabled:enabled,
-       weeklyTotalCap:total,
-       weeklyCashCap:legacyCashCap,
-       cashSplitPct:100-future,
-       settleReminder:$("#settleReminder")?.value||d.settleReminder||"weekly",
-       kids,
-       v50Economy:"money_xp_visible"
-     });
-   });
-   alert("Family setup saved.");
- }catch(err){
-   console.error("Could not save family setup",err);
-   alert("Could not save settings. Please try again.");
- }
-});
-
-
-
- 
- $$("[data-goal]").forEach(e=>e.onchange=async()=>{
-   let kidId=e.dataset.goal,goalId=e.value;
-
-   // Update the screen immediately so the new target/cost/progress is visible
-   // without waiting for Firestore's snapshot round-trip.
-   data={...data,kids:(data.kids||[]).map(k=>k.id===kidId?{...k,rewardGoal:goalId}:k)};
+   oaSaveLocalKidPref(kidId,{oaExplorer:explorer,oaAvatar:choice.asset});
    render();
-
-   try{
-     await runTransaction(db,async tr=>{
-       let s=await tr.get(familyRef),d=s.data();
-       let kids=(d.kids||[]).map(k=>k.id===kidId?{...k,rewardGoal:goalId}:k);
-       tr.update(familyRef,{kids});
-     });
-   }catch(err){
-     console.error("Could not save reward goal",err);
-     alert("Could not save that reward goal. Please try again.");
-   }
  });
+
  $$("[data-rredeem]").forEach(b=>b.onclick=()=>{let r=individualRewards().find(x=>x.id===b.dataset.rredeem),k=kidById(b.dataset.rkid);if(!r||!k||(+k.rewardPoints||0)<r.cost)return;askConfirm("Complete this goal?",`${k.name} reached ${r.name}. Completing it resets the saved reward progress so a new goal can begin.`,"Complete Goal",async()=>{await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),cur=d.kids.find(x=>x.id===k.id);if(!cur||(+cur.rewardPoints||0)<r.cost)return;let kids=d.kids.map(x=>x.id===k.id?{...x,rewardPoints:(+x.rewardPoints||0)-r.cost}:x);let ledger=[...(d.ledger||[]),{id:newId(),type:"points_redemption",kidId:k.id,label:r.name,points:-r.cost,by:user?.email||"kid",at:Date.now()}].slice(-300);tr.update(familyRef,{kids,ledger})})})});
  $$("[data-kidrewardrequest]").forEach(b=>b.onclick=async()=>{
    const rewardId=b.dataset.kidrewardrequest,k=data.kids[kid],r=individualRewards().find(x=>x.id===rewardId);
