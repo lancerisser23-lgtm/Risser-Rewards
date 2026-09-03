@@ -2081,30 +2081,35 @@ function oaCustomizeKid(){
  return header()+`<main class="oaCustomize" style="--oa-custom-accent:${t.accent}">
    <div class="oaCustomizeHead">
      <button class="oaBack" data-v="week">${oaIcon("arrow-left")} Back</button>
-     <div><div class="tiny">MAKE IT YOURS</div><h1>Pick Your World</h1><p>Tap a picture you like.</p></div>
+     <div><div class="tiny">MAKE IT YOURS</div><h1>Pick Your Avatar</h1><p>Choose who goes on adventures with you.</p></div>
    </div>
+
+   <div class="oaExplorerSection">
+     <div class="tiny">YOUR AVATAR</div>
+     <h2>Pick Your Avatar</h2>
+     <p>Tap the one you want.</p>
+     <div class="oaExplorerPicker">${OA_EXPLORER_CATALOG.map(x=>`<button type="button" class="oaExplorerCard ${x.id===oaExplorerId(k)?"on":""}" data-explorerpick="${x.id}">
+       <img src="${x.asset}" alt="${x.name}">
+       <span><b>${x.name}</b><small>${x.id===oaExplorerId(k)?"YOUR AVATAR":"CHOOSE"}</small></span>
+     </button>`).join("")}</div>
+   </div>
+
    <div class="oaCurrentWorld">
      <img src="${oaAvatar(k)}" alt="${k.name}">
-     <div><div class="tiny">CURRENT WORLD</div><h2>${w.name}</h2><p>${w.traits}</p></div>
+     <div><div class="tiny">YOUR WORLD</div><h2>${w.name}</h2><p>${w.traits}</p></div>
      <img class="oaCurrentEmblem" src="${oaEmblem(k)}" alt="">
    </div>
-   <h2 class="oaWorldPickerTitle">Pick a World</h2>
+
+   <h2 class="oaWorldPickerTitle">Change Your World</h2>
+   <p class="muted" style="margin-top:-5px">Tap a picture to change your theme.</p>
    <div class="oaWorldPicker">${OA_WORLD_CATALOG.map((x,i)=>`<button type="button" class="oaWorldCard ${x.id===w.id?"on":""}" data-worldpick="${x.id}" style="--wc:${x.accent};--wh:url('${x.thumb||x.hero}')">
       <span class="oaWorldNum">${i+1}</span>
       <span class="oaWorldArt"></span>
       <span class="oaWorldInfo"><b>${x.name}</b><small>${x.traits}</small></span>
       <span class="oaWorldCheck">${x.id===w.id?"SELECTED":"CHOOSE"}</span>
    </button>`).join("")}</div>
-   <div class="oaExplorerSection">
-     <div class="tiny">YOUR EXPLORER</div>
-     <h2>Pick an Explorer</h2>
-     <p>Tap the one you want to take with you.</p>
-     <div class="oaExplorerPicker">${OA_EXPLORER_CATALOG.map(x=>`<button type="button" class="oaExplorerCard ${x.id===oaExplorerId(k)?"on":""}" data-explorerpick="${x.id}">
-       <img src="${x.asset}" alt="${x.name}">
-       <span><b>${x.name}</b><small>${x.id===oaExplorerId(k)?"YOUR EXPLORER":"CHOOSE"}</small></span>
-     </button>`).join("")}</div>
-   </div>
-   <div class="oaCustomizeNote">${oaIcon("shield")} <div><b>Your progress stays with you.</b><span>Change your World or Explorer anytime. Your XP, rewards, money, chores, and history always stay with you.</span></div></div>
+
+   <div class="oaCustomizeNote">${oaIcon("shield")} <div><b>Your progress stays with you.</b><span>Changing your Avatar or World never changes your XP, rewards, money, chores, or history.</span></div></div>
    ${oaKidSectionNav("world")}
  </main>`;
 }
@@ -2195,9 +2200,11 @@ function canClaim(c,kidId){
   return true;
 }
 function pending(){return (data.tasks||[]).filter(t=>t.status==="pending")}
+function pendingRewardRequests(d=data){return (d?.ledger||[]).filter(x=>x.type==="reward_redemption_request"&&x.status==="pending")}
+function pendingRewardRequestFor(kidId,rewardId,d=data){return pendingRewardRequests(d).find(x=>x.kidId===kidId&&x.rewardId===rewardId)}
 function pendingExcuseRequests(d=data){return (d?.ledger||[]).filter(x=>x.type==="required_miss"&&!x.undone&&x.excuseRequest?.status==="pending")}
 function pendingLevelUps(){return challengeLogs().filter(x=>x.status==="pending")}
-function waitingApprovalCount(){return pending().length+pendingLevelUps().length+pendingExcuseRequests().length}
+function waitingApprovalCount(){return pending().length+pendingLevelUps().length+pendingRewardRequests().length+pendingExcuseRequests().length}
 function recentApprovals(){
   return (data.tasks||[]).filter(t=>t.status==="approved")
     .sort((a,b)=>(b.approvedAt||0)-(a.approvedAt||0))
@@ -2835,9 +2842,14 @@ function recentActivityCard(kidId){
 function rewards(forceKid=false){
  let familyGoal=familyRewards()[0]||{icon:"🌳",name:"Family Goal",cost:1},fp=visibleFamilyProgress(familyGoal);
  if(isKidSession()||forceKid){
-   let k=data.kids[kid],g=rewardGoal(k),rp=visibleRewardProgress(k,g),current=Math.max(0,+k.rewardPoints||0),toGo=Math.max(0,(+g.cost||1)-current);
-   return oaKidPage(k,"Rewards","Work toward something that matters to you. Your Reward Points are yours to build and spend.","rewards",`
-     <div class="oaRewardHero"><div class="tiny">${oaIcon("rewards")} NEXT REWARD</div><div class="oaRewardName">${oaIcon(oaIconFor(g.icon,"rewards"))} ${g.name}</div><div>${rp.ready?"You reached it!":`${toGo} points to go`}</div><div class="oaProgressBar"><div class="oaProgressFill" style="width:${rp.pct}%"></div></div><div class="oaRewardNumbers"><div><b>${oaIcon("star")} ${current}</b><span>Reward Points</span></div><div><b>${rp.pct}%</b><span>Goal Progress</span></div></div></div>
+   let k=data.kids[kid],g=rewardGoal(k),rp=visibleRewardProgress(k,g),current=Math.max(0,+k.rewardPoints||0),toGo=Math.max(0,(+g.cost||1)-current),redeemRequest=pendingRewardRequestFor(k.id,g.id);
+   return oaKidPage(k,"Rewards","Pick a reward, earn the points, then ask a parent when you're ready.","rewards",`
+     <div class="oaRewardHero"><div class="tiny">${oaIcon("rewards")} NEXT REWARD</div><div class="oaRewardName">${oaIcon(oaIconFor(g.icon,"rewards"))} ${g.name}</div><div>${rp.ready?"You earned it!":`${toGo} points to go`}</div><div class="oaProgressBar"><div class="oaProgressFill" style="width:${rp.pct}%"></div></div><div class="oaRewardNumbers"><div><b>${oaIcon("star")} ${current}</b><span>Reward Points</span></div><div><b>${rp.pct}%</b><span>Goal Progress</span></div></div>
+       ${rp.ready?(redeemRequest
+         ?`<button type="button" class="btn small" style="margin-top:16px" disabled>${oaIcon("check-circle","inline")} Parent Asked</button><div class="tiny" style="margin-top:7px">Waiting for a parent to approve your reward.</div>`
+         :`<button type="button" class="btn small" style="margin-top:16px" data-kidrewardrequest="${g.id}">${oaIcon("rewards","inline")} Ask Parent to Redeem</button><div class="tiny" style="margin-top:7px">Your points are only spent after a parent approves.</div>`)
+       :""}
+     </div>
      <div class="oaContentCard"><h3 style="margin:0 0 8px">Family progress</h3><div class="oaFamilyMini">${data.kids.map(x=>`<div><img src="${oaAvatar(x)}" alt="${x.name}"><b>${x.name}</b><span>${oaIcon("star","inline")} ${Math.max(0,+x.rewardPoints||0)} points</span></div>`).join("")}</div>
        <div style="margin-top:14px"><div class="row between"><b>${oaIcon(oaIconFor(familyGoal.icon,"rewards"),"inline")} ${familyGoal.name}</b><b>${fp.pct}%</b></div><div class="goalBar" style="margin-top:7px"><div class="goalFill" style="width:${fp.pct}%"></div></div></div>
      </div>
@@ -2876,6 +2888,7 @@ function parent(){
    <div class="v50SectionTitle"><div><div class="tiny muted">PARENT ACTION CENTER</div><h2 style="margin:3px 0"><span class="parentEditorial">${oaIcon("pending","inline")} Waiting for Approval</span>${waitingApprovalCount()?` (${waitingApprovalCount()})`:""}</h2><div class="muted">One place for Responsibilities, Jobs, Growth Missions and excuse requests.</div></div><button id="bulkBasics" class="btn secondary small">Approve Daily Basics</button></div>
    ${pending().map(t=>{let k=kidById(t.kidId),type=t.required?"RESPONSIBILITY":"JOB";return `<div class="parentPremium"><div class="approval"><div><div class="v50ApprovalType">${type}</div><b>${oaIcon(oaTaskIcon(t,t.required?"resp":"job"),"inline")} ${k?.name} — ${t.name}</b><div class="reward">${t.required?"Ready for approval":moneyEnabled()?`Earnings calculated when approved`:"Ready for approval"}</div></div><div class="actions"><button data-app="${t.id}" class="btn small">Approve</button><button data-back="${t.id}" class="btn red small">Send Back</button></div></div>`}).join("")}
    ${pendingLevelUps().map(x=>{let c=challengeLibrary().find(c=>c.id===x.challengeId),k=kidById(x.kidId);return `<div class="approval"><div><div class="v50ApprovalType">GROWTH MISSION</div><b>${c?.icon||"🌱"} ${k?.name} — ${c?.name||"Mission"}</b><div class="reward">${x.challengeId==="pushups"?`${x.count||0} pushups`:`🔥 ${c?.xp||10} XP`}</div></div><div class="actions"><button class="btn small" data-chapp="${x.id}">Approve</button><button class="btn red small" data-chreject="${x.id}">Send Back</button></div></div>`}).join("")}
+   ${pendingRewardRequests().map(x=>{let k=kidById(x.kidId);return `<div class="approval"><div><div class="v50ApprovalType">REWARD REQUEST</div><b>${oaIcon("rewards","inline")} ${k?.name} — ${x.label||"Reward"}</b><div class="reward">${x.cost||0} Reward Points · Ready to redeem</div></div><div class="actions"><button class="btn small" data-rewardapprove="${x.id}">Approve + Redeem</button><button class="btn red small" data-rewarddeny="${x.id}">Not Yet</button></div></div>`}).join("")}
    ${pendingExcuseRequests().map(x=>{let k=kidById(x.kidId),name=String(x.label||"Missed responsibility").replace("Missed required chore — ","");return `<div class="approval"><div><div class="v50ApprovalType">EXCUSE REQUEST</div><b>${oaIcon("kid","inline")} ${k?.name} — ${name}</b><div class="due">${x.xp||0} XP · ${x.forDate||""}</div></div><div class="actions"><button class="btn small" data-excuseapprove="${x.id}">Excuse + Restore XP</button><button class="btn red small" data-excusedeny="${x.id}">Keep Penalty</button></div></div>`}).join("")}
    ${waitingApprovalCount()?"":`<p class="muted oaCaughtUp">${oaIcon("check-circle","inline")} Nothing waiting. You're caught up.</p>`}
  </div>
@@ -3494,6 +3507,57 @@ $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCoun
    }
  });
  $$("[data-rredeem]").forEach(b=>b.onclick=()=>{let r=individualRewards().find(x=>x.id===b.dataset.rredeem),k=kidById(b.dataset.rkid);if(!r||!k||(+k.rewardPoints||0)<r.cost)return;askConfirm("Complete this goal?",`${k.name} reached ${r.name}. Completing it resets the saved reward progress so a new goal can begin.`,"Complete Goal",async()=>{await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),cur=d.kids.find(x=>x.id===k.id);if(!cur||(+cur.rewardPoints||0)<r.cost)return;let kids=d.kids.map(x=>x.id===k.id?{...x,rewardPoints:(+x.rewardPoints||0)-r.cost}:x);let ledger=[...(d.ledger||[]),{id:newId(),type:"points_redemption",kidId:k.id,label:r.name,points:-r.cost,by:user?.email||"kid",at:Date.now()}].slice(-300);tr.update(familyRef,{kids,ledger})})})});
+ $$("[data-kidrewardrequest]").forEach(b=>b.onclick=async()=>{
+   const rewardId=b.dataset.kidrewardrequest,k=data.kids[kid],r=individualRewards().find(x=>x.id===rewardId);
+   if(!k||!r||(+k.rewardPoints||0)<(+r.cost||0))return;
+   b.disabled=true;
+   try{
+     await runTransaction(db,async tr=>{
+       const s=await tr.get(familyRef),d=s.data(),cur=(d.kids||[]).find(x=>x.id===k.id);
+       if(!cur||(+cur.rewardPoints||0)<(+r.cost||0))return;
+       const already=(d.ledger||[]).some(x=>x.type==="reward_redemption_request"&&x.status==="pending"&&x.kidId===k.id&&x.rewardId===r.id);
+       if(already)return;
+       const now=Date.now();
+       const ledger=[...(d.ledger||[]),{id:newId(),type:"reward_redemption_request",status:"pending",kidId:k.id,rewardId:r.id,label:r.name,cost:+r.cost||0,requestedAt:now,at:now,by:"kid"}].slice(-500);
+       tr.update(familyRef,{ledger});
+     });
+   }catch(err){
+     b.disabled=false;
+     console.error("Could not request reward",err);
+     alert("Could not ask a parent right now. Please try again.");
+   }
+ });
+
+ $$("[data-rewardapprove]").forEach(b=>b.onclick=()=>{
+   const requestId=b.dataset.rewardapprove,req=(data.ledger||[]).find(x=>x.id===requestId&&x.type==="reward_redemption_request"&&x.status==="pending");
+   if(!req)return;
+   const k=kidById(req.kidId);
+   askConfirm("Approve this reward?",`${k?.name||"This kid"} will redeem ${req.label||"this reward"} for ${req.cost||0} Reward Points.`,"Approve + Redeem",async()=>{
+     await runTransaction(db,async tr=>{
+       const s=await tr.get(familyRef),d=s.data(),curReq=(d.ledger||[]).find(x=>x.id===requestId&&x.type==="reward_redemption_request"&&x.status==="pending");
+       if(!curReq)return;
+       const curKid=(d.kids||[]).find(x=>x.id===curReq.kidId),cost=Math.max(0,+curReq.cost||0),now=Date.now();
+       if(!curKid||(+curKid.rewardPoints||0)<cost)return;
+       const kids=(d.kids||[]).map(x=>x.id===curReq.kidId?{...x,rewardPoints:Math.max(0,(+x.rewardPoints||0)-cost)}:x);
+       let ledger=(d.ledger||[]).map(x=>x.id===requestId?{...x,status:"approved",decidedAt:now,decidedBy:user?.email||"parent"}:x);
+       ledger.push({id:newId(),type:"points_redemption",kidId:curReq.kidId,label:curReq.label||"Reward",points:-cost,by:user?.email||"parent",at:now,requestId});
+       tr.update(familyRef,{kids,ledger:ledger.slice(-500)});
+     });
+   });
+ });
+
+ $$("[data-rewarddeny]").forEach(b=>b.onclick=()=>{
+   const requestId=b.dataset.rewarddeny,req=(data.ledger||[]).find(x=>x.id===requestId&&x.type==="reward_redemption_request"&&x.status==="pending");
+   if(!req)return;
+   const k=kidById(req.kidId);
+   askConfirm("Not yet?",`${k?.name||"This kid"}'s points will stay untouched and they can ask again later.`,"Not Yet",async()=>{
+     await runTransaction(db,async tr=>{
+       const s=await tr.get(familyRef),d=s.data(),now=Date.now();
+       const ledger=(d.ledger||[]).map(x=>x.id===requestId&&x.type==="reward_redemption_request"&&x.status==="pending"?{...x,status:"denied",decidedAt:now,decidedBy:user?.email||"parent"}:x);
+       tr.update(familyRef,{ledger:ledger.slice(-500)});
+     });
+   });
+ });
  $("#addReward")?.addEventListener("click",async()=>{let name=($("#rewardName").value||"").trim(),cost=Math.max(1,Math.round(+$("#rewardCost").value||0));if(!name)return alert("Add a reward name.");await updateDoc(familyRef,{rewards:[...(data.rewards||[]),{id:newId(),name,cost}]})});
  $$("[data-delreward]").forEach(b=>b.onclick=async()=>{await updateDoc(familyRef,{rewards:(data.rewards||[]).filter(r=>r.id!==b.dataset.delreward)})});
  $$("[data-redeem]").forEach(b=>b.onclick=()=>{let cost=+b.dataset.cost,name=b.dataset.name,kidObj=data.kids[kid];if(!kidObj||(+kidObj.rewardPoints||0)<cost)return;askConfirm("Complete this goal?",`${kidObj.name} reached ${name}. Completing it resets the saved reward progress.`,"Complete Goal",async()=>{await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),cur=d.kids[kid];if(!cur||(+cur.rewardPoints||0)<cost)return;let kids=d.kids.map((x,i)=>i===kid?{...x,rewardPoints:Math.max(0,(+x.rewardPoints||0)-cost)}:x);let ledger=[...(d.ledger||[]),{id:newId(),type:"points_redemption",kidId:cur.id,label:name,points:-cost,by:user?.email||"kid",at:Date.now()}].slice(-300);tr.update(familyRef,{kids,ledger})})})});
