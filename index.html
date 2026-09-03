@@ -1816,6 +1816,22 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
   background:rgba(255,255,255,.18)!important;
 }
 
+
+/* V58.0 — Kid Simplicity Pass */
+.oaSimpleKidNav{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+.oaTodoChoices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:16px 0 22px}
+.oaTodoChoice{
+  min-height:150px;border:1px solid rgba(185,139,50,.55);border-radius:22px;
+  background:rgba(255,252,243,.72);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+  padding:20px;text-align:left;color:#123d2c;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;
+}
+.oaTodoChoice .oaTodoIcon{width:48px;height:48px;display:grid;place-items:center}
+.oaTodoChoice .oaTodoIcon img,.oaTodoChoice .oaTodoIcon svg{width:38px;height:38px}
+.oaTodoChoice b{display:block;font-size:22px;font-family:Georgia,serif}
+.oaTodoChoice small{display:block;font-size:14px;margin-top:5px;color:#496052}
+.oaTodoChoice strong{font-size:28px}
+@media(max-width:760px){.oaTodoChoices{grid-template-columns:1fr}.oaSimpleKidNav{grid-template-columns:repeat(5,1fr)!important}.oaSimpleKidNav span{font-size:11px}}
+
 </style>
 
 <!-- V56.2 full audit hardening: kid styling, school visibility persistence, accurate availability counts, Sunday settlement restoration -->
@@ -2622,11 +2638,9 @@ function oaBrand(){
  return `<div class="oaBrand">${`<img src="assets/oak-arrow-mark.png" alt="Oak & Arrow">`}<div><div class="oaBrandName">OAK &amp; ARROW</div><div class="oaBrandTag">Less scrolling. More childhood.</div></div></div>`
 }
 function oaKidNav(active="world"){
- return `<div class="oaBottomNav">
+ return `<div class="oaBottomNav oaSimpleKidNav">
    <button class="${active==="world"?"on":""}" data-v="week">${oaIcon("home")}<span>My World</span></button>
-   <button class="${active==="responsibilities"?"on":""}" data-v="responsibilities">${oaIcon("responsibilities")}<span>Responsibilities</span></button>
-   <button class="${active==="jobs"?"on":""}" data-v="pick">${oaIcon("jobs")}<span>Jobs</span></button>
-   <button class="${active==="growth"?"on":""}" data-v="level">${oaIcon("growth")}<span>Growth</span></button>
+   <button class="${["todo","responsibilities","jobs","growth"].includes(active)?"on":""}" data-v="todo">${oaIcon("check-circle")}<span>To Do</span></button>
    <button class="${active==="rewards"?"on":""}" data-v="kidrewards">${oaIcon("rewards")}<span>Rewards</span></button>
    <button class="${active==="journey"?"on":""}" data-v="journey">${oaIcon("journey")}<span>Journey</span></button>
    ${moneyEnabled()?`<button class="${active==="money"?"on":""}" data-v="kidmoney">${oaIcon("money")}<span>Money</span></button>`:""}
@@ -2656,9 +2670,9 @@ function oaDashboard(k){
      <div class="oaStat"><b>${moneyEnabled()?money(cashOwed(k)):`${rp.pct}%`}</b><span>${moneyEnabled()?"Spend Now":"Next Reward"}</span></div>
    </div>
    <div class="oaBoard">
-     <div class="oaPanel"><div class="oaPanelHead"><b>${oaIcon("responsibilities","inline")} RESPONSIBILITIES</b><button data-v="responsibilities">View All</button></div>${oaRows(resp,k,"resp")}<div class="oaPanelFoot">${resp.length?`${resp.length} ready today`:"All caught up today"}</div></div>
-     <div class="oaPanel jobs"><div class="oaPanelHead"><b>${oaIcon("jobs","inline")} JOBS</b><button data-v="pick">View All</button></div>${oaRows(jobs,k,"job")}<div class="oaPanelFoot">${jobs.length} available now</div></div>
-     <div class="oaPanel growth"><div class="oaPanelHead"><b>${oaIcon("growth","inline")} GROWTH MISSIONS</b><button data-v="level">View All</button></div>${oaRows(growth,k,"growth")}<div class="oaPanelFoot">${growth.length} available now</div></div>
+     <div class="oaPanel"><div class="oaPanelHead"><b>${oaIcon("responsibilities","inline")} RESPONSIBILITIES</b><button data-v="responsibilities">See More</button></div>${oaRows(resp,k,"resp")}<div class="oaPanelFoot">${resp.length?`${resp.length} ready today`:"All caught up today"}</div></div>
+     <div class="oaPanel jobs"><div class="oaPanelHead"><b>${oaIcon("jobs","inline")} JOBS</b><button data-v="pick">See More</button></div>${oaRows(jobs,k,"job")}<div class="oaPanelFoot">${jobs.length} available now</div></div>
+     <div class="oaPanel growth"><div class="oaPanelHead"><b>${oaIcon("growth","inline")} GROWTH MISSIONS</b><button data-v="level">See More</button></div>${oaRows(growth,k,"growth")}<div class="oaPanelFoot">${growth.length} available now</div></div>
    </div>
    <div class="oaMotivation">
      <div class="oaMotiv"><div class="label">${oaIcon("flame","inline")} ADVENTURE STREAK</div><div class="big">${streak}</div><div class="small">${streak?"Keep it going.":"Start your streak today."}</div></div>
@@ -2770,11 +2784,9 @@ function kidHubActive(k){
 
 
 function oaKidSectionNav(active=""){
- return `<nav class="oaKidSectionNav" aria-label="Kid sections">
+ return `<nav class="oaKidSectionNav oaSimpleKidNav" aria-label="Kid sections">
    <button class="${active==="world"?"on":""}" data-v="week">${oaIcon("home")}<span>My World</span></button>
-   <button class="${active==="responsibilities"?"on":""}" data-v="responsibilities">${oaIcon("responsibilities")}<span>Responsibilities</span></button>
-   <button class="${active==="jobs"?"on":""}" data-v="pick">${oaIcon("jobs")}<span>Jobs</span></button>
-   <button class="${active==="growth"?"on":""}" data-v="level">${oaIcon("growth")}<span>Growth</span></button>
+   <button class="${["todo","responsibilities","jobs","growth"].includes(active)?"on":""}" data-v="todo">${oaIcon("check-circle")}<span>To Do</span></button>
    <button class="${active==="rewards"?"on":""}" data-v="kidrewards">${oaIcon("rewards")}<span>Rewards</span></button>
    <button class="${active==="journey"?"on":""}" data-v="journey">${oaIcon("journey")}<span>Journey</span></button>
    ${moneyEnabled()?`<button class="${active==="money"?"on":""}" data-v="kidmoney">${oaIcon("money")}<span>Money</span></button>`:""}
@@ -2791,11 +2803,11 @@ function oaKidPage(k,title,subtitle,active,body,extraClass=""){
  </section>`;
 }
 function oaWorkRow(c,k,type){
- let allowed=canClaim(c,k.id), owner=c.exclusive?sharedLive(c):null;
+ let allowed=canClaim(c,k.id), owner=c.exclusive?sharedLive(c):null, liveTask=live(c,k.id);
  let done=(c.frequency!=="anytime")&&(c.exclusive?sharedApproved(c):approved(c,k.id));
  let q=type==="job"?autoChorePreview(c):null;
- let value=type==="job"?(moneyEnabled()&&c.paid&&q?.gross?money(q.gross):`⭐ ${c.points||3}`):`${c.points||2} pts`;
- let state=owner?`<span class="oaState">🔒 ${kidById(owner.kidId)?.name||"Claimed"}</span>`:done?`<span class="oaState">✓ Done</span>`:allowed?`<span class="oaState ready">${timerMinutesFor(c)?`⏱ ${timerMinutesFor(c)} min`:"Ready"}</span>`:`<span class="oaState">Not now</span>`;
+ let value=type==="job"?(moneyEnabled()&&c.paid&&q?.gross?money(q.gross):`${c.points||3} pts`):`${c.points||2} pts`;
+ let state=liveTask?.status==="pending"?`<span class="oaState pending">${oaIcon("pending","inline")} Waiting for Mom or Dad</span>`:owner?`<span class="oaState">${oaIcon("lock","inline")} ${kidById(owner.kidId)?.name||"Claimed"}</span>`:done?`<span class="oaState">${oaIcon("check-circle","inline")} Done</span>`:allowed?`<span class="oaState ready">${timerMinutesFor(c)?`${oaIcon("timer","inline")} ${timerMinutesFor(c)} min`:`${oaIcon("check","inline")} I Did It`}</span>`:`<span class="oaState">Not now</span>`;
  return `<button class="oaListRow" data-c="${c.id}" ${allowed?"":"disabled"}><span class="oaListIcon">${oaIcon(oaTaskIcon(c,type))}</span><span><span class="oaListName">${c.name}</span><span class="oaListMeta">${frequencyLabel(c)}${timerRequirementLabel(c)}</span></span><span><span class="oaListValue">${value}</span><br>${state}</span></button>`;
 }
 function journey(){
@@ -2811,6 +2823,19 @@ function journey(){
 function week(){
  let k=data.kids[kid];
  return header()+oaDashboard(k);
+}
+function todo(){
+ let k=data.kids[kid];
+ let resp=library().filter(c=>isResponsibility(c)&&eligible(c,k.id)&&canClaim(c,k.id)).length;
+ let jobs=library().filter(c=>isJob(c)&&eligible(c,k.id)&&canClaim(c,k.id)).length;
+ let growth=challengeLibrary().filter(c=>!c.parentOnly&&c.active!==false&&challengeAvailable(c,k.id)).length;
+ return oaKidPage(k,"What Do You Want To Do?","Pick one. You can always come back here.","todo",`
+   <div class="oaTodoChoices">
+     <button class="oaTodoChoice" data-v="responsibilities"><span class="oaTodoIcon">${oaIcon("responsibilities")}</span><span><b>Responsibilities</b><small>Things I need to do</small></span><strong>${resp}</strong></button>
+     <button class="oaTodoChoice" data-v="pick"><span class="oaTodoIcon">${oaIcon("jobs")}</span><span><b>Jobs</b><small>Things I can do to earn</small></span><strong>${jobs}</strong></button>
+     <button class="oaTodoChoice" data-v="level"><span class="oaTodoIcon">${oaIcon("growth")}</span><span><b>Growth</b><small>Things that help me grow</small></span><strong>${growth}</strong></button>
+   </div>
+ `);
 }
 function responsibilityView(){
  let k=data.kids[kid],lib=library().filter(c=>isResponsibility(c)&&eligible(c,k.id));
@@ -3370,7 +3395,7 @@ try{document.body.classList.toggle("parentMode",!!user && !isKidSession() && !is
  if(isKidSession()&&["home","parent","settings"].includes(view))view="kids";
  $("#app").innerHTML=
    view==="kids"?kidsLanding():
-   view==="week"?week():
+   view==="week"?week():view==="todo"?todo():
    view==="responsibilities"?responsibilityView():
    view==="pick"?pick():
    view==="level"?level():
@@ -3464,6 +3489,29 @@ function bind(){
 $("#futureFundSimple")?.addEventListener("change",e=>{let w=$("#futureFundSimpleWrap");if(w)w.style.display=e.target.value==="1"?"block":"none"});
  $$("[data-active-select]").forEach(e=>e.onchange=()=>{let box=$(`[data-active="${e.dataset.activeSelect}"]`);if(box)box.checked=e.value==="1"});
 $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCount=0;view="week";render()});
+
+ $$("[data-c]").forEach(b=>b.onclick=()=>{
+   const choreId=b.dataset.c,k=data.kids[kid],c=library().find(x=>x.id===choreId);
+   if(!k||!c||!canClaim(c,k.id))return;
+   const mins=timerMinutesFor(c);
+   const finish=async()=>{
+     const now=Date.now(),q=autoChorePreview(c);
+     const task={id:newId(),choreId:c.id,kidId:k.id,name:c.name,required:!!c.required,paid:!!c.paid,points:+c.points||0,xp:+c.xp||10,
+       cash:q?.cash||0,car:q?.future||0,status:"pending",periodKey:periodKey(c),createdAt:now,submittedAt:now};
+     try{
+       await patch({tasks:arrayUnion(task)});
+       render();
+     }catch(err){
+       console.error("Could not submit task",err);
+       alert("Ask Mom or Dad to open Parent Mode on this device, then try again.");
+     }
+   };
+   if(mins){
+     alert(`${c.name} has a ${mins}-minute timer. Open it from the full list to start the timer.`);
+     return;
+   }
+   askConfirm(`Did you finish ${c.name}?`,`We'll tell Mom or Dad you're done.`,`Yes, I Did It`,finish);
+ });
 
  $$("[data-worldpick]").forEach(b=>b.onclick=e=>{
    e.preventDefault();
