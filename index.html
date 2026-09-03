@@ -2586,7 +2586,7 @@ function oaEffectiveKid(k){
  if(!k)return k;
  const remote=kidProfiles[k.id]||{};
  const local=isKidSession()?oaLocalKidPref(k.id):{};
- return {...k,...remote,...local};
+ return Object.keys(remote).length?{...k,...local,...remote}:{...k,...local};
 }
 async function oaSaveSyncedKidProfile(kidId,changes){
  if(!kidId||!user)return;
@@ -2597,13 +2597,22 @@ async function oaSaveSyncedKidProfile(kidId,changes){
  try{
    await setDoc(oaKidProfileRef(kidId),{
      kidId,
+     updatedByUid:user.uid,
      oaExplorer:clean.oaExplorer||oaExplorerId(base),
      oaWorld:clean.oaWorld||oaWorldId(base),
      updatedAt:serverTimestamp()
    },{merge:true});
+   const confirmed=await getDoc(oaKidProfileRef(kidId));
+   if(!confirmed.exists())throw new Error("Kid profile write was not confirmed");
+   oaRememberRemoteKidProfile(kidId,confirmed.data());
  }catch(err){
    console.error("Could not sync kid profile",err);
-   alert("Your choice is saved on this device, but it could not sync to Parent Mode yet. Add the V58.1 Firebase rules, then try once more.");
+   alert(`Saved on this device, but Firebase sync failed.
+
+Error: ${err?.code||"unknown"}
+${err?.message||""}
+
+Use the V58.3 kidProfiles rules.`);
  }
 }
 function oaWatchSelectedKidProfile(kidId){
@@ -3960,7 +3969,7 @@ $("#newRequired")?.addEventListener("change",()=>{$("#newMoneyArea").dataset.ove
  $$("[data-chreject]").forEach(b=>b.onclick=async()=>{let logs=challengeLogs().map(x=>x.id===b.dataset.chreject?{...x,status:"rejected",approvedBy:user.email,approvedAt:Date.now()}:x);await patch({challengeLogs:logs})});
  $("#giveAward")?.addEventListener("click",async()=>{let kidId=$("#awardKid").value,cid=$("#awardType").value,c=challengeLibrary().find(x=>x.id===cid);if(!c)return;if(challengeHit(kidId,cid))return alert("Already awarded today.");await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),logs=d.challengeLogs||[];if(logs.some(x=>x.kidId===kidId&&x.challengeId===cid&&x.date===todayKey()&&x.status==="approved"))return;let now=Date.now(),xp=c.xp||10,pts=Math.max(0,+c.rewardPoints||defaultLevelPoints(c.id));let kids=d.kids.map(k=>k.id===kidId?{...k,xp:(k.xp||0)+xp,rewardPoints:(+k.rewardPoints||0)+pts,familyPoints:(+k.familyPoints||0)+pts}:k);let lid=newId();logs.push({id:lid,kidId,challengeId:cid,date:todayKey(),xp,points:pts,status:"approved",approvedBy:user.email,approvedAt:now,createdAt:now});let ledger=[...(d.ledger||[]),{id:newId(),type:"levelup_earning",challengeLogId:lid,kidId,label:c.name,xp,points:pts,cash:0,car:0,by:user.email,at:now}].slice(-300);tr.update(familyRef,{kids,challengeLogs:logs.slice(-1000),ledger})})});
 }
-onAuthStateChanged(auth,async u=>{user=u;if(profileUnsub){profileUnsub();profileUnsub=null}if(kidProfileUnsub){kidProfileUnsub();kidProfileUnsub=null}kidProfiles={};if(u?.isAnonymous){if(["parent","paid","settings","home","rewards"].includes(view))view="kids";}else if(u){if(["home"].includes(view)||view==="week")view="parent";}if(unsub){unsub();unsub=null}if(!u){data=null;render();return}let snap=await getDoc(familyRef);if(!snap.exists()){data=false;render();return}unsub=onSnapshot(familyRef,s=>{data=s.exists()?s.data():false;if(data&&user&&!user.isAnonymous&&!profileUnsub)oaWatchParentKidProfiles();render();
+onAuthStateChanged(auth,async u=>{user=u;if(profileUnsub){profileUnsub();profileUnsub=null}if(kidProfileUnsub){kidProfileUnsub();kidProfileUnsub=null}kidProfiles={};if(u?.isAnonymous){if(["parent","paid","settings","home","rewards"].includes(view))view="kids";}else if(u){if(["home"].includes(view)||view==="week")view="parent";}if(unsub){unsub();unsub=null}if(!u){data=null;render();return}let snap=await getDoc(familyRef);if(!snap.exists()){data=false;render();return}unsub=onSnapshot(familyRef,s=>{data=s.exists()?s.data():false;if(data&&user&&!user.isAnonymous&&!profileUnsub)oaWatchParentKidProfiles();if(data&&user?.isAnonymous&&data.kids?.[kid]?.id&&!kidProfileUnsub)oaWatchSelectedKidProfile(data.kids[kid].id);render();
  setTimeout(maybeShowWeeklySettlePopup,120);if(data&&isParent()&&(+data.pointEconomyVersion||0)<2)setTimeout(()=>rebalancePointEconomyOnce().catch(console.error),50);if(data&&isParent()&&(+data.schoolVisibilityVersion||0)<1)setTimeout(()=>repairSchoolItemsOnce().catch(console.error),70);if(data&&!vacationMode())setTimeout(()=>applyYesterdayMisses().catch(console.error),100)})});
 getRedirectResult(auth).catch(()=>{});
 </script>
