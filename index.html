@@ -8,11 +8,11 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Risser Rewards">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png?v=5052">
-<link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png?v=5052">
-<link rel="shortcut icon" href="./icon-192.png?v=5052">
-<link rel="apple-touch-icon" sizes="180x180" href="risser-rewards-touch-v17.png?v=5052">
-<title>Risser Rewards</title>
+<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png?v=511">
+<link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png?v=511">
+<link rel="shortcut icon" href="./icon-192.png?v=511">
+<link rel="apple-touch-icon" sizes="180x180" href="./oak-arrow-touch.png?v=511">
+<title>Oak &amp; Arrow</title>
 <meta name="application-version" content="50.3.7">
 <style>
 :root{--g:#1f6848;--bg:#f5f5ef;--ink:#182019;--muted:#68736b;--line:#e0e6de;--gold:#d6a62f;--red:#b64e45;--amber:#986a14;--shadow:0 10px 28px rgba(28,64,41,.10)}
@@ -487,7 +487,7 @@ input:focus,select:focus{outline:2px solid rgba(52,99,70,.18);border-color:#6d92
 .v5033PointStats span{display:block;margin-top:3px;font-size:10px;font-weight:800;color:var(--muted);line-height:1.15}
 
 
-/* V50.5.2.1 — Rewards completes the kid loop without turning it into a ranked leaderboard */
+/* V51.1.1 — Rewards completes the kid loop without turning it into a ranked leaderboard */
 .v50CategoryGrid{grid-template-columns:repeat(4,minmax(0,1fr))}
 .v5038KidEconomy{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}.v5038KidEconomy>div{background:rgba(255,253,244,.9);border:1px solid rgba(35,78,60,.13);border-radius:15px;padding:12px}.v5038KidEconomy b{display:block;font-size:22px}.v5038KidEconomy span{display:block;font-size:11px;font-weight:850;color:var(--muted);margin-top:3px}.v5038XpCard{margin-top:10px;background:rgba(35,78,60,.055);border:1px solid rgba(35,78,60,.10);border-radius:15px;padding:12px}.v5038XpRow{display:flex;justify-content:space-between;gap:10px;align-items:end;flex-wrap:wrap}.v5038XpBar{height:10px;border-radius:999px;background:rgba(35,78,60,.12);overflow:hidden;margin-top:8px}.v5038XpFill{height:100%;background:currentColor;border-radius:999px}.v5038PointPop{font-size:14px;font-weight:950}.v5038PointPop.positive{font-size:16px}
 .v5034KidRewardNumbers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}
@@ -516,7 +516,7 @@ input:focus,select:focus{outline:2px solid rgba(52,99,70,.18);border-color:#6d92
 @media(max-width:620px){.v5035SettingsTop{align-items:flex-start}.v5035ModeControls{max-width:190px}.v5035Mode{padding:6px 8px}}
 
 
-/* V50.5.2.1 persistent kid timers */
+/* V51.1.1 persistent kid timers */
 .v5037MiniTimer{margin-top:6px;display:inline-block;padding:5px 9px;border-radius:999px;background:var(--g);color:#fff;font-weight:950;font-variant-numeric:tabular-nums;letter-spacing:.04em}
 .v5037GrowthTimer{margin-top:9px;padding:12px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.7);text-align:center}
 .v5037BigTimer{font-size:38px;line-height:1;font-weight:950;font-variant-numeric:tabular-nums;letter-spacing:.02em;margin:2px 0 8px}
@@ -525,7 +525,7 @@ input:focus,select:focus{outline:2px solid rgba(52,99,70,.18);border-color:#6d92
 @media(max-width:620px){.v5037BigTimer{font-size:34px}.v5037ActiveTask{gap:8px;align-items:flex-start}}
 
 
-/* ===== V50.5.2.1 Parent Premium Typography ===== */
+/* ===== V51.1.1 Parent Premium Typography ===== */
 .parentPremium{
  font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
  letter-spacing:-.006em
@@ -544,7 +544,7 @@ input:focus,select:focus{outline:2px solid rgba(52,99,70,.18);border-color:#6d92
 .parentPremium .muted{line-height:1.38}
 
 
-/* V50.5.2.1.1 Parent Typography Strong Override */
+/* V51.1.1.1 Parent Typography Strong Override */
 .parentPremium,.parentPremium *,body.parentMode,body.parentMode *{
  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif !important
 }
@@ -564,7 +564,7 @@ body.parentMode button,body.parentMode .btn,body.parentMode summary,body.parentM
 .parentPremium b,.parentPremium strong,body.parentMode b,body.parentMode strong{font-weight:650 !important}
 
 
-/* ===== V50.5.2 Parent Premium UI — approved mockup direction ===== */
+/* ===== V51.1 Parent Premium UI — approved mockup direction ===== */
 body.parentMode{
   background:
     radial-gradient(circle at 8% 0%, rgba(20,76,55,.055), transparent 28rem),
@@ -694,7 +694,7 @@ body.parentMode .parentPremium summary{
 }
 
 
-/* ===== V50.5.2 Brand Serif Refinement ===== */
+/* ===== V51.1 Brand Serif Refinement ===== */
 body.parentMode .brandTitle,
 body.parentMode .top h1,
 body.parentMode header h1{
@@ -721,7 +721,7 @@ body.parentMode .parentPremium h2{
 }
 
 
-/* ===== V50.5.2 Exact Brand + Verse Selector Fix ===== */
+/* ===== V51.1 Exact Brand + Verse Selector Fix ===== */
 /* The live markup uses .brand and .verseBanner, so target those directly. */
 body.parentMode .brand{
   font-family:"Iowan Old Style","Baskerville","Palatino Linotype",Palatino,"Book Antiqua",Georgia,"Times New Roman",serif !important;
@@ -753,11 +753,11 @@ body.parentMode .verseBanner .muted{
 }
 
 
-/* ===== V50.5.2 Restore Weekly Verse to Kid Mode ===== */
+/* ===== V51.1 Restore Weekly Verse to Kid Mode ===== */
 .v50KidTop + .verseBanner{margin-top:12px}
 
 
-/* ===== V50.5.2 Explicit Kid Verse Rendering ===== */
+/* ===== V51.1 Explicit Kid Verse Rendering ===== */
 body:not(.parentMode) .verseBanner{
   margin:12px 0 14px;
 }
@@ -776,9 +776,59 @@ body:not(.parentMode) .verseBanner{
 .v505MoreGrid{padding:0 12px 12px}
 @media(max-width:680px){.v505TodayCard{align-items:flex-start;flex-direction:column}.v505TodayCard .btn{width:100%}}
 
+
+/* ===== OAK & ARROW V51 — KID WORLD EXPERIENCE ===== */
+:root{
+ --oa-forest:#102f22;--oa-deep:#071b14;--oa-cream:#fbf6e9;--oa-gold:#d7a83c;
+ --oa-line:rgba(255,255,255,.15);--oa-card:#fffdf6;--oa-purple:#493a78;
+}
+body:not(.parentMode){background:#07170f;color:#f8f3e6}
+body:not(.parentMode) .v50KidTop{
+ background:linear-gradient(180deg,rgba(4,18,12,.96),rgba(4,18,12,.72));
+ border:1px solid rgba(215,168,60,.25);border-radius:18px;padding:10px 14px;margin-bottom:10px
+}
+.oaBrand{display:flex;align-items:center;gap:10px;min-width:0}
+.oaBrand img{width:46px;height:46px;object-fit:contain;border-radius:50%}
+.oaBrandName{font-family:"Iowan Old Style","Baskerville",Georgia,serif;font-size:23px;font-weight:800;letter-spacing:.04em;color:#fff7df}
+.oaBrandTag{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#d7c69a;margin-top:1px}
+body:not(.parentMode) .verseBanner{display:none}
+.oaKidShell{position:relative;overflow:hidden;border-radius:26px;border:1px solid rgba(215,168,60,.32);
+ background:linear-gradient(180deg,rgba(6,29,19,.05),rgba(5,24,16,.94) 54%,#071b14 100%),var(--oa-hero);
+ background-size:cover;background-position:center;box-shadow:0 24px 55px rgba(0,0,0,.35);padding:20px;margin:8px 0 14px}
+.oaKidShell:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(4,19,13,.82),rgba(4,19,13,.2) 58%,rgba(4,19,13,.38));pointer-events:none}
+.oaKidShell>*{position:relative;z-index:1}
+.oaHeroIdentity{display:flex;align-items:center;gap:16px;padding:6px 0 14px}
+.oaHeroAvatar{width:104px;height:104px;border-radius:50%;object-fit:cover;border:5px solid #cfa53f;box-shadow:0 0 0 3px rgba(255,247,221,.65),0 8px 25px rgba(0,0,0,.35)}
+.oaHeroName .tiny{color:#dfd2a9}.oaHeroName h1{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;font-size:clamp(30px,5vw,52px);line-height:.92;margin:4px 0 9px;color:white;letter-spacing:-.035em}
+.oaRank{display:inline-flex;align-items:center;gap:7px;border:1px solid rgba(215,168,60,.55);background:rgba(20,59,39,.78);border-radius:999px;padding:6px 12px;font-weight:850;color:#fff4c9}
+.oaStats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:4px 0 16px}
+.oaStat{background:rgba(8,35,24,.82);border:1px solid rgba(215,168,60,.28);border-radius:15px;padding:10px 12px;text-align:center;backdrop-filter:blur(8px)}
+.oaStat b{display:block;font-size:22px;color:white}.oaStat span{font-size:11px;color:#e8dfc8}
+.oaBoard{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.oaPanel{background:rgba(255,252,243,.97);color:#1d2923;border-radius:18px;overflow:hidden;box-shadow:0 8px 25px rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.75)}
+.oaPanel.jobs{background:linear-gradient(180deg,#fffaf0,#fff3d3)}.oaPanel.growth{background:linear-gradient(180deg,#fffdf8,#f4effd)}
+.oaPanelHead{display:flex;align-items:center;justify-content:space-between;padding:13px 14px 10px;border-bottom:1px solid rgba(29,41,35,.13)}
+.oaPanelHead b{font-size:14px;letter-spacing:.01em}.oaPanelHead button{border:0;background:none;font-size:11px;color:#315b49;cursor:pointer}
+.oaRows{padding:2px 12px 8px}.oaRow{display:grid;grid-template-columns:26px 1fr auto;gap:7px;align-items:center;min-height:44px;border-bottom:1px solid rgba(29,41,35,.11);cursor:pointer}
+.oaRow:last-child{border-bottom:0}.oaRow .ico{font-size:18px}.oaRow .nm{font-weight:720;font-size:13px}.oaRow .val{font-weight:800;font-size:12px;color:#17602e}
+.oaPanel.growth .oaRow .val{color:#493a78}.oaPanelFoot{padding:9px 12px;text-align:center;font-size:11px;color:#53655b;background:rgba(255,255,255,.38)}
+.oaMotivation{display:grid;grid-template-columns:1fr 1.25fr 1fr;gap:10px;margin-top:12px}
+.oaMotiv{min-height:92px;border:1px solid rgba(215,168,60,.25);border-radius:15px;padding:12px;background:rgba(19,57,38,.88);color:#fff}
+.oaMotiv .label{font-size:11px;font-weight:850;letter-spacing:.04em;color:#e9dcae}.oaMotiv .big{font-size:28px;font-weight:900;margin-top:4px}.oaMotiv .small{font-size:12px;line-height:1.35;color:#eee6d1;margin-top:4px}
+.oaBottomNav{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;background:rgba(4,20,13,.95);border:1px solid rgba(215,168,60,.25);border-radius:18px;padding:7px;margin-top:12px}
+.oaBottomNav button{border:0;background:transparent;color:#e8dec4;padding:8px 4px;border-radius:12px;font-weight:700;font-size:11px}.oaBottomNav button.on{color:#ffd65f;background:rgba(215,168,60,.11)}
+.oaSectionPage{min-height:72vh;border-radius:24px;overflow:hidden;background:linear-gradient(180deg,var(--oa-page-accent,#315b49) 0 92px,#f5f0e4 92px);color:#1c2923;padding:16px}
+.oaSectionPage .card{background:rgba(255,253,247,.96)}
+body.parentMode .oaBrandName{color:#173b31}
+@media(max-width:800px){
+ .oaKidShell{padding:12px;border-radius:20px}.oaHeroAvatar{width:76px;height:76px}.oaHeroName h1{font-size:34px}
+ .oaBoard{grid-template-columns:1fr}.oaStats{grid-template-columns:repeat(3,1fr)}.oaMotivation{grid-template-columns:1fr}
+ .oaPanel{max-height:none}.oaBottomNav{position:sticky;bottom:7px;z-index:20}
+}
+
 </style>
 
-<!-- V50.5.2 full audit hardening: kid styling, school visibility persistence, accurate availability counts, Sunday settlement restoration -->
+<!-- V51.1 full audit hardening: kid styling, school visibility persistence, accurate availability counts, Sunday settlement restoration -->
 </head>
 <body><div id="app" class="app"></div>
 <script type="module">
@@ -1400,6 +1450,60 @@ function xpLevel(k){
 function xpProgressCard(k){let l=xpLevel(k);return `<div class="v5038XpCard"><div class="v5038XpRow"><div><div class="tiny muted">🔥 ADVENTURE LEVEL</div><b>${l.cur.name}</b></div><div style="text-align:right"><b>${l.xp} XP</b><div class="tiny muted">${l.next?`${l.toGo} XP to ${l.next.name}`:"Top level reached"}</div></div></div><div class="v5038XpBar"><div class="v5038XpFill" style="width:${l.pct}%"></div></div></div>`}
 function kidPointsSummary(k){let ps=rewardPointStats(k.id);return `<div class="v5038KidEconomy"><div><b>⭐ ${Math.max(0,+k.rewardPoints||0)}</b><span>Reward Points</span></div><div><b>+${ps.week}</b><span>Earned This Week</span></div></div>`}
 
+
+const OA_THEMES={
+ noah:{name:"Wildwood",hero:"assets/noah-world.png",accent:"#315b49"},
+ eli:{name:"Golden Plains",hero:"assets/eli-world.png",accent:"#a56a19"},
+ shepherd:{name:"High Country",hero:"assets/shepherd-world.png",accent:"#365d52"},
+ juniper:{name:"Enchanted Meadow",hero:"assets/juniper-world.png",accent:"#6d4a78"}
+};
+function oaTheme(k){return OA_THEMES[k?.id]||{name:"Basecamp",hero:"assets/hero-mountains.png",accent:"#315b49"}}
+function oaBrand(){
+ return `<div class="oaBrand">${`<img src="assets/oak-arrow-mark.png" alt="Oak & Arrow">`}<div><div class="oaBrandName">OAK &amp; ARROW</div><div class="oaBrandTag">Less scrolling. More childhood.</div></div></div>`
+}
+function oaKidNav(active="world"){
+ return `<div class="oaBottomNav">
+   <button class="${active==="world"?"on":""}" data-v="week">🏕<br>My World</button>
+   <button class="${active==="rewards"?"on":""}" data-v="rewards">🏆<br>Rewards</button>
+   <button class="${active==="journey"?"on":""}" data-v="level">🧭<br>My Journey</button>
+   ${moneyEnabled()?`<button class="${active==="money"?"on":""}" data-v="paid">🪙<br>Money</button>`:`<button data-v="level">⭐<br>Progress</button>`}
+ </div>`
+}
+function oaRows(items,k,type,limit=4){
+ let rows=items.slice(0,limit);
+ if(!rows.length)return `<div class="oaRows"><div class="oaRow"><span class="ico">✨</span><span class="nm">Nothing waiting right now</span><span></span></div></div>`;
+ return `<div class="oaRows">${rows.map(c=>{
+   let value=type==="job"?(moneyEnabled()&&c.paid?money(autoChoreGross(c)):`⭐ ${c.points||3}`):type==="growth"?`${c.xp||0} XP`:`${c.points||2} pts`;
+   let attr=type==="growth"?`data-ch="${c.id}"`:`data-c="${c.id}"`;
+   return `<div class="oaRow" ${attr}><span class="ico">${c.icon||"⭐"}</span><span class="nm">${c.name}</span><span class="val">${value}</span></div>`
+ }).join("")}</div>`
+}
+function oaDashboard(k){
+ let t=oaTheme(k),level=xpLevel(k),goal=rewardGoal(k),rp=visibleRewardProgress(k,goal);
+ let resp=library().filter(c=>isResponsibility(c)&&eligible(c,k.id)&&canClaim(c,k.id));
+ let jobs=library().filter(c=>isJob(c)&&eligible(c,k.id)&&canClaim(c,k.id));
+ let growth=challengeLibrary().filter(c=>!c.parentOnly&&c.active!==false&&challengeAvailable(c,k.id));
+ let v=weeklyVerse(), streak=Math.max(0,+k.streak||0);
+ return `<div class="oaKidShell" style="--oa-hero:url('${t.hero}')">
+   <div class="oaHeroIdentity"><img class="oaHeroAvatar" src="assets/${k.id}-avatar.png" alt="${k.name}"><div class="oaHeroName"><div class="tiny">GOOD TO SEE YOU</div><h1>${k.name.toUpperCase()}'S<br>ADVENTURE</h1><span class="oaRank">✦ ${level.cur.name}</span></div></div>
+   <div class="oaStats">
+     <div class="oaStat"><b>${level.cur.name}</b><span>${level.next?`${level.toGo} XP to ${level.next.name}`:"Top Adventure Level"}</span></div>
+     <div class="oaStat"><b>⭐ ${Math.max(0,+k.rewardPoints||0)}</b><span>Reward Points</span></div>
+     <div class="oaStat"><b>${moneyEnabled()?money(cashOwed(k)):`${rp.pct}%`}</b><span>${moneyEnabled()?"Spend Now":"Next Reward"}</span></div>
+   </div>
+   <div class="oaBoard">
+     <div class="oaPanel"><div class="oaPanelHead"><b>✅ RESPONSIBILITIES</b><button data-v="responsibilities">View All</button></div>${oaRows(resp,k,"resp")}<div class="oaPanelFoot">${resp.length?`${resp.length} ready today`:"All caught up today"}</div></div>
+     <div class="oaPanel jobs"><div class="oaPanelHead"><b>🪙 JOBS</b><button data-v="pick">View All</button></div>${oaRows(jobs,k,"job")}<div class="oaPanelFoot">${jobs.length} available now</div></div>
+     <div class="oaPanel growth"><div class="oaPanelHead"><b>🌱 GROWTH MISSIONS</b><button data-v="level">View All</button></div>${oaRows(growth,k,"growth")}<div class="oaPanelFoot">${growth.length} available now</div></div>
+   </div>
+   <div class="oaMotivation">
+     <div class="oaMotiv"><div class="label">🔥 ADVENTURE STREAK</div><div class="big">${streak}</div><div class="small">${streak?"Keep it going.":"Start your streak today."}</div></div>
+     <div class="oaMotiv"><div class="label">📖 VERSE OF THE WEEK</div><div class="small">“${v.text}”</div><div class="small">${v.ref}</div></div>
+     <div class="oaMotiv"><div class="label">🎁 NEXT REWARD</div><div class="big">${rp.ready?"READY!":`${Math.max(0,(+goal.cost||1)-Math.max(0,+k.rewardPoints||0))}`}</div><div class="small">${rp.ready?`${goal.icon} ${goal.name}`:`points to ${goal.icon} ${goal.name}`}</div></div>
+   </div>
+   ${oaKidNav("world")}
+ </div>`
+}
 function world(k){
  let t=theme(k),r=reliability(k),goal=rewardGoal(k),rp=visibleRewardProgress(k,goal);
  let worldArt=k.id==="noah"?"url('assets/hero-mountains.png')":"none";
@@ -1425,13 +1529,10 @@ function verseBanner(){const v=weeklyVerse();return `<div class="verseBanner"><d
 function kidVerseBanner(){return isKidSession()?verseBanner():""}
 function header(){
  if(isKidSession()){
-   return `<div class="v50KidTop">
-     <div class="brandWrap"><span class="brandPeak">▲</span><div><div class="brand">RISSER REWARDS</div><div class="sub">Responsibilities. Jobs. Growth.</div></div></div>
-     ${view!=="kids"?`<button class="v50Back" data-v="kids" aria-label="Switch kid">← Switch Kid</button>`:""}
-   </div>${summerMode()?`<div class="notice" style="margin-bottom:10px"><b>☀️ Summer Mode</b> — School responsibilities are taking a break.</div>`:""}${vacationMode()?`<div class="notice" style="margin-bottom:10px"><b>🏖️ Vacation Mode</b> — Responsibilities are paused. Growth is still open.</div>`:""}`;
+   return `<div class="v50KidTop">${oaBrand()}${view!=="kids"?`<button class="v50Back" data-v="kids" aria-label="Switch kid">← Switch Kid</button>`:""}</div>${summerMode()?`<div class="notice" style="margin-bottom:10px"><b>☀️ Summer Mode</b> — School responsibilities are taking a break.</div>`:""}${vacationMode()?`<div class="notice" style="margin-bottom:10px"><b>🏖️ Vacation Mode</b> — Responsibilities are paused. Growth is still open.</div>`:""}`;
  }
  return `<div class="top">
-   <div><div class="brandWrap"><span class="brandPeak">▲</span><div><div class="brand">RISSER REWARDS</div><div class="sub">Responsibilities. Jobs. Growth.</div></div></div></div>
+   <div>${oaBrand()}</div>
    <div class="actions"><span class="badge">${modeLabel()}</span><span class="tiny muted">${user?.email||""}</span><button id="logout" class="btn secondary">Sign out</button></div>
  </div>
  ${verseBanner()}${summerMode()?`<div class="notice" style="margin-top:8px"><b>☀️ Summer Mode</b> — School responsibilities are hidden.</div>`:""}${vacationMode()?`<div class="notice" style="margin-top:8px"><b>🏖️ Vacation Mode</b> — Required responsibilities are paused. Growth Missions remain open.</div>`:""}
@@ -1446,7 +1547,7 @@ function header(){
 function login(){
  return `<div class="login card">
    <div style="font-size:68px">🐺 🦁 🐍 🦄</div>
-   <h1>Risser Rewards</h1>
+   <h1>Oak &amp; Arrow</h1>
    <p class="muted">Kids can jump in fast. Parents unlock the controls.</p>
    <div class="actions" style="justify-content:center;margin-top:16px">
      <button id="kidLogin" class="btn">🏠 Kid Mode</button>
@@ -1454,7 +1555,7 @@ function login(){
    </div>
  </div>`;
 }
-function setup(){return `<div class="login card"><h2>🏡 Create Risser Family</h2><button id="createFamily" class="btn">Create Family</button></div>`}
+function setup(){return `<div class="login card"><h2>🏡 Create Your Family</h2><button id="createFamily" class="btn">Create Family</button></div>`}
 
 function kidExperienceNav(k){
  let responsibilities=library().filter(c=>isResponsibility(c)&&eligible(c,k.id));
@@ -1507,43 +1608,8 @@ function kidHubActive(k){
  return (data.tasks||[]).filter(t=>t.kidId===k.id&&["open","pending"].includes(t.status));
 }
 function week(){
- let k=data.kids[kid],active=kidHubActive(k),goal=rewardGoal(k),rp=visibleRewardProgress(k,goal);
- let responsibilities=library().filter(c=>isResponsibility(c)&&eligible(c,k.id));
- let jobs=library().filter(c=>isJob(c)&&eligible(c,k.id));
- let growth=challengeLibrary().filter(c=>!c.parentOnly&&c.active!==false);
- let dueCount=responsibilities.filter(c=>canClaim(c,k.id)).length;
- let availableJobs=jobs.filter(c=>canClaim(c,k.id)).length;
- let availableGrowth=growth.filter(c=>challengeAvailable(c,k.id)).length;
- return header()+kidVerseBanner()+world(k)+`
-   <div class="v505TodayCard">
-     <div><div class="tiny muted">TODAY</div><h2>${dueCount?`${dueCount} responsibilit${dueCount===1?"y":"ies"} ready`:"You're caught up"}</h2><div class="muted">${dueCount?"Handle your responsibilities first. Then choose what you want to do next.":"Nice work. Jobs and Growth are open when you're ready."}</div></div>
-     <button class="btn ${dueCount?"":"secondary"}" data-v="responsibilities">${dueCount?"See What I Need To Do":"View Responsibilities"}</button>
-   </div>
-   <div class="v505KidChips"><span>⭐ ${Math.max(0,+k.rewardPoints||0)} Points</span><span>🔥 ${xpLevel(k).cur.name}</span><span>🏆 ${goal.icon} ${rp.pct}%</span></div>
-   <div class="v50CategoryGrid">
-     <button class="v50Category responsibility" data-v="responsibilities">
-       <div class="catIcon">✅</div><div class="catTitle">Responsibilities</div>
-       <div class="catDesc">The things that are yours to handle.${dueCount?` ${dueCount} ready now.`:" You're current."}</div>
-     </button>
-     <button class="v50Category jobs" data-v="pick">
-       <div class="catIcon">💼</div><div class="catTitle">Jobs</div>
-       <div class="catDesc">${moneyEnabled()?"Want to earn? Pick a job and get after it.":"Extra ways to help the family."} ${availableJobs} available now.</div>
-     </button>
-     <button class="v50Category growth" data-v="level">
-       <div class="catIcon">🌱</div><div class="catTitle">Growth</div>
-       <div class="catDesc">Missions that build skills, habits and character. ${availableGrowth} available now.</div>
-     </button>
-     <button class="v50Category rewards" data-v="rewards">
-       <div class="catIcon">🏆</div><div class="catTitle">Rewards</div>
-       <div class="catDesc">See your goal, your progress and how everyone's doing.</div>
-     </button>
-   </div>
-   ${active.length?`<div class="card"><h2 style="margin-top:0">▶️ What I'm Doing</h2>${active.map(t=>{let timed=t.status==="open"&&(+t.timerMinutes||0)>0,ready=!timed||timerReady(t);return `<div class="task v5037ActiveTask"><div><b>${t.icon} ${t.name}</b><div class="tiny muted">${t.status==="pending"?"Waiting for parent":timed?(ready?"Timer complete — ready to finish":"Timer running"):`In progress`}</div>${timed?`<div class="v5037MiniTimer" data-timer-end="${timerEndMs(t)}">${ready?"✅ TIME COMPLETE":formatTimer(timerRemainingMs(t))}</div>`:""}</div>${t.status==="open"?`<button data-done="${t.id}" class="btn small" ${timed&&!ready?"disabled":""}>${t.type==="golf"?"Count":timed?(ready?"I'm Done":"Timer Running"):"I'm Done"}</button>`:`<span class="pill due">Submitted</span>`}</div>`}).join("")}</div>`:""}
-   <details class="v505KidMore"><summary>More about my progress</summary><div class="v505KidMoreBody">
-     ${xpProgressCard(k)}
-     <div class="v50WorldActions"><button class="btn secondary small" data-v="rewards">My Rewards</button>${moneyEnabled()?`<button class="btn secondary small" data-v="paid">My Money</button>`:""}</div>
-     ${recentActivityCard(k.id)}
-   </div></details>`;
+ let k=data.kids[kid];
+ return header()+oaDashboard(k);
 }
 function responsibilityView(){
  let k=data.kids[kid],lib=library().filter(c=>isResponsibility(c)&&eligible(c,k.id));
