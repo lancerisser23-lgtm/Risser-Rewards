@@ -1723,6 +1723,62 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
 /* V57.0 native world masters: preserve aspect ratio and avoid blur/filter processing. */
 .oaKidShell{background-size:cover!important;background-position:center center!important;filter:none!important;image-rendering:auto!important}
 .oaKidShell:before{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;filter:none!important}
+
+/* V57.4 — Kid World Glass: keep the selected World visible behind the kid experience. */
+.oaKidShell{
+  --oa-glass:rgba(255,252,242,.78);
+  --oa-glass-strong:rgba(255,252,242,.86);
+  --oa-glass-dark:rgba(7,27,18,.76);
+}
+.oaKidShell .oaKidBottomNav{
+  background:rgba(7,27,18,.68)!important;
+  -webkit-backdrop-filter:blur(12px) saturate(120%)!important;
+  backdrop-filter:blur(12px) saturate(120%)!important;
+  box-shadow:0 -8px 24px rgba(0,0,0,.12)!important;
+}
+.oaKidShell .oaKidTop,
+.oaKidShell .oaKidPageHead,
+.oaKidShell .oaKidSectionNav,
+.oaKidShell .oaKidPanel,
+.oaKidShell .oaRewardHero,
+.oaKidShell .oaMoneyHero,
+.oaKidShell .oaJourneyHero,
+.oaKidShell .oaCustomizeNote,
+.oaKidShell .oaExplorerSection,
+.oaKidShell .oaCurrentWorld,
+.oaKidShell .oaWorldCard,
+.oaKidShell .oaExplorerCard,
+.oaKidShell .card,
+.oaKidShell .weekCard,
+.oaKidShell .oaMissionCard,
+.oaKidShell .oaTaskCard{
+  background-color:var(--oa-glass)!important;
+  -webkit-backdrop-filter:blur(8px) saturate(110%);
+  backdrop-filter:blur(8px) saturate(110%);
+}
+.oaKidShell .oaRewardHero,
+.oaKidShell .oaMoneyHero,
+.oaKidShell .oaJourneyHero{
+  background-color:var(--oa-glass-strong)!important;
+}
+/* V57.5 — Normalize every Explorer/avatar inside its frame. */
+.oaExplorerCard img[src*="assets/avatars/explorer-"],
+.oaKidShell img[src*="assets/avatars/explorer-"]{
+  object-fit:contain!important;
+  object-position:50% 50%!important;
+  box-sizing:border-box!important;
+  padding:4px!important;
+  background:rgba(255,252,242,.9)!important;
+  transform:none!important;
+}
+.oaExplorerCard img{
+  aspect-ratio:1/1;
+  width:100%;
+  height:auto;
+  margin-inline:auto;
+  display:block;
+}
+
 </style>
 
 <!-- V56.2 full audit hardening: kid styling, school visibility persistence, accurate availability counts, Sunday settlement restoration -->
