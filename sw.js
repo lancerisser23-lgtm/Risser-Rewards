@@ -1,4 +1,4 @@
-const CACHE='oak-arrow-v56-2-world-hard-reset';
+const CACHE='oak-arrow-v57-0-native-worlds-hard-reset';
 const CORE=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png',
 './assets/noah-avatar.png','./assets/eli-avatar.png','./assets/shepherd-avatar.png','./assets/juniper-avatar.png',
 './assets/noah-world.png','./assets/eli-world.png','./assets/shepherd-world.png','./assets/juniper-world.png'];

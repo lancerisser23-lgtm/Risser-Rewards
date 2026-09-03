@@ -1,0 +1,86 @@
+{
+  "release": "V57.0",
+  "note": "Original uploaded native masters; no resizing or upscaling performed.",
+  "worlds": [
+    {
+      "id": "wildwood",
+      "name": "Wildwood",
+      "file": "assets/worlds/wildwood-native-v570.jpeg",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "a1c112828d57bdedc489684bfffcd442d977925e924d80b6f824f6cca7f172af"
+    },
+    {
+      "id": "golden-plains",
+      "name": "Golden Plains",
+      "file": "assets/worlds/golden-plains-native-v570.jpeg",
+      "width": 1535,
+      "height": 1024,
+      "sha256": "2023f2d5f1f62ece20f1f344ddbef2229a86a189612a18d33dbf073f5bd3860e"
+    },
+    {
+      "id": "deep-blue",
+      "name": "Deep Blue",
+      "file": "assets/worlds/deep-blue-native-v570.jpeg",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "c7efe28b1ed32505fd91de73361d7394a05d6cab7a2ed82b2ca4d8f030728720"
+    },
+    {
+      "id": "starbound",
+      "name": "Starbound",
+      "file": "assets/worlds/starbound-native-v570.jpeg",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "78c5f8b2fac1d37b15fa69d0ae9a5dc936685af649477dc7f213be68fe82ce0e"
+    },
+    {
+      "id": "lost-world",
+      "name": "Lost World",
+      "file": "assets/worlds/lost-world-native-v570.jpeg",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "a960440752a14d2542590f0a1802a70238bd21d1fa1bf09f1c70a18f5e913e07"
+    },
+    {
+      "id": "high-country",
+      "name": "Desert Sands",
+      "file": "assets/worlds/desert-sands-native-v570.jpeg",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "4b3a54c6a6da3fcd4fa2390b63a0acfe987d4859e2614eb47480b6a67f069e75"
+    },
+    {
+      "id": "jungle-trail",
+      "name": "Jungle Trail",
+      "file": "assets/worlds/jungle-trail-native-v570.jpeg",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "4471fe1782094c41a7b7e72d74b5e6440c8ac6a4834db24e6f895b541f0d5e22"
+    },
+    {
+      "id": "enchanted-meadow",
+      "name": "Enchanted Meadow",
+      "file": "assets/worlds/enchanted-meadow-native-v570.jpeg",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "0be9d0087cd1a2bf47ff084eb1074109824ef704f22a7698ff9e7643c7edd69a"
+    },
+    {
+      "id": "coastal-adventure",
+      "name": "Coastal Adventure",
+      "file": "assets/worlds/coastal-adventure-native-v570.jpeg",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "e6be00e1839ee4663f9479c68acc9aa770c05b10f1be63f52f088394c3da9b23"
+    },
+    {
+      "id": "basecamp",
+      "name": "Basecamp",
+      "file": "assets/worlds/basecamp-native-v570.jpeg",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "82657870a0c2ff29713f8540b9b501b8b28353ee7d2dda95cf1d439590743fe6"
+    }
+  ]
+}

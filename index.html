@@ -1719,6 +1719,10 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
   filter:none!important;
   image-rendering:auto!important;
 }
+
+/* V57.0 native world masters: preserve aspect ratio and avoid blur/filter processing. */
+.oaKidShell{background-size:cover!important;background-position:center center!important;filter:none!important;image-rendering:auto!important}
+.oaKidShell:before{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;filter:none!important}
 </style>
 
 <!-- V56.2 full audit hardening: kid styling, school visibility persistence, accurate availability counts, Sunday settlement restoration -->
@@ -2392,16 +2396,16 @@ function kidPointsSummary(k){let ps=rewardPointStats(k.id);return `<div class="v
 
 
 const OA_WORLD_CATALOG=[
- {id:"wildwood",name:"Wildwood",traits:"Brave · Loyal · Resilient",accent:"#315b49",thumb:"assets/worlds/wildwood-v562.svg",hero:"assets/worlds/wildwood-v562.svg",emblem:"assets/emblems/wildwood.svg",icon:"outside"},
- {id:"golden-plains",name:"Golden Plains",traits:"Courage · Strength · Leadership",accent:"#a56a19",thumb:"assets/worlds/golden-plains-v562.svg",hero:"assets/worlds/golden-plains-v562.svg",emblem:"assets/emblems/golden-plains.svg",icon:"sun"},
- {id:"deep-blue",name:"Deep Blue",traits:"Curious · Calm · Adventurous",accent:"#285d66",thumb:"assets/worlds/deep-blue-v562.svg",hero:"assets/worlds/deep-blue-v562.svg",emblem:"assets/emblems/deep-blue.svg",icon:"water"},
- {id:"starbound",name:"Starbound",traits:"Dream · Discover · Achieve",accent:"#29344c",thumb:"assets/worlds/starbound-v562.svg",hero:"assets/worlds/starbound-v562.svg",emblem:"assets/emblems/starbound.svg",icon:"star"},
- {id:"lost-world",name:"Lost World",traits:"Wild · Strong · Unstoppable",accent:"#445c32",thumb:"assets/worlds/lost-world-v562.svg",hero:"assets/worlds/lost-world-v562.svg",emblem:"assets/emblems/lost-world.svg",icon:"outside"},
- {id:"high-country",name:"Desert Sands",traits:"Independent · Focused · Steady",accent:"#365d52",thumb:"assets/worlds/desert-sands-v562.svg",hero:"assets/worlds/desert-sands-v562.svg",emblem:"assets/emblems/high-country.svg",icon:"journey"},
- {id:"jungle-trail",name:"Jungle Trail",traits:"Explore · Adapt · Thrive",accent:"#4b6237",thumb:"assets/worlds/jungle-trail-v562.svg",hero:"assets/worlds/jungle-trail-v562.svg",emblem:"assets/emblems/jungle-trail.svg",icon:"leaf"},
- {id:"enchanted-meadow",name:"Enchanted Meadow",traits:"Kind · Creative · Magical",accent:"#80648e",thumb:"assets/worlds/enchanted-meadow-v562.svg",hero:"assets/worlds/enchanted-meadow-v562.svg",emblem:"assets/emblems/enchanted-meadow.svg",icon:"kindness"},
- {id:"coastal-adventure",name:"Coastal Adventure",traits:"Free · Bold · Real",accent:"#2e6870",thumb:"assets/worlds/coastal-adventure-v562.svg",hero:"assets/worlds/coastal-adventure-v562.svg",emblem:"assets/emblems/coastal-adventure.svg",icon:"water"},
- {id:"basecamp",name:"Basecamp",traits:"Prepared · Reliable · Ready",accent:"#5b5437",thumb:"assets/worlds/basecamp-v562.svg",hero:"assets/worlds/basecamp-v562.svg",emblem:"assets/emblems/basecamp.svg",icon:"outside"}
+ {id:"wildwood",name:"Wildwood",traits:"Brave · Loyal · Resilient",accent:"#315b49",thumb:"assets/worlds/wildwood-native-v570.jpeg",hero:"assets/worlds/wildwood-native-v570.jpeg",emblem:"assets/emblems/wildwood.svg",icon:"outside"},
+ {id:"golden-plains",name:"Golden Plains",traits:"Courage · Strength · Leadership",accent:"#a56a19",thumb:"assets/worlds/golden-plains-native-v570.jpeg",hero:"assets/worlds/golden-plains-native-v570.jpeg",emblem:"assets/emblems/golden-plains.svg",icon:"sun"},
+ {id:"deep-blue",name:"Deep Blue",traits:"Curious · Calm · Adventurous",accent:"#285d66",thumb:"assets/worlds/deep-blue-native-v570.jpeg",hero:"assets/worlds/deep-blue-native-v570.jpeg",emblem:"assets/emblems/deep-blue.svg",icon:"water"},
+ {id:"starbound",name:"Starbound",traits:"Dream · Discover · Achieve",accent:"#29344c",thumb:"assets/worlds/starbound-native-v570.jpeg",hero:"assets/worlds/starbound-native-v570.jpeg",emblem:"assets/emblems/starbound.svg",icon:"star"},
+ {id:"lost-world",name:"Lost World",traits:"Wild · Strong · Unstoppable",accent:"#445c32",thumb:"assets/worlds/lost-world-native-v570.jpeg",hero:"assets/worlds/lost-world-native-v570.jpeg",emblem:"assets/emblems/lost-world.svg",icon:"outside"},
+ {id:"high-country",name:"Desert Sands",traits:"Independent · Focused · Steady",accent:"#365d52",thumb:"assets/worlds/desert-sands-native-v570.jpeg",hero:"assets/worlds/desert-sands-native-v570.jpeg",emblem:"assets/emblems/high-country.svg",icon:"journey"},
+ {id:"jungle-trail",name:"Jungle Trail",traits:"Explore · Adapt · Thrive",accent:"#4b6237",thumb:"assets/worlds/jungle-trail-native-v570.jpeg",hero:"assets/worlds/jungle-trail-native-v570.jpeg",emblem:"assets/emblems/jungle-trail.svg",icon:"leaf"},
+ {id:"enchanted-meadow",name:"Enchanted Meadow",traits:"Kind · Creative · Magical",accent:"#80648e",thumb:"assets/worlds/enchanted-meadow-native-v570.jpeg",hero:"assets/worlds/enchanted-meadow-native-v570.jpeg",emblem:"assets/emblems/enchanted-meadow.svg",icon:"kindness"},
+ {id:"coastal-adventure",name:"Coastal Adventure",traits:"Free · Bold · Real",accent:"#2e6870",thumb:"assets/worlds/coastal-adventure-native-v570.jpeg",hero:"assets/worlds/coastal-adventure-native-v570.jpeg",emblem:"assets/emblems/coastal-adventure.svg",icon:"water"},
+ {id:"basecamp",name:"Basecamp",traits:"Prepared · Reliable · Ready",accent:"#5b5437",thumb:"assets/worlds/basecamp-native-v570.jpeg",hero:"assets/worlds/basecamp-native-v570.jpeg",emblem:"assets/emblems/basecamp.svg",icon:"outside"}
 ];
 const OA_DEFAULT_WORLD_BY_KID={noah:"wildwood",eli:"golden-plains",shepherd:"high-country",juniper:"enchanted-meadow"};
 
@@ -2427,10 +2431,10 @@ function oaWorldById(id){return OA_WORLD_CATALOG.find(w=>w.id===id)||OA_WORLD_CA
 function oaWorld(k){return oaWorldById(oaWorldId(k))}
 
 const OA_THEMES={
- noah:{name:"Wildwood",hero:"assets/worlds/wildwood-v562.svg",avatar:"assets/avatars/noah.png",emblem:"assets/emblems/wildwood.svg",accent:"#315b49"},
- eli:{name:"Golden Plains",hero:"assets/worlds/wildwood-v562.svg",avatar:"assets/avatars/eli.png",emblem:"assets/emblems/golden-plains.svg",accent:"#a56a19"},
- shepherd:{name:"Desert Sands",hero:"assets/worlds/wildwood-v562.svg",avatar:"assets/avatars/shepherd.png",emblem:"assets/emblems/high-country.svg",accent:"#365d52"},
- juniper:{name:"Enchanted Meadow",hero:"assets/worlds/wildwood-v562.svg",avatar:"assets/avatars/juniper.png",emblem:"assets/emblems/enchanted-meadow.svg",accent:"#80648e"}
+ noah:{name:"Wildwood",hero:"assets/worlds/wildwood-native-v570.jpeg",avatar:"assets/avatars/noah.png",emblem:"assets/emblems/wildwood.svg",accent:"#315b49"},
+ eli:{name:"Golden Plains",hero:"assets/worlds/golden-plains-native-v570.jpeg",avatar:"assets/avatars/eli.png",emblem:"assets/emblems/golden-plains.svg",accent:"#a56a19"},
+ shepherd:{name:"Desert Sands",hero:"assets/worlds/desert-sands-native-v570.jpeg",avatar:"assets/avatars/shepherd.png",emblem:"assets/emblems/high-country.svg",accent:"#365d52"},
+ juniper:{name:"Enchanted Meadow",hero:"assets/worlds/enchanted-meadow-native-v570.jpeg",avatar:"assets/avatars/juniper.png",emblem:"assets/emblems/enchanted-meadow.svg",accent:"#80648e"}
 };
 function oaTheme(k){
  const w=oaWorld(k),legacy=OA_THEMES[k?.id]||{};
