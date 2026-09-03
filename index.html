@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Risser Rewards">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" sizes="180x180" href="risser-rewards-touch-v17.png">
-<title>Risser Rewards V50.4.2.1</title>
+<title>Risser Rewards V50.4.3.1</title>
 <meta name="application-version" content="50.3.7">
 <style>
 :root{--g:#1f6848;--bg:#f5f5ef;--ink:#182019;--muted:#68736b;--line:#e0e6de;--gold:#d6a62f;--red:#b64e45;--amber:#986a14;--shadow:0 10px 28px rgba(28,64,41,.10)}
@@ -484,7 +484,7 @@ input:focus,select:focus{outline:2px solid rgba(52,99,70,.18);border-color:#6d92
 .v5033PointStats span{display:block;margin-top:3px;font-size:10px;font-weight:800;color:var(--muted);line-height:1.15}
 
 
-/* V50.4.2.1 — Rewards completes the kid loop without turning it into a ranked leaderboard */
+/* V50.4.3.1 — Rewards completes the kid loop without turning it into a ranked leaderboard */
 .v50CategoryGrid{grid-template-columns:repeat(4,minmax(0,1fr))}
 .v5038KidEconomy{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}.v5038KidEconomy>div{background:rgba(255,253,244,.9);border:1px solid rgba(35,78,60,.13);border-radius:15px;padding:12px}.v5038KidEconomy b{display:block;font-size:22px}.v5038KidEconomy span{display:block;font-size:11px;font-weight:850;color:var(--muted);margin-top:3px}.v5038XpCard{margin-top:10px;background:rgba(35,78,60,.055);border:1px solid rgba(35,78,60,.10);border-radius:15px;padding:12px}.v5038XpRow{display:flex;justify-content:space-between;gap:10px;align-items:end;flex-wrap:wrap}.v5038XpBar{height:10px;border-radius:999px;background:rgba(35,78,60,.12);overflow:hidden;margin-top:8px}.v5038XpFill{height:100%;background:currentColor;border-radius:999px}.v5038PointPop{font-size:14px;font-weight:950}.v5038PointPop.positive{font-size:16px}
 .v5034KidRewardNumbers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}
@@ -513,7 +513,7 @@ input:focus,select:focus{outline:2px solid rgba(52,99,70,.18);border-color:#6d92
 @media(max-width:620px){.v5035SettingsTop{align-items:flex-start}.v5035ModeControls{max-width:190px}.v5035Mode{padding:6px 8px}}
 
 
-/* V50.4.2.1 persistent kid timers */
+/* V50.4.3.1 persistent kid timers */
 .v5037MiniTimer{margin-top:6px;display:inline-block;padding:5px 9px;border-radius:999px;background:var(--g);color:#fff;font-weight:950;font-variant-numeric:tabular-nums;letter-spacing:.04em}
 .v5037GrowthTimer{margin-top:9px;padding:12px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.7);text-align:center}
 .v5037BigTimer{font-size:38px;line-height:1;font-weight:950;font-variant-numeric:tabular-nums;letter-spacing:.02em;margin:2px 0 8px}
@@ -522,7 +522,7 @@ input:focus,select:focus{outline:2px solid rgba(52,99,70,.18);border-color:#6d92
 @media(max-width:620px){.v5037BigTimer{font-size:34px}.v5037ActiveTask{gap:8px;align-items:flex-start}}
 
 
-/* ===== V50.4.2.1 Parent Premium Typography ===== */
+/* ===== V50.4.3.1 Parent Premium Typography ===== */
 .parentPremium{
  font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
  letter-spacing:-.006em
@@ -541,7 +541,7 @@ input:focus,select:focus{outline:2px solid rgba(52,99,70,.18);border-color:#6d92
 .parentPremium .muted{line-height:1.38}
 
 
-/* V50.4.2.1.1 Parent Typography Strong Override */
+/* V50.4.3.1.1 Parent Typography Strong Override */
 .parentPremium,.parentPremium *,body.parentMode,body.parentMode *{
  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif !important
 }
@@ -561,7 +561,7 @@ body.parentMode button,body.parentMode .btn,body.parentMode summary,body.parentM
 .parentPremium b,.parentPremium strong,body.parentMode b,body.parentMode strong{font-weight:650 !important}
 
 
-/* ===== V50.4.2 Parent Premium UI — approved mockup direction ===== */
+/* ===== V50.4.3 Parent Premium UI — approved mockup direction ===== */
 body.parentMode{
   background:
     radial-gradient(circle at 8% 0%, rgba(20,76,55,.055), transparent 28rem),
@@ -688,6 +688,33 @@ body.parentMode .parentPremium details{
 body.parentMode .parentPremium summary{
   font-weight:600 !important;
   letter-spacing:-.01em !important;
+}
+
+
+/* ===== V50.4.3 Brand Serif Refinement ===== */
+body.parentMode .brandTitle,
+body.parentMode .top h1,
+body.parentMode header h1{
+  font-family:"Iowan Old Style","Baskerville","Palatino Linotype",Palatino,"Book Antiqua",Georgia,"Times New Roman",serif !important;
+  font-weight:700 !important;
+  letter-spacing:.005em !important;
+  line-height:.98 !important;
+  color:#143d31 !important;
+}
+body.parentMode .verse .verseText,
+body.parentMode .verse blockquote,
+body.parentMode .verse strong:first-of-type{
+  font-family:"Iowan Old Style","Baskerville","Palatino Linotype",Palatino,"Book Antiqua",Georgia,"Times New Roman",serif !important;
+  font-weight:700 !important;
+  letter-spacing:-.018em !important;
+  line-height:1.16 !important;
+  color:#173b31 !important;
+}
+body.parentMode .parentEditorial,
+body.parentMode .parentPremium h2{
+  font-family:"Iowan Old Style","Baskerville","Palatino Linotype",Palatino,"Book Antiqua",Georgia,"Times New Roman",serif !important;
+  font-weight:700 !important;
+  letter-spacing:-.022em !important;
 }
 
 </style>
@@ -1298,7 +1325,7 @@ function weeklyVerse(){
  const sundaySerial=Math.floor(Date.UTC(sun.getFullYear(),sun.getMonth(),sun.getDate())/(7*24*60*60*1000));
  return WEEKLY_VERSES[((sundaySerial%WEEKLY_VERSES.length)+WEEKLY_VERSES.length)%WEEKLY_VERSES.length]
 }
-function verseBanner(){const v=weeklyVerse();return `<div class="verseBanner"><div class="tiny muted">📖 VERSE OF THE WEEK</div><div style="font-size:17px;font-weight:850;line-height:1.45;margin-top:4px">“${v.text}”</div><div class="verseRef">${v.ref} · WEB</div><div class="tiny muted" style="margin-top:4px">New verse every Sunday</div></div>`}
+function verseBanner(){const v=weeklyVerse();return `<div class="verseBanner"><div class="tiny muted">📖 VERSE OF THE WEEK</div><div style="font-size:17px;font-weight:850;line-height:1.45;margin-top:4px"><div class="verseText">“${v.text}”</div></div><div class="verseRef">${v.ref} · WEB</div><div class="tiny muted" style="margin-top:4px">New verse every Sunday</div></div>`}
 function header(){
  if(isKidSession()){
    return `<div class="v50KidTop">
