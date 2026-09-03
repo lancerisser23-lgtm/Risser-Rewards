@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Risser Rewards">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" sizes="180x180" href="risser-rewards-touch-v17.png">
-<title>Risser Rewards V50.4.1.1</title>
+<title>Risser Rewards V50.4.2.1</title>
 <meta name="application-version" content="50.3.7">
 <style>
 :root{--g:#1f6848;--bg:#f5f5ef;--ink:#182019;--muted:#68736b;--line:#e0e6de;--gold:#d6a62f;--red:#b64e45;--amber:#986a14;--shadow:0 10px 28px rgba(28,64,41,.10)}
@@ -484,7 +484,7 @@ input:focus,select:focus{outline:2px solid rgba(52,99,70,.18);border-color:#6d92
 .v5033PointStats span{display:block;margin-top:3px;font-size:10px;font-weight:800;color:var(--muted);line-height:1.15}
 
 
-/* V50.4.1.1 — Rewards completes the kid loop without turning it into a ranked leaderboard */
+/* V50.4.2.1 — Rewards completes the kid loop without turning it into a ranked leaderboard */
 .v50CategoryGrid{grid-template-columns:repeat(4,minmax(0,1fr))}
 .v5038KidEconomy{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}.v5038KidEconomy>div{background:rgba(255,253,244,.9);border:1px solid rgba(35,78,60,.13);border-radius:15px;padding:12px}.v5038KidEconomy b{display:block;font-size:22px}.v5038KidEconomy span{display:block;font-size:11px;font-weight:850;color:var(--muted);margin-top:3px}.v5038XpCard{margin-top:10px;background:rgba(35,78,60,.055);border:1px solid rgba(35,78,60,.10);border-radius:15px;padding:12px}.v5038XpRow{display:flex;justify-content:space-between;gap:10px;align-items:end;flex-wrap:wrap}.v5038XpBar{height:10px;border-radius:999px;background:rgba(35,78,60,.12);overflow:hidden;margin-top:8px}.v5038XpFill{height:100%;background:currentColor;border-radius:999px}.v5038PointPop{font-size:14px;font-weight:950}.v5038PointPop.positive{font-size:16px}
 .v5034KidRewardNumbers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}
@@ -513,7 +513,7 @@ input:focus,select:focus{outline:2px solid rgba(52,99,70,.18);border-color:#6d92
 @media(max-width:620px){.v5035SettingsTop{align-items:flex-start}.v5035ModeControls{max-width:190px}.v5035Mode{padding:6px 8px}}
 
 
-/* V50.4.1.1 persistent kid timers */
+/* V50.4.2.1 persistent kid timers */
 .v5037MiniTimer{margin-top:6px;display:inline-block;padding:5px 9px;border-radius:999px;background:var(--g);color:#fff;font-weight:950;font-variant-numeric:tabular-nums;letter-spacing:.04em}
 .v5037GrowthTimer{margin-top:9px;padding:12px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.7);text-align:center}
 .v5037BigTimer{font-size:38px;line-height:1;font-weight:950;font-variant-numeric:tabular-nums;letter-spacing:.02em;margin:2px 0 8px}
@@ -522,7 +522,7 @@ input:focus,select:focus{outline:2px solid rgba(52,99,70,.18);border-color:#6d92
 @media(max-width:620px){.v5037BigTimer{font-size:34px}.v5037ActiveTask{gap:8px;align-items:flex-start}}
 
 
-/* ===== V50.4.1.1 Parent Premium Typography ===== */
+/* ===== V50.4.2.1 Parent Premium Typography ===== */
 .parentPremium{
  font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
  letter-spacing:-.006em
@@ -541,7 +541,7 @@ input:focus,select:focus{outline:2px solid rgba(52,99,70,.18);border-color:#6d92
 .parentPremium .muted{line-height:1.38}
 
 
-/* V50.4.1.1.1 Parent Typography Strong Override */
+/* V50.4.2.1.1 Parent Typography Strong Override */
 .parentPremium,.parentPremium *,body.parentMode,body.parentMode *{
  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif !important
 }
@@ -559,6 +559,136 @@ body.parentMode button,body.parentMode .btn,body.parentMode summary,body.parentM
 .parentPremium .tiny,body.parentMode .tiny{font-weight:600 !important;letter-spacing:.045em !important}
 .parentPremium .muted,body.parentMode .muted{font-weight:400 !important;letter-spacing:-.006em !important}
 .parentPremium b,.parentPremium strong,body.parentMode b,body.parentMode strong{font-weight:650 !important}
+
+
+/* ===== V50.4.2 Parent Premium UI — approved mockup direction ===== */
+body.parentMode{
+  background:
+    radial-gradient(circle at 8% 0%, rgba(20,76,55,.055), transparent 28rem),
+    #f7f3e9 !important;
+  color:#17352d !important;
+}
+body.parentMode, body.parentMode *{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif !important;
+}
+body.parentMode h1,
+body.parentMode h2,
+body.parentMode .parentEditorial{
+  font-family:"Iowan Old Style","Baskerville","Times New Roman",Georgia,serif !important;
+  color:#173b31 !important;
+  font-weight:700 !important;
+  letter-spacing:-.025em !important;
+}
+body.parentMode h1{font-size:clamp(30px,4vw,48px) !important}
+body.parentMode h2{font-size:clamp(28px,3vw,42px) !important;line-height:1.06 !important}
+
+body.parentMode .top,
+body.parentMode .verse,
+body.parentMode .card,
+body.parentMode details{
+  background:rgba(255,253,248,.96) !important;
+  border:1px solid rgba(96,79,48,.16) !important;
+  box-shadow:0 8px 22px rgba(52,48,38,.045) !important;
+}
+body.parentMode .top{
+  border-radius:28px !important;
+  padding:22px 28px !important;
+}
+body.parentMode .verse{
+  border-radius:24px !important;
+  padding:24px 28px !important;
+  border-left:5px solid #c69b32 !important;
+}
+body.parentMode .verse b,
+body.parentMode .verse strong{
+  font-family:"Iowan Old Style","Baskerville","Times New Roman",Georgia,serif !important;
+  font-weight:700 !important;
+  color:#173b31 !important;
+}
+
+body.parentMode .nav{
+  gap:14px !important;
+}
+body.parentMode .nav button,
+body.parentMode .nav .btn{
+  min-height:66px !important;
+  border-radius:20px !important;
+  background:#fffdf8 !important;
+  border:1px solid rgba(96,79,48,.17) !important;
+  box-shadow:0 4px 12px rgba(52,48,38,.025) !important;
+  font-size:16px !important;
+  font-weight:500 !important;
+  letter-spacing:-.01em !important;
+}
+body.parentMode .nav .active,
+body.parentMode .nav button.active{
+  background:#174f39 !important;
+  border-color:#174f39 !important;
+  color:#fff !important;
+}
+
+body.parentMode .parentPremium{
+  font-size:16px !important;
+}
+body.parentMode .parentPremium .tiny{
+  font-size:12px !important;
+  text-transform:uppercase !important;
+  letter-spacing:.10em !important;
+  font-weight:600 !important;
+  color:#6c7772 !important;
+}
+body.parentMode .parentPremium .muted{
+  color:#68736e !important;
+  font-size:15px !important;
+  line-height:1.45 !important;
+  font-weight:400 !important;
+}
+body.parentMode .parentPremium b,
+body.parentMode .parentPremium strong{
+  font-weight:600 !important;
+}
+
+body.parentMode .parentPremium button,
+body.parentMode .parentPremium .btn{
+  min-height:46px !important;
+  border-radius:13px !important;
+  padding:10px 18px !important;
+  font-size:15px !important;
+  font-weight:600 !important;
+  letter-spacing:-.01em !important;
+  box-shadow:none !important;
+}
+body.parentMode .parentPremium button:not(.danger):not([data-sendback]){
+  border-color:rgba(23,79,57,.42) !important;
+}
+body.parentMode .parentPremium .danger,
+body.parentMode .parentPremium [data-sendback]{
+  background:#fffaf8 !important;
+  color:#a94f42 !important;
+  border:1px solid rgba(169,79,66,.48) !important;
+}
+
+body.parentMode .parentPremium select,
+body.parentMode .parentPremium input,
+body.parentMode .parentPremium textarea{
+  background:#fffdf8 !important;
+  border:1px solid rgba(96,79,48,.20) !important;
+  border-radius:12px !important;
+  font-weight:400 !important;
+  box-shadow:none !important;
+}
+
+body.parentMode .parentPremium hr{
+  border:none !important;
+  border-top:1px solid rgba(96,79,48,.12) !important;
+}
+body.parentMode .parentPremium details{
+  border-radius:18px !important;
+}
+body.parentMode .parentPremium summary{
+  font-weight:600 !important;
+  letter-spacing:-.01em !important;
+}
 
 </style>
 </head>
