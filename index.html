@@ -1726,9 +1726,9 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
 
 /* V57.4 — Kid World Glass: keep the selected World visible behind the kid experience. */
 .oaKidShell{
-  --oa-glass:rgba(255,252,242,.78);
-  --oa-glass-strong:rgba(255,252,242,.86);
-  --oa-glass-dark:rgba(7,27,18,.76);
+  --oa-glass:rgba(255,252,242,.66);
+  --oa-glass-strong:rgba(255,252,242,.74);
+  --oa-glass-dark:rgba(7,27,18,.60);
 }
 .oaKidShell .oaKidBottomNav{
   background:rgba(7,27,18,.68)!important;
@@ -1784,7 +1784,7 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
 
 /* V57.6 — World visibility correction based on real dashboard selectors. */
 .oaKidShell .oaBottomNav{
-  background:rgba(5,34,23,.70)!important;
+  background:rgba(5,34,23,.55)!important;
   -webkit-backdrop-filter:blur(7px) saturate(110%)!important;
   backdrop-filter:blur(7px) saturate(110%)!important;
   border-color:rgba(215,168,60,.38)!important;
@@ -1801,7 +1801,7 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
 .oaKidShell .oaPanel,
 .oaKidShell .oaPanel.jobs,
 .oaKidShell .oaPanel.growth{
-  background:rgba(255,252,243,.84)!important;
+  background:rgba(255,252,243,.68)!important;
   -webkit-backdrop-filter:blur(4px) saturate(108%)!important;
   backdrop-filter:blur(4px) saturate(108%)!important;
   border-color:rgba(255,255,255,.55)!important;
@@ -1822,7 +1822,7 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
 .oaTodoChoices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:16px 0 22px}
 .oaTodoChoice{
   min-height:150px;border:1px solid rgba(185,139,50,.55);border-radius:22px;
-  background:rgba(255,252,243,.72);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+  background:rgba(255,252,243,.66);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(4px);
   padding:20px;text-align:left;color:#123d2c;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;
 }
 .oaTodoChoice .oaTodoIcon{width:48px;height:48px;display:grid;place-items:center}
@@ -1832,6 +1832,29 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
 .oaTodoChoice strong{font-size:28px}
 @media(max-width:760px){.oaTodoChoices{grid-template-columns:1fr}.oaSimpleKidNav{grid-template-columns:repeat(5,1fr)!important}.oaSimpleKidNav span{font-size:11px}}
 
+
+/* V58.1 — Let the selected World show through more clearly. */
+.oaKidShell .oaStat{
+  background:rgba(8,35,24,.64)!important;
+  -webkit-backdrop-filter:blur(4px) saturate(108%)!important;
+  backdrop-filter:blur(4px) saturate(108%)!important;
+}
+.oaKidShell .oaMotiv{
+  background:rgba(19,57,38,.62)!important;
+  -webkit-backdrop-filter:blur(4px) saturate(108%)!important;
+  backdrop-filter:blur(4px) saturate(108%)!important;
+}
+.oaKidShell .oaPanel,
+.oaKidShell .oaPanel.jobs,
+.oaKidShell .oaPanel.growth{
+  -webkit-backdrop-filter:blur(3px) saturate(106%)!important;
+  backdrop-filter:blur(3px) saturate(106%)!important;
+}
+.oaKidShell .oaBottomNav{
+  -webkit-backdrop-filter:blur(4px) saturate(108%)!important;
+  backdrop-filter:blur(4px) saturate(108%)!important;
+}
+
 </style>
 
 <!-- V56.2 full audit hardening: kid styling, school visibility persistence, accurate availability counts, Sunday settlement restoration -->
@@ -1840,7 +1863,7 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 import {getAuth,GoogleAuthProvider,signInWithPopup,signInWithRedirect,signInAnonymously,getRedirectResult,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-import {getFirestore,doc,getDoc,setDoc,onSnapshot,updateDoc,arrayUnion,runTransaction,serverTimestamp} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+import {getFirestore,doc,collection,getDoc,setDoc,onSnapshot,updateDoc,arrayUnion,runTransaction,serverTimestamp} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
 const cfg={
 apiKey:"AIzaSyANYgm-DS1jn-l8QOem4oz2Kp7a9etH2Bg",
@@ -1920,7 +1943,7 @@ const DEFAULT_CHALLENGES=[
 
 
 const WEEKLY_VERSES=[{"ref":"Proverbs 3:5-6","text":"Trust in the LORD with all your heart, and don’t lean on your own understanding. In all your ways acknowledge him, and he will make your paths straight."},{"ref":"Joshua 1:9","text":"Haven’t I commanded you? Be strong and courageous. Don’t be afraid. Don’t be dismayed, for the LORD your God is with you wherever you go."},{"ref":"Philippians 4:13","text":"I can do all things through Christ, who strengthens me."},{"ref":"Psalm 119:105","text":"Your word is a lamp to my feet, and a light for my path."},{"ref":"Colossians 3:23","text":"And whatever you do, work heartily, as for the Lord and not for men."},{"ref":"Ephesians 4:32","text":"And be kind to one another, tenderhearted, forgiving each other, just as God also in Christ forgave you."},{"ref":"Galatians 6:9","text":"Let’s not be weary in doing good, for we will reap in due season if we don’t give up."},{"ref":"James 1:19","text":"So, then, my beloved brothers, let every man be swift to hear, slow to speak, and slow to anger."},{"ref":"Proverbs 15:1","text":"A gentle answer turns away wrath, but a harsh word stirs up anger."},{"ref":"Micah 6:8","text":"He has shown you, O man, what is good. What does the LORD require of you, but to act justly, to love mercy, and to walk humbly with your God?"},{"ref":"Luke 6:31","text":"As you would like people to do to you, do exactly so to them."},{"ref":"Matthew 5:16","text":"Even so, let your light shine before men, that they may see your good works and glorify your Father who is in heaven."},{"ref":"Proverbs 27:17","text":"Iron sharpens iron; so a man sharpens his friend’s countenance."},{"ref":"1 Corinthians 16:14","text":"Let all that you do be done in love."},{"ref":"Romans 12:10","text":"In love of the brothers be tenderly affectionate to one another; in honor preferring one another."},{"ref":"Proverbs 17:17","text":"A friend loves at all times; and a brother is born for adversity."},{"ref":"Psalm 118:24","text":"This is the day that the LORD has made. We will rejoice and be glad in it!"},{"ref":"1 Thessalonians 5:16-18","text":"Always rejoice. Pray without ceasing. In everything give thanks, for this is God’s will for you in Christ Jesus."},{"ref":"Matthew 5:9","text":"Blessed are the peacemakers, for they shall be called children of God."},{"ref":"Psalm 90:12","text":"So teach us to count our days, that we may gain a heart of wisdom."},{"ref":"2 Timothy 1:7","text":"For God didn’t give us a spirit of fear, but of power, love, and self-control."},{"ref":"Philippians 2:3-4","text":"Doing nothing through rivalry or through conceit, but in humility, each counting others better than himself; each of you not just looking to his own things, but each of you also to the things of others."},{"ref":"Romans 12:12","text":"Rejoicing in hope, enduring in troubles, continuing steadfastly in prayer."},{"ref":"Matthew 22:39","text":"You shall love your neighbor as yourself."},{"ref":"Acts 20:35","text":"It is more blessed to give than to receive."},{"ref":"Psalm 34:8","text":"Oh taste and see that the LORD is good. Blessed is the man who takes refuge in him."},{"ref":"Isaiah 41:10","text":"Don’t you be afraid, for I am with you. Don’t be dismayed, for I am your God. I will strengthen you. Yes, I will help you."},{"ref":"Psalm 56:3","text":"When I am afraid, I will put my trust in you."},{"ref":"Proverbs 16:3","text":"Commit your deeds to the LORD, and your plans shall succeed."},{"ref":"Matthew 6:33","text":"But seek first God’s Kingdom and his righteousness; and all these things will be given to you as well."},{"ref":"Romans 8:28","text":"We know that all things work together for good for those who love God, to those who are called according to his purpose."},{"ref":"Psalm 46:10","text":"Be still, and know that I am God."},{"ref":"1 Peter 5:7","text":"Casting all your worries on him, because he cares for you."},{"ref":"Hebrews 12:1","text":"Let us run with perseverance the race that is set before us."},{"ref":"Proverbs 4:23","text":"Keep your heart with all diligence, for out of it is the wellspring of life."},{"ref":"Psalm 139:14","text":"I will give thanks to you, for I am fearfully and wonderfully made."},{"ref":"Isaiah 40:31","text":"But those who wait for the LORD will renew their strength. They will mount up with wings like eagles."},{"ref":"Psalm 37:4","text":"Also delight yourself in the LORD, and he will give you the desires of your heart."},{"ref":"Matthew 11:28","text":"Come to me, all you who labor and are heavily burdened, and I will give you rest."},{"ref":"James 1:5","text":"But if any of you lacks wisdom, let him ask of God, who gives to all liberally and without reproach, and it will be given to him."},{"ref":"Romans 15:13","text":"Now may the God of hope fill you with all joy and peace in believing."},{"ref":"Psalm 19:14","text":"Let the words of my mouth and the meditation of my heart be acceptable in your sight, LORD, my rock, and my redeemer."},{"ref":"Matthew 7:7","text":"Ask, and it will be given you. Seek, and you will find. Knock, and it will be opened for you."},{"ref":"John 8:32","text":"You will know the truth, and the truth will make you free."},{"ref":"1 John 4:19","text":"We love him, because he first loved us."},{"ref":"Matthew 19:26","text":"With men this is impossible, but with God all things are possible."},{"ref":"Ephesians 6:1","text":"Children, obey your parents in the Lord, for this is right."},{"ref":"Colossians 3:20","text":"Children, obey your parents in all things, for this pleases the Lord."},{"ref":"1 Samuel 16:7","text":"Man looks at the outward appearance, but the LORD looks at the heart."},{"ref":"Psalm 133:1","text":"See how good and how pleasant it is for brothers to live together in unity!"},{"ref":"Psalm 55:22","text":"Cast your burden on the LORD and he will sustain you."},{"ref":"Lamentations 3:22-23","text":"It is because of the LORD’s loving kindnesses that we are not consumed, because his compassion doesn’t fail. They are new every morning. Great is your faithfulness."}];
-let user=null,data=null,view="home",kid=0,unsub=null,golfCount=0,pushupCount=0,lastClaimId=null,lastClaimAt=0,timerUiInterval=null;
+let user=null,data=null,view="home",kid=0,unsub=null,profileUnsub=null,kidProfileUnsub=null,kidProfiles={},golfCount=0,pushupCount=0,lastClaimId=null,lastClaimAt=0,timerUiInterval=null;
 const $=q=>document.querySelector(q),$$=q=>[...document.querySelectorAll(q)],money=n=>"$"+Number(n||0).toFixed(Number(n)%1?2:0),newId=()=>crypto.randomUUID();
 
 function isParent(){return !!(user&&!user.isAnonymous&&data&&(data.ownerUid===user.uid||(data.parentEmails||[]).map(x=>x.toLowerCase()).includes((user.email||"").toLowerCase())))}
@@ -2545,7 +2568,61 @@ const OA_KID_PREFS_KEY="oakArrowKidPrefsV1";
 function oaLocalKidPrefs(){try{return JSON.parse(localStorage.getItem(OA_KID_PREFS_KEY)||"{}")||{}}catch(e){return {}}}
 function oaLocalKidPref(kidId){return oaLocalKidPrefs()[kidId]||{}}
 function oaSaveLocalKidPref(kidId,changes){if(!kidId)return;const all=oaLocalKidPrefs();all[kidId]={...(all[kidId]||{}),...changes};localStorage.setItem(OA_KID_PREFS_KEY,JSON.stringify(all))}
-function oaEffectiveKid(k){if(!k)return k;return {...k,...oaLocalKidPref(k.id)}}
+function oaKidProfileRef(kidId){return doc(db,"families","risser","kidProfiles",kidId)}
+function oaCleanKidProfile(raw={}){
+ const out={};
+ if(OA_EXPLORER_CATALOG.some(x=>x.id===raw.oaExplorer))out.oaExplorer=raw.oaExplorer;
+ if(OA_WORLD_CATALOG.some(x=>x.id===raw.oaWorld))out.oaWorld=raw.oaWorld;
+ if(out.oaExplorer)out.oaAvatar=oaExplorerById(out.oaExplorer).asset;
+ return out;
+}
+function oaRememberRemoteKidProfile(kidId,raw){
+ if(!kidId)return;
+ const clean=oaCleanKidProfile(raw||{});
+ kidProfiles[kidId]=clean;
+ if(isKidSession()&&Object.keys(clean).length)oaSaveLocalKidPref(kidId,clean);
+}
+function oaEffectiveKid(k){
+ if(!k)return k;
+ const remote=kidProfiles[k.id]||{};
+ const local=isKidSession()?oaLocalKidPref(k.id):{};
+ return {...k,...remote,...local};
+}
+async function oaSaveSyncedKidProfile(kidId,changes){
+ if(!kidId||!user)return;
+ const base=data?.kids?.find(x=>x.id===kidId)||{id:kidId};
+ const clean=oaCleanKidProfile({...oaEffectiveKid(base),...changes});
+ oaSaveLocalKidPref(kidId,clean);
+ kidProfiles[kidId]={...(kidProfiles[kidId]||{}),...clean};
+ try{
+   await setDoc(oaKidProfileRef(kidId),{
+     kidId,
+     oaExplorer:clean.oaExplorer||oaExplorerId(base),
+     oaWorld:clean.oaWorld||oaWorldId(base),
+     updatedAt:serverTimestamp()
+   },{merge:true});
+ }catch(err){
+   console.error("Could not sync kid profile",err);
+   alert("Your choice is saved on this device, but it could not sync to Parent Mode yet. Add the V58.1 Firebase rules, then try once more.");
+ }
+}
+function oaWatchSelectedKidProfile(kidId){
+ if(kidProfileUnsub){kidProfileUnsub();kidProfileUnsub=null}
+ if(!kidId||!user||!user.isAnonymous)return;
+ kidProfileUnsub=onSnapshot(oaKidProfileRef(kidId),snap=>{
+   if(snap.exists()){oaRememberRemoteKidProfile(kidId,snap.data());render()}
+ },err=>console.warn("Kid profile watch unavailable",err));
+}
+function oaWatchParentKidProfiles(){
+ if(profileUnsub){profileUnsub();profileUnsub=null}
+ if(!user||user.isAnonymous)return;
+ profileUnsub=onSnapshot(collection(db,"families","risser","kidProfiles"),snap=>{
+   const next={};
+   snap.forEach(d=>{next[d.id]=oaCleanKidProfile(d.data())});
+   kidProfiles=next;
+   render();
+ },err=>console.warn("Parent kid-profile sync unavailable",err));
+}
 
 function oaWorldId(k){return k?.oaWorld||OA_DEFAULT_WORLD_BY_KID[k?.id]||"basecamp"}
 function oaWorldById(id){return OA_WORLD_CATALOG.find(w=>w.id===id)||OA_WORLD_CATALOG[9]}
@@ -3488,7 +3565,7 @@ function bind(){
  });
 $("#futureFundSimple")?.addEventListener("change",e=>{let w=$("#futureFundSimpleWrap");if(w)w.style.display=e.target.value==="1"?"block":"none"});
  $$("[data-active-select]").forEach(e=>e.onchange=()=>{let box=$(`[data-active="${e.dataset.activeSelect}"]`);if(box)box.checked=e.value==="1"});
-$$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCount=0;view="week";render()});
+$$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCount=0;view="week";oaWatchSelectedKidProfile(data.kids[kid]?.id);render()});
 
  $$("[data-c]").forEach(b=>b.onclick=()=>{
    const choreId=b.dataset.c,k=data.kids[kid],c=library().find(x=>x.id===choreId);
@@ -3513,20 +3590,24 @@ $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCoun
    askConfirm(`Did you finish ${c.name}?`,`We'll tell Mom or Dad you're done.`,`Yes, I Did It`,finish);
  });
 
- $$("[data-worldpick]").forEach(b=>b.onclick=e=>{
+ $$("[data-worldpick]").forEach(b=>b.onclick=async e=>{
    e.preventDefault();
    const world=b.dataset.worldpick,k=data.kids[kid],kidId=k?.id;
    if(!OA_WORLD_CATALOG.some(x=>x.id===world)||!kidId)return;
    oaSaveLocalKidPref(kidId,{oaWorld:world});
+   kidProfiles[kidId]={...(kidProfiles[kidId]||{}),oaWorld:world};
    render();
+   await oaSaveSyncedKidProfile(kidId,{oaWorld:world});
  });
 
- $$("[data-explorerpick]").forEach(b=>b.onclick=e=>{
+ $$("[data-explorerpick]").forEach(b=>b.onclick=async e=>{
    e.preventDefault();
    const explorer=b.dataset.explorerpick,k=data.kids[kid],kidId=k?.id,choice=OA_EXPLORER_CATALOG.find(x=>x.id===explorer);
    if(!choice||!kidId)return;
    oaSaveLocalKidPref(kidId,{oaExplorer:explorer,oaAvatar:choice.asset});
+   kidProfiles[kidId]={...(kidProfiles[kidId]||{}),oaExplorer:explorer,oaAvatar:choice.asset};
    render();
+   await oaSaveSyncedKidProfile(kidId,{oaExplorer:explorer});
  });
 
  $$("[data-rredeem]").forEach(b=>b.onclick=()=>{let r=individualRewards().find(x=>x.id===b.dataset.rredeem),k=kidById(b.dataset.rkid);if(!r||!k||(+k.rewardPoints||0)<r.cost)return;askConfirm("Complete this goal?",`${k.name} reached ${r.name}. Completing it resets the saved reward progress so a new goal can begin.`,"Complete Goal",async()=>{await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),cur=d.kids.find(x=>x.id===k.id);if(!cur||(+cur.rewardPoints||0)<r.cost)return;let kids=d.kids.map(x=>x.id===k.id?{...x,rewardPoints:(+x.rewardPoints||0)-r.cost}:x);let ledger=[...(d.ledger||[]),{id:newId(),type:"points_redemption",kidId:k.id,label:r.name,points:-r.cost,by:user?.email||"kid",at:Date.now()}].slice(-300);tr.update(familyRef,{kids,ledger})})})});
@@ -3879,7 +3960,7 @@ $("#newRequired")?.addEventListener("change",()=>{$("#newMoneyArea").dataset.ove
  $$("[data-chreject]").forEach(b=>b.onclick=async()=>{let logs=challengeLogs().map(x=>x.id===b.dataset.chreject?{...x,status:"rejected",approvedBy:user.email,approvedAt:Date.now()}:x);await patch({challengeLogs:logs})});
  $("#giveAward")?.addEventListener("click",async()=>{let kidId=$("#awardKid").value,cid=$("#awardType").value,c=challengeLibrary().find(x=>x.id===cid);if(!c)return;if(challengeHit(kidId,cid))return alert("Already awarded today.");await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),logs=d.challengeLogs||[];if(logs.some(x=>x.kidId===kidId&&x.challengeId===cid&&x.date===todayKey()&&x.status==="approved"))return;let now=Date.now(),xp=c.xp||10,pts=Math.max(0,+c.rewardPoints||defaultLevelPoints(c.id));let kids=d.kids.map(k=>k.id===kidId?{...k,xp:(k.xp||0)+xp,rewardPoints:(+k.rewardPoints||0)+pts,familyPoints:(+k.familyPoints||0)+pts}:k);let lid=newId();logs.push({id:lid,kidId,challengeId:cid,date:todayKey(),xp,points:pts,status:"approved",approvedBy:user.email,approvedAt:now,createdAt:now});let ledger=[...(d.ledger||[]),{id:newId(),type:"levelup_earning",challengeLogId:lid,kidId,label:c.name,xp,points:pts,cash:0,car:0,by:user.email,at:now}].slice(-300);tr.update(familyRef,{kids,challengeLogs:logs.slice(-1000),ledger})})});
 }
-onAuthStateChanged(auth,async u=>{user=u;if(u?.isAnonymous){if(["parent","paid","settings","home","rewards"].includes(view))view="kids";}else if(u){if(["home"].includes(view)||view==="week")view="parent";}if(unsub){unsub();unsub=null}if(!u){data=null;render();return}let snap=await getDoc(familyRef);if(!snap.exists()){data=false;render();return}unsub=onSnapshot(familyRef,s=>{data=s.exists()?s.data():false;render();
+onAuthStateChanged(auth,async u=>{user=u;if(profileUnsub){profileUnsub();profileUnsub=null}if(kidProfileUnsub){kidProfileUnsub();kidProfileUnsub=null}kidProfiles={};if(u?.isAnonymous){if(["parent","paid","settings","home","rewards"].includes(view))view="kids";}else if(u){if(["home"].includes(view)||view==="week")view="parent";}if(unsub){unsub();unsub=null}if(!u){data=null;render();return}let snap=await getDoc(familyRef);if(!snap.exists()){data=false;render();return}unsub=onSnapshot(familyRef,s=>{data=s.exists()?s.data():false;if(data&&user&&!user.isAnonymous&&!profileUnsub)oaWatchParentKidProfiles();render();
  setTimeout(maybeShowWeeklySettlePopup,120);if(data&&isParent()&&(+data.pointEconomyVersion||0)<2)setTimeout(()=>rebalancePointEconomyOnce().catch(console.error),50);if(data&&isParent()&&(+data.schoolVisibilityVersion||0)<1)setTimeout(()=>repairSchoolItemsOnce().catch(console.error),70);if(data&&!vacationMode())setTimeout(()=>applyYesterdayMisses().catch(console.error),100)})});
 getRedirectResult(auth).catch(()=>{});
 </script>
