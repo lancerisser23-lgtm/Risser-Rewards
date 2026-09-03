@@ -2656,7 +2656,7 @@ const OA_ICON_MAP={
  "🚗":"car","🌿":"leaf","👨‍🍳":"chef","👩‍🍳":"chef","📦":"box","💪":"dumbbell","⚛️":"atom","🤝":"heart-hands",
  "⏱️":"timer","⭐":"star","💵":"wallet","🔥":"flame","✅":"check","🏆":"rewards","💼":"jobs","🧭":"growth","🪙":"money",
  "🐶":"dog","🐕":"dog","🐾":"paw","🐐":"goat","🐓":"chicken","🐔":"chicken","🦆":"duck","🐍":"snake","🐈":"cat","🐱":"cat",
- "🎒":"backpack","📘":"homework","📚":"book","🏀":"sports","⚽":"sports","🏈":"sports","🏹":"archery","📱":"screen","💻":"screen",
+ "🎒":"backpack","📘":"homework","📚":"book","🏀":"sports","⚽":"sports","🏈":"sports","🏹":"archery","📱":"screen","💻":"screen","📵":"no-screen",
  "🏊":"pool","🏊‍♂️":"pool","🏊‍♀️":"pool","🚪":"garage","🧻":"towel","📦":"cardboard","💧":"water","🙏":"bible-verse","❤️":"kindness",
  "💚":"kindness","🤝":"kindness","🏕️":"outside","🌲":"outside","🧽":"clean","🧼":"clean","🧹":"broom","🗑️":"trash","🗑":"trash",
  "✏️":"homework","✏":"homework","📝":"homework","🛏️":"bed","🛏":"bed","🍽️":"dishes","🧺":"laundry","🚗":"car","🌿":"leaf","🪴":"plant",
@@ -2666,7 +2666,7 @@ const OA_ICON_MAP={
  "👨‍👩‍👧‍👦":"family","👋":"family","📖":"bible","⛳":"golf","🎉":"celebrate","🎊":"celebrate","📅":"calendar","ℹ️":"info","📷":"camera",
  "🎯":"star","🌳":"plant","🌞":"sun","✦":"star","✨":"star","💰":"money","🏡":"home","🏠":"home","🔔":"pending","🧠":"growth"
 };
-const OA_DIRECT_ICONS=new Set(["home","responsibilities","jobs","growth","rewards","journey","money","settings","bed","paw","book","broom","plant","trash","laundry","dishes","car","leaf","chef","box","dumbbell","atom","heart-hands","timer","star","wallet","flame","check","lock","dog","goat","chicken","duck","snake","cat","backpack","homework","sports","archery","screen","pool","garage","towel","cardboard","water","bible-verse","kindness","outside","clean","check-circle","x-circle","edit","delete","add","filter","history","save","logout","search","menu","kid","sun","vacation","warning","pending","approve","undo","switch-kid","family","bible","golf","summer","school","arrow-left","calendar","info","celebrate","coin","shield","camera"]);
+const OA_DIRECT_ICONS=new Set(["home","responsibilities","jobs","growth","rewards","journey","money","settings","bed","paw","book","broom","plant","trash","laundry","dishes","car","leaf","chef","box","dumbbell","atom","heart-hands","timer","star","wallet","flame","check","lock","dog","goat","chicken","duck","snake","cat","backpack","homework","sports","archery","screen","no-screen","pool","garage","towel","cardboard","water","bible-verse","kindness","outside","clean","check-circle","x-circle","edit","delete","add","filter","history","save","logout","search","menu","kid","sun","vacation","warning","pending","approve","undo","switch-kid","family","bible","golf","summer","school","arrow-left","calendar","info","celebrate","coin","shield","camera"]);
 function oaIconFor(raw,fallback="star"){if(OA_DIRECT_ICONS.has(raw))return raw;return OA_ICON_MAP[raw]||fallback}
 
 function oaTaskIcon(c,type="resp"){
@@ -2679,7 +2679,7 @@ function oaTaskIcon(c,type="resp"){
   [["dish"],"dishes"],[["laundry","towel"],"laundry"],[["trash","garbage"],"trash"],[["car","wash"],"car"],[["yard","weed","plant","garden"],"leaf"],
   [["garage"],"garage"],[["cardboard","box"],"cardboard"],[["water"],"water"],[["golf"],"golf"],[["pushup","workout","exercise"],"dumbbell"],
   [["basketball","football","soccer","sport"],"sports"],[["archery","bow"],"archery"],[["bible","verse","pray"],"bible-verse"],[["kind","help a neighbor","help others"],"kindness"],
-  [["outside","adventure"],"outside"],[["screen"],"screen"]
+  [["outside","adventure"],"outside"],[["no screen","screen limit","screen-free","screen free"],"no-screen"],[["screen"],"screen"]
  ];
  for(const [keys,icon] of tests)if(keys.some(k=>n.includes(k)))return icon;
  return type==="job"?"jobs":type==="growth"?"growth":"responsibilities";
@@ -2690,7 +2690,7 @@ const OA_TASK_ICON_CHOICES=[
  ["responsibilities","Responsibility"],["jobs","Job"],["bed","Bed"],["dog","Dog / Pet"],["cat","Cat"],["goat","Goat"],["chicken","Chicken / Eggs"],["duck","Duck"],["snake","Snake"],
  ["backpack","Backpack"],["homework","Homework / School"],["book","Reading / Books"],["clean","Cleaning"],["broom","Sweep / Mop"],["dishes","Dishes"],["laundry","Laundry"],["trash","Trash"],
  ["car","Vehicle"],["leaf","Yard / Garden"],["garage","Garage"],["cardboard","Boxes / Recycling"],["water","Water"],["golf","Golf"],["dumbbell","Exercise"],["sports","Sports"],["archery","Archery"],
- ["bible-verse","Bible / Verse"],["kindness","Kindness / Helping"],["outside","Outside"],["screen","Screen"],["pool","Pool"],["plant","Plant / Growth"],["star","Other"]
+ ["bible-verse","Bible / Verse"],["kindness","Kindness / Helping"],["outside","Outside"],["screen","Screen"],["no-screen","No Screen"],["pool","Pool"],["plant","Plant / Growth"],["star","Other"]
 ];
 const OA_REWARD_ICON_CHOICES=[["rewards","Reward"],["star","Star"],["journey","Adventure"],["family","Family"],["outside","Experience"],["money","Money"],["sports","Sports"],["book","Book"],["golf","Golf"],["kindness","Special"]];
 function oaIconOptions(selected,kind="task"){const choices=kind==="reward"?OA_REWARD_ICON_CHOICES:OA_TASK_ICON_CHOICES;return choices.map(([v,label])=>`<option value="${v}" ${v===selected?"selected":""}>${label}</option>`).join("")}
@@ -3096,7 +3096,7 @@ function parent(){
  return header()+`<div class="card">
    <div class="v50SectionTitle"><div><div class="tiny muted">PARENT ACTION CENTER</div><h2 style="margin:3px 0"><span class="parentEditorial">${oaIcon("pending","inline")} Waiting for Approval</span>${waitingApprovalCount()?` (${waitingApprovalCount()})`:""}</h2><div class="muted">One place for Responsibilities, Jobs, Growth Missions and excuse requests.</div></div><button id="bulkBasics" class="btn secondary small">Approve Daily Basics</button></div>
    ${pending().map(t=>{let k=kidById(t.kidId),type=t.required?"RESPONSIBILITY":"JOB";return `<div class="parentPremium"><div class="approval"><div><div class="v50ApprovalType">${type}</div><b>${oaIcon(oaTaskIcon(t,t.required?"resp":"job"),"inline")} ${k?.name} — ${t.name}</b><div class="reward">${t.required?"Ready for approval":moneyEnabled()?`Earnings calculated when approved`:"Ready for approval"}</div></div><div class="actions"><button data-app="${t.id}" class="btn small">Approve</button><button data-back="${t.id}" class="btn red small">Send Back</button></div></div>`}).join("")}
-   ${pendingLevelUps().map(x=>{let c=challengeLibrary().find(c=>c.id===x.challengeId),k=kidById(x.kidId);return `<div class="approval"><div><div class="v50ApprovalType">GROWTH MISSION</div><b>${c?.icon||"🌱"} ${k?.name} — ${c?.name||"Mission"}</b><div class="reward">${x.challengeId==="pushups"?`${x.count||0} pushups`:`🔥 ${c?.xp||10} XP`}</div></div><div class="actions"><button class="btn small" data-chapp="${x.id}">Approve</button><button class="btn red small" data-chreject="${x.id}">Send Back</button></div></div>`}).join("")}
+   ${pendingLevelUps().map(x=>{let c=challengeLibrary().find(c=>c.id===x.challengeId),k=kidById(x.kidId);return `<div class="approval"><div><div class="v50ApprovalType">GROWTH MISSION</div><b>${oaIcon(oaTaskIcon(c||{},"growth"),"inline")} ${k?.name} — ${c?.name||"Mission"}</b><div class="reward">${x.challengeId==="pushups"?`${x.count||0} pushups`:`🔥 ${c?.xp||10} XP`}</div></div><div class="actions"><button class="btn small" data-chapp="${x.id}">Approve</button><button class="btn red small" data-chreject="${x.id}">Send Back</button></div></div>`}).join("")}
    ${pendingRewardRequests().map(x=>{let k=kidById(x.kidId);return `<div class="approval"><div><div class="v50ApprovalType">REWARD REQUEST</div><b>${oaIcon("rewards","inline")} ${k?.name} — ${x.label||"Reward"}</b><div class="reward">${x.cost||0} Reward Points · Ready to redeem</div></div><div class="actions"><button class="btn small" data-rewardapprove="${x.id}">Approve + Redeem</button><button class="btn red small" data-rewarddeny="${x.id}">Not Yet</button></div></div>`}).join("")}
    ${pendingExcuseRequests().map(x=>{let k=kidById(x.kidId),name=String(x.label||"Missed responsibility").replace("Missed required chore — ","");return `<div class="approval"><div><div class="v50ApprovalType">EXCUSE REQUEST</div><b>${oaIcon("kid","inline")} ${k?.name} — ${name}</b><div class="due">${x.xp||0} XP · ${x.forDate||""}</div></div><div class="actions"><button class="btn small" data-excuseapprove="${x.id}">Excuse + Restore XP</button><button class="btn red small" data-excusedeny="${x.id}">Keep Penalty</button></div></div>`}).join("")}
    ${waitingApprovalCount()?"":`<p class="muted oaCaughtUp">${oaIcon("check-circle","inline")} Nothing waiting. You're caught up.</p>`}
@@ -3209,7 +3209,7 @@ function settings(){
  </div>
 
  <div class="card" id="growthSettingsV50">
-   <h2 style="margin-top:0">🌱 Growth Missions</h2>
+   <h2 style="margin-top:0">${oaIcon("growth","inline")} Growth Missions</h2>
    <p class="muted">Add your own Missions, edit the current ones, or remove anything your family doesn't use. Removing a Mission hides it without deleting its history.</p>
 
    ${challengeLibrary().filter(c=>!c.parentOnly&&c.active!==false).map(c=>{
@@ -3219,7 +3219,7 @@ function settings(){
        <div class="v50AdvancedBody">
          <div class="settingsGrid">
            <div><label>Name</label><input data-cname="${i}" value="${c.name||""}"></div>
-           <div><label>Icon</label><input data-cicon="${i}" value="${c.icon||"🌱"}"></div>
+           <div><label>Oak & Arrow Icon</label>${oaVisualIconPicker(oaTaskIcon(c,"growth"),"data-cicon",i)}</div>
            <div style="grid-column:1/-1"><label>Mission description</label><input data-cdesc="${i}" value="${c.desc||""}"></div>
            <div><label>XP</label><input data-cxp="${i}" type="number" min="0" max="100" value="${Math.max(0,+c.xp||0)}"></div>
            <div><label>Schedule</label><select data-cfreq="${i}">${v50GrowthFreqOptions(c)}</select></div>${v502DayPicker(c,"growth",i)}
@@ -3240,7 +3240,7 @@ function settings(){
      <div class="v50AdvancedBody">
        <div class="settingsGrid">
          <div><label>Mission name</label><input id="newGrowthName" placeholder="Practice Piano"></div>
-         <div><label>Icon</label><input id="newGrowthIcon" value="🌱"></div>
+         <div><label>Oak & Arrow Icon</label>${oaVisualIconPicker("growth","id","newGrowthIcon")}</div>
          <div style="grid-column:1/-1"><label>What should they do?</label><input id="newGrowthDesc" placeholder="Practice for at least 20 minutes"></div>
          <div><label>XP earned</label><input id="newGrowthXp" type="number" min="0" max="100" value="10"></div>
          <div><label>Schedule</label><select id="newGrowthFreq"><option value="daily">Every Day</option><option value="weekdays">Certain Days</option><option value="weekly">Weekly</option><option value="anytime">Anytime</option></select></div>
@@ -3250,7 +3250,7 @@ function settings(){
      </div>
    </details>
 
-   ${challengeLibrary().some(c=>!c.parentOnly&&c.active===false)?`<details class="v50Advanced" style="margin-top:12px"><summary>Hidden / Removed Missions</summary><div class="v50AdvancedBody">${challengeLibrary().filter(c=>!c.parentOnly&&c.active===false).map(c=>`<div class="approval"><div><b>${c.icon} ${c.name}</b><div class="tiny muted">Past history preserved</div></div><button class="btn secondary small" data-growth-restore="${c.id}">Restore</button></div>`).join("")}</div></details>`:""}
+   ${challengeLibrary().some(c=>!c.parentOnly&&c.active===false)?`<details class="v50Advanced" style="margin-top:12px"><summary>Hidden / Removed Missions</summary><div class="v50AdvancedBody">${challengeLibrary().filter(c=>!c.parentOnly&&c.active===false).map(c=>`<div class="approval"><div><b>${oaIcon(oaTaskIcon(c,"growth"),"inline")} ${c.name}</b><div class="tiny muted">Past history preserved</div></div><button class="btn secondary small" data-growth-restore="${c.id}">Restore</button></div>`).join("")}</div></details>`:""}
  </div>
  <details class="v50Advanced">
    <summary>Advanced Settings</summary>
@@ -3770,7 +3770,7 @@ $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCoun
 
  let challengeDraft=challengeLibrary().map(c=>({...c}));
  $$("[data-cname]").forEach(e=>e.addEventListener("input",()=>{let c=challengeDraft[+e.dataset.cname];if(c)c.name=e.value}));
- $$("[data-cicon]").forEach(e=>e.addEventListener("input",()=>{let c=challengeDraft[+e.dataset.cicon];if(c)c.icon=e.value}));
+ $$("[data-cicon]").forEach(e=>e.addEventListener("change",()=>{let c=challengeDraft[+e.dataset.cicon];if(c)c.icon=e.value||"growth"}));
  $$("[data-cdesc]").forEach(e=>e.addEventListener("input",()=>{let c=challengeDraft[+e.dataset.cdesc];if(c)c.desc=e.value}));
  $$("[data-cxp]").forEach(e=>e.addEventListener("input",()=>{let c=challengeDraft[+e.dataset.cxp];if(c)c.xp=Math.max(0,Math.min(100,+e.value||0))}));
 
@@ -3787,17 +3787,49 @@ $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCoun
  $$("[data-cclaim]").forEach(e=>e.addEventListener("change",()=>{let c=challengeDraft[+e.dataset.cclaim];if(c)c.claimType=e.value}));
  $$("[data-ctimer]").forEach(e=>e.addEventListener("input",()=>{let c=challengeDraft[+e.dataset.ctimer];if(c)c.timerMinutes=Math.max(0,Math.min(180,+e.value||0))}));
  $("#saveLevelAvailability")?.addEventListener("click",async()=>{
-   challengeDraft=challengeDraft.map(c=>({...c,name:(c.name||"Growth Mission").trim(),icon:(c.icon||"🌱").trim(),desc:(c.desc||"").trim(),xp:Math.max(0,Math.min(100,+c.xp||0)),days:c.frequency==="weekdays"?(Array.isArray(c.days)&&c.days.length?c.days:[1,2,3,4,5]):(c.days||[])}));
-   await patch({challenges:challengeDraft});
-   alert("Growth Missions saved!");
+   try{
+     $$("[data-cname]").forEach(e=>{let c=challengeDraft[+e.dataset.cname];if(c)c.name=e.value});
+     $$("[data-cicon]").forEach(e=>{let c=challengeDraft[+e.dataset.cicon];if(c)c.icon=e.value||"growth"});
+     $$("[data-cdesc]").forEach(e=>{let c=challengeDraft[+e.dataset.cdesc];if(c)c.desc=e.value});
+     $$("[data-cxp]").forEach(e=>{let c=challengeDraft[+e.dataset.cxp];if(c)c.xp=Math.max(0,Math.min(100,+e.value||0))});
+     challengeDraft=challengeDraft.map(c=>({...c,
+       name:(c.name||"Growth Mission").trim(),
+       icon:oaIconFor(c.icon,"growth"),
+       desc:(c.desc||"").trim(),
+       xp:Math.max(0,Math.min(100,+c.xp||0)),
+       days:c.frequency==="weekdays"?(Array.isArray(c.days)&&c.days.length?c.days:[1,2,3,4,5]):(c.days||[])
+     }));
+     await patch({challenges:challengeDraft});
+     const confirmed=await getDoc(familyRef);
+     const saved=confirmed.data()?.challenges||[];
+     if(!challengeDraft.every(c=>saved.some(x=>x.id===c.id)))throw new Error("Firebase did not confirm all Growth Missions.");
+     alert("Growth Missions saved!");
+   }catch(err){
+     console.error("Growth Mission save failed",err);
+     alert(`Could not save Growth Missions.
+
+${err?.message||"Please try again."}`);
+   }
  });
 
  $("#addGrowthMission")?.addEventListener("click",async()=>{
    let name=$("#newGrowthName")?.value.trim();
    if(!name)return alert("Give the Growth Mission a name.");
-   let mission={id:"growth_"+newId(),icon:$("#newGrowthIcon")?.value.trim()||"🌱",name,desc:$("#newGrowthDesc")?.value.trim()||"",target:0,xp:Math.max(0,Math.min(100,+$("#newGrowthXp")?.value||10)),weekdaysOnly:false,parentOnly:false,frequency:$("#newGrowthFreq")?.value||"daily",days:($("#newGrowthFreq")?.value==="weekdays"?[1,2,3,4,5]:[]),intervalHours:4,intervalDays:1,claimType:"each",rewardPoints:5,timerMinutes:Math.max(0,Math.min(180,+$("#newGrowthTimer")?.value||0)),active:true,custom:true};
-   await patch({challenges:[...challengeLibrary().map(c=>({...c})),mission]});
-   alert("Growth Mission added.");
+   const icon=oaIconFor($("#newGrowthIcon")?.value||"growth","growth");
+   let mission={id:"growth_"+newId(),icon,name,desc:$("#newGrowthDesc")?.value.trim()||"",target:0,xp:Math.max(0,Math.min(100,+$("#newGrowthXp")?.value||10)),weekdaysOnly:false,parentOnly:false,frequency:$("#newGrowthFreq")?.value||"daily",days:($("#newGrowthFreq")?.value==="weekdays"?[1,2,3,4,5]:[]),intervalHours:4,intervalDays:1,claimType:"each",rewardPoints:5,timerMinutes:Math.max(0,Math.min(180,+$("#newGrowthTimer")?.value||0)),active:true,custom:true};
+   try{
+     const next=[...challengeLibrary().map(c=>({...c,icon:oaIconFor(c.icon,"growth")})),mission];
+     await patch({challenges:next});
+     const confirmed=await getDoc(familyRef);
+     const saved=(confirmed.data()?.challenges||[]).find(c=>c.id===mission.id);
+     if(!saved)throw new Error("Firebase did not confirm the new Growth Mission.");
+     alert("Growth Mission added.");
+   }catch(err){
+     console.error("Add Growth Mission failed",err);
+     alert(`Could not add Growth Mission.
+
+${err?.message||"Please try again."}`);
+   }
  });
  $$("[data-growth-remove]").forEach(b=>b.addEventListener("click",()=>{
    let id=b.dataset.growthRemove,c=challengeLibrary().find(x=>x.id===id);if(!c)return;
@@ -4031,7 +4063,7 @@ $("#bulkBasics")?.addEventListener("click",async()=>{let basics=pending().filter
    pushupCount=0;
    render();
  });
- $$("[data-challenge]").forEach(b=>b.onclick=()=>{let cid=b.dataset.challenge,k=data.kids[kid],c=challengeLibrary().find(x=>x.id===cid);if(!c||!challengeAvailable(c,k.id))return;let mins=timerMinutesFor(c);if(mins){askConfirm(`Start ${c.icon} ${c.name}?`,`Your ${mins}-minute timer will keep running even if you leave this screen. You can't submit the Mission until it reaches zero.`,`Start ${mins}-Minute Timer`,async()=>{let now=Date.now(),log={id:newId(),kidId:k.id,challengeId:cid,date:todayKey(),status:"open",timerMinutes:mins,timerStartedAt:now,createdAt:now};await patch({challengeLogs:arrayUnion(log)});render()})}else{askConfirm(`Finished ${c.icon} ${c.name}?`,`Send this Growth Mission to a parent for approval?`,`Yes, I Did It`,async()=>{let log={id:newId(),kidId:k.id,challengeId:cid,date:todayKey(),status:"pending",createdAt:Date.now()};await patch({challengeLogs:arrayUnion(log)});render()})}});
+ $$("[data-challenge]").forEach(b=>b.onclick=()=>{let cid=b.dataset.challenge,k=data.kids[kid],c=challengeLibrary().find(x=>x.id===cid);if(!c||!challengeAvailable(c,k.id))return;let mins=timerMinutesFor(c);if(mins){askConfirm(`Start ${c.name}?`,`Your ${mins}-minute timer will keep running even if you leave this screen. You can't submit the Mission until it reaches zero.`,`Start ${mins}-Minute Timer`,async()=>{let now=Date.now(),log={id:newId(),kidId:k.id,challengeId:cid,date:todayKey(),status:"open",timerMinutes:mins,timerStartedAt:now,createdAt:now};await patch({challengeLogs:arrayUnion(log)});render()})}else{askConfirm(`Finished ${c.name}?`,`Send this Growth Mission to a parent for approval?`,`Yes, I Did It`,async()=>{let log={id:newId(),kidId:k.id,challengeId:cid,date:todayKey(),status:"pending",createdAt:Date.now()};await patch({challengeLogs:arrayUnion(log)});render()})}});
  $$("[data-challenge-done]").forEach(b=>b.onclick=async()=>{let id=b.dataset.challengeDone,log=challengeLogs().find(x=>x.id===id&&x.status==="open");if(!log)return;if(!timerReady(log))return alert(`Keep going! ${formatTimer(timerRemainingMs(log))} left.`);let logs=challengeLogs().map(x=>x.id===id?{...x,status:"pending",submittedAt:Date.now()}:x);await patch({challengeLogs:logs});render()});
  $$("[data-chapp]").forEach(b=>b.onclick=async()=>{let id=b.dataset.chapp;await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),logs=d.challengeLogs||[],log=logs.find(x=>x.id===id);if(!log||log.status!=="pending")return;
  let base=DEFAULT_CHALLENGES.find(x=>x.id===log.challengeId);
