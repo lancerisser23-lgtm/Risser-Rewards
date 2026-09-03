@@ -1764,19 +1764,56 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
 /* V57.5 — Normalize every Explorer/avatar inside its frame. */
 .oaExplorerCard img[src*="assets/avatars/explorer-"],
 .oaKidShell img[src*="assets/avatars/explorer-"]{
-  object-fit:contain!important;
+  object-fit:cover!important;
   object-position:50% 50%!important;
   box-sizing:border-box!important;
-  padding:4px!important;
-  background:rgba(255,252,242,.9)!important;
   transform:none!important;
 }
 .oaExplorerCard img{
-  aspect-ratio:1/1;
-  width:100%;
-  height:auto;
-  margin-inline:auto;
-  display:block;
+  aspect-ratio:1/1!important;
+  width:92%!important;
+  height:auto!important;
+  margin:8px auto 0!important;
+  display:block!important;
+  border-radius:50%!important;
+  border:2px solid rgba(185,139,50,.72)!important;
+  padding:0!important;
+  background:#f7f0e2!important;
+}
+
+
+/* V57.6 — World visibility correction based on real dashboard selectors. */
+.oaKidShell .oaBottomNav{
+  background:rgba(5,34,23,.50)!important;
+  -webkit-backdrop-filter:blur(7px) saturate(110%)!important;
+  backdrop-filter:blur(7px) saturate(110%)!important;
+  border-color:rgba(215,168,60,.38)!important;
+  box-shadow:0 8px 24px rgba(0,0,0,.10)!important;
+}
+.oaKidShell .oaBottomNav button{
+  color:rgba(255,248,229,.94)!important;
+  text-shadow:0 1px 5px rgba(0,0,0,.42);
+}
+.oaKidShell .oaBottomNav button.on{
+  background:rgba(255,248,229,.14)!important;
+  color:#ffe28a!important;
+}
+.oaKidShell .oaPanel,
+.oaKidShell .oaPanel.jobs,
+.oaKidShell .oaPanel.growth{
+  background:rgba(255,252,243,.78)!important;
+  -webkit-backdrop-filter:blur(7px) saturate(108%)!important;
+  backdrop-filter:blur(7px) saturate(108%)!important;
+  border-color:rgba(255,255,255,.55)!important;
+}
+.oaKidShell .oaPanelHead,
+.oaKidShell .oaRows,
+.oaKidShell .oaRow,
+.oaKidShell .oaPanelFoot{
+  background:transparent!important;
+}
+.oaKidShell .oaPanelFoot{
+  background:rgba(255,255,255,.18)!important;
 }
 
 </style>
@@ -2473,16 +2510,16 @@ const OA_WORLD_CATALOG=[
 const OA_DEFAULT_WORLD_BY_KID={noah:"wildwood",eli:"golden-plains",shepherd:"high-country",juniper:"enchanted-meadow"};
 
 const OA_EXPLORER_CATALOG=[
- {id:"lion",name:"Lion",asset:"assets/avatars/explorer-lion-v553.jpg"},
- {id:"wolf",name:"Wolf",asset:"assets/avatars/explorer-wolf-v553.jpg"},
- {id:"snake",name:"Snake",asset:"assets/avatars/explorer-snake-v553.jpg"},
- {id:"unicorn",name:"Unicorn",asset:"assets/avatars/explorer-unicorn-v553.jpg"},
- {id:"dinosaur",name:"Dinosaur",asset:"assets/avatars/explorer-dinosaur-v555.jpg"},
- {id:"astronaut",name:"Astronaut",asset:"assets/avatars/explorer-astronaut-v555.jpg"},
- {id:"sea-turtle",name:"Sea Turtle",asset:"assets/avatars/explorer-sea-turtle-v555.jpg"},
- {id:"whale",name:"Whale",asset:"assets/avatars/explorer-whale-v555.jpg"},
- {id:"elephant",name:"Elephant",asset:"assets/avatars/explorer-elephant-v555.jpg"},
- {id:"fox",name:"Fox",asset:"assets/avatars/explorer-fox-v555.jpg"}
+ {id:"lion",name:"Lion",asset:"assets/avatars/explorer-lion-v576.jpg"},
+ {id:"wolf",name:"Wolf",asset:"assets/avatars/explorer-wolf-v576.jpg"},
+ {id:"snake",name:"Snake",asset:"assets/avatars/explorer-snake-v576.jpg"},
+ {id:"unicorn",name:"Unicorn",asset:"assets/avatars/explorer-unicorn-v576.jpg"},
+ {id:"dinosaur",name:"Dinosaur",asset:"assets/avatars/explorer-dinosaur-v576.jpg"},
+ {id:"astronaut",name:"Astronaut",asset:"assets/avatars/explorer-astronaut-v576.jpg"},
+ {id:"sea-turtle",name:"Sea Turtle",asset:"assets/avatars/explorer-sea-turtle-v576.jpg"},
+ {id:"whale",name:"Whale",asset:"assets/avatars/explorer-whale-v576.jpg"},
+ {id:"elephant",name:"Elephant",asset:"assets/avatars/explorer-elephant-v576.jpg"},
+ {id:"fox",name:"Fox",asset:"assets/avatars/explorer-fox-v576.jpg"}
 ];
 const OA_DEFAULT_EXPLORER_BY_KID={noah:"wolf",eli:"lion",shepherd:"snake",juniper:"unicorn"};
 function oaExplorerId(k){return k?.oaExplorer||OA_DEFAULT_EXPLORER_BY_KID[k?.id]||"wolf"}
