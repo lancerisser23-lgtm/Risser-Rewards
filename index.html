@@ -2081,25 +2081,25 @@ function oaCustomizeKid(){
  return header()+`<main class="oaCustomize" style="--oa-custom-accent:${t.accent}">
    <div class="oaCustomizeHead">
      <button class="oaBack" data-v="week">${oaIcon("arrow-left")} Back</button>
-     <div><div class="tiny">MAKE IT YOURS</div><h1>${k.name}'s World</h1><p>Choose the world that feels like you.</p></div>
+     <div><div class="tiny">MAKE IT YOURS</div><h1>Pick Your World</h1><p>Tap a picture you like.</p></div>
    </div>
    <div class="oaCurrentWorld">
      <img src="${oaAvatar(k)}" alt="${k.name}">
      <div><div class="tiny">CURRENT WORLD</div><h2>${w.name}</h2><p>${w.traits}</p></div>
      <img class="oaCurrentEmblem" src="${oaEmblem(k)}" alt="">
    </div>
-   <h2 class="oaWorldPickerTitle">10 Worlds to Choose From</h2>
-   <div class="oaWorldPicker">${OA_WORLD_CATALOG.map((x,i)=>`<button class="oaWorldCard ${x.id===w.id?"on":""}" data-worldpick="${x.id}" style="--wc:${x.accent};--wh:url('${x.thumb||x.hero}')">
+   <h2 class="oaWorldPickerTitle">Pick a World</h2>
+   <div class="oaWorldPicker">${OA_WORLD_CATALOG.map((x,i)=>`<button type="button" class="oaWorldCard ${x.id===w.id?"on":""}" data-worldpick="${x.id}" style="--wc:${x.accent};--wh:url('${x.thumb||x.hero}')">
       <span class="oaWorldNum">${i+1}</span>
       <span class="oaWorldArt"></span>
       <span class="oaWorldInfo"><b>${x.name}</b><small>${x.traits}</small></span>
       <span class="oaWorldCheck">${x.id===w.id?"SELECTED":"CHOOSE"}</span>
    </button>`).join("")}</div>
    <div class="oaExplorerSection">
-     <div class="tiny">CHOOSE YOUR EXPLORER</div>
-     <h2>Your Explorer Goes Everywhere</h2>
-     <p>Pick a companion that feels like you. Your Explorer stays with you even when you change worlds.</p>
-     <div class="oaExplorerPicker">${OA_EXPLORER_CATALOG.map(x=>`<button class="oaExplorerCard ${x.id===oaExplorerId(k)?"on":""}" data-explorerpick="${x.id}">
+     <div class="tiny">YOUR EXPLORER</div>
+     <h2>Pick an Explorer</h2>
+     <p>Tap the one you want to take with you.</p>
+     <div class="oaExplorerPicker">${OA_EXPLORER_CATALOG.map(x=>`<button type="button" class="oaExplorerCard ${x.id===oaExplorerId(k)?"on":""}" data-explorerpick="${x.id}">
        <img src="${x.asset}" alt="${x.name}">
        <span><b>${x.name}</b><small>${x.id===oaExplorerId(k)?"YOUR EXPLORER":"CHOOSE"}</small></span>
      </button>`).join("")}</div>
@@ -2438,7 +2438,8 @@ const OA_THEMES={
 };
 function oaTheme(k){
  const w=oaWorld(k),legacy=OA_THEMES[k?.id]||{};
- return {name:w.name,hero:w.hero,avatar:k?.oaAvatar||oaExplorer(k).asset||legacy.avatar||`assets/avatars/${k?.id}.png`,emblem:k?.oaEmblem||w.emblem||legacy.emblem,accent:k?.oaAccent||w.accent,traits:w.traits};
+ const explorerAsset=k?.oaExplorer?oaExplorer(k).asset:(k?.oaAvatar||oaExplorer(k).asset||legacy.avatar||`assets/avatars/${k?.id}.png`);
+ return {name:w.name,hero:w.hero,avatar:explorerAsset,emblem:k?.oaEmblem||w.emblem||legacy.emblem,accent:k?.oaAccent||w.accent,traits:w.traits};
 }
 function oaEmblem(k){return oaTheme(k).emblem||"assets/oak-arrow-mark.png"}
 function oaAvatar(k){return oaTheme(k).avatar||`assets/avatars/${k.id}.png`}
@@ -3353,20 +3354,38 @@ $("#futureFundSimple")?.addEventListener("change",e=>{let w=$("#futureFundSimple
  $$("[data-active-select]").forEach(e=>e.onchange=()=>{let box=$(`[data-active="${e.dataset.activeSelect}"]`);if(box)box.checked=e.value==="1"});
 $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCount=0;view="week";render()});
 
- $$("[data-worldpick]").forEach(b=>b.onclick=async()=>{
-   const world=b.dataset.worldpick,k=data.kids[kid];
-   if(!oaWorldById(world)||!k)return;
-   const kids=data.kids.map((x,i)=>i===kid?{...x,oaWorld:world}:x);
-   data={...data,kids};render();
-   try{await patch({kids})}catch(err){console.error("Could not save world",err);alert("Could not save this world. Please try again.")}
+ $$("[data-worldpick]").forEach(b=>b.onclick=async e=>{
+   e.preventDefault();
+   const world=b.dataset.worldpick,k=data.kids[kid],kidId=k?.id;
+   if(!OA_WORLD_CATALOG.some(x=>x.id===world)||!kidId)return;
+   const kids=data.kids.map(x=>x.id===kidId?{...x,oaWorld:world}:x);
+   b.disabled=true;
+   try{
+     await patch({kids});
+     data={...data,kids};
+     render();
+   }catch(err){
+     b.disabled=false;
+     console.error("Could not save world",err);
+     alert("Could not save this World. Please try again.");
+   }
  });
 
- $$("[data-explorerpick]").forEach(b=>b.onclick=async()=>{
-   const explorer=b.dataset.explorerpick,k=data.kids[kid];
-   if(!oaExplorerById(explorer)||!k)return;
-   const kids=data.kids.map((x,i)=>i===kid?{...x,oaExplorer:explorer,oaAvatar:oaExplorerById(explorer).asset}:x);
-   data={...data,kids};render();
-   try{await patch({kids})}catch(err){console.error("Could not save explorer",err);alert("Could not save this Explorer. Please try again.")}
+ $$("[data-explorerpick]").forEach(b=>b.onclick=async e=>{
+   e.preventDefault();
+   const explorer=b.dataset.explorerpick,k=data.kids[kid],kidId=k?.id,choice=OA_EXPLORER_CATALOG.find(x=>x.id===explorer);
+   if(!choice||!kidId)return;
+   const kids=data.kids.map(x=>x.id===kidId?{...x,oaExplorer:explorer,oaAvatar:choice.asset}:x);
+   b.disabled=true;
+   try{
+     await patch({kids});
+     data={...data,kids};
+     render();
+   }catch(err){
+     b.disabled=false;
+     console.error("Could not save explorer",err);
+     alert("Could not save this Explorer. Please try again.");
+   }
  });
 
  $$("[data-parent-world]").forEach(b=>b.onclick=()=>{kid=+b.dataset.parentWorld;view="customize";render()});
