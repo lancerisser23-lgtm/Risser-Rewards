@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3840 1536" width="3840" height="1536">
+<defs><linearGradient id="ocean" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#2f9eb0"/><stop offset=".35" stop-color="#0d6c86"/><stop offset="1" stop-color="#062b4a"/></linearGradient>
+<linearGradient id="ray" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#d7fbff" stop-opacity=".5"/><stop offset="1" stop-color="#8de7ef" stop-opacity="0"/></linearGradient></defs>
+<rect width="3840" height="1536" fill="#08364d"/>
+<rect width="3840" height="1536" fill="url(#ocean)"/>
+<polygon points="250,0 630,0 1310,1450 500,1450" fill="url(#ray)" opacity=".5"/>
+<polygon points="900,0 1160,0 1840,1450 1150,1450" fill="url(#ray)" opacity=".5"/>
+<polygon points="1500,0 1920,0 2600,1450 1750,1450" fill="url(#ray)" opacity=".5"/>
+<polygon points="2360,0 2660,0 3340,1450 2610,1450" fill="url(#ray)" opacity=".5"/>
+<polygon points="3100,0 3530,0 4210,1450 3350,1450" fill="url(#ray)" opacity=".5"/>
+<path d="M0 1260 Q480 1130 860 1240 T1680 1210 T2450 1240 T3840 1180 V1536 H0Z" fill="#0a4650"/>
+<path d="M0 1370 Q600 1280 1100 1390 T2100 1320 T3100 1380 T3840 1320 V1536 H0Z" fill="#073840"/>
+<ellipse cx="340" cy="1320" rx="150" ry="67" fill="#0b5558"/>
+<ellipse cx="790" cy="1260" rx="110" ry="49" fill="#0b5558"/>
+<ellipse cx="1420" cy="1380" rx="190" ry="85" fill="#0b5558"/>
+<ellipse cx="2110" cy="1270" rx="130" ry="58" fill="#0b5558"/>
+<ellipse cx="2780" cy="1360" rx="170" ry="76" fill="#0b5558"/>
+<ellipse cx="3350" cy="1280" rx="120" ry="54" fill="#0b5558"/>
+</svg>

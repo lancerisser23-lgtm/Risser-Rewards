@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3840 1536" width="3840" height="1536">
+<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#b8cba8"/><stop offset=".5" stop-color="#49775d"/><stop offset="1" stop-color="#173f31"/></linearGradient></defs>
+<rect width="3840" height="1536" fill="#0b1d16"/>
+<rect width="3840" height="1536" fill="url(#sky)"/>
+<polygon points="0,1160 600,780 1200,1100 1860,650 2550,1100 3260,760 3840,1070 3840,1536 0,1536" fill="#255c42"/>
+<path d="M0 1280 Q500 1100 1000 1260 T2100 1170 T3100 1270 T3840 1180 V1536 H0Z" fill="#164c35"/>
+<path d="M1750 1536 C1820 1380 1850 1260 1880 1120 C1930 1240 2010 1380 2110 1536 Z" fill="#8d7651"/>
+<circle cx="-100" cy="1030" r="160" fill="#1f6644"/>
+<circle cx="-10" cy="1030" r="120" fill="#1f6644"/>
+<circle cx="-190" cy="1030" r="110" fill="#1f6644"/>
+<circle cx="80" cy="1030" r="160" fill="#1f6644"/>
+<circle cx="170" cy="1030" r="120" fill="#1f6644"/>
+<circle cx="-10" cy="1030" r="110" fill="#1f6644"/>
+<circle cx="260" cy="1030" r="160" fill="#1f6644"/>
+<circle cx="350" cy="1030" r="120" fill="#1f6644"/>
+<circle cx="170" cy="1030" r="110" fill="#1f6644"/>
+<circle cx="440" cy="1030" r="160" fill="#1f6644"/>
+<circle cx="530" cy="1030" r="120" fill="#1f6644"/>
+<circle cx="350" cy="1030" r="110" fill="#1f6644"/>
+<circle cx="620" cy="1030" r="160" fill="#1f6644"/>
+<circle cx="710" cy="1030" r="120" fill="#1f6644"/>
+<circle cx="530" cy="1030" r="110" fill="#1f6644"/>
+<circle cx="800" cy="1030" r="160" fill="#1f6644"/>
+<circle cx="890" cy="1030" r="120" fill="#1f6644"/>
+<circle cx="710" cy="1030" r="110" fill="#1f6644"/>
+<circle cx="980" cy="1030" r="160" fill="#1f6644"/>
+<circle cx="1070" cy="1030" r="120" fill="#1f6644"/>
+<circle cx="890" cy="1030" r="110" fill="#1f6644"/>
+<circle cx="1160" cy="1030" r="160" fill="#1f6644"/>
+<circle cx="1250" cy="1030" r="120" fill="#1f6644"/>
+<circle cx="1070" cy="1030" r="110" fill="#1f6644"/>
+<circle cx="1340" cy="1030" r="160" fill="#1f6644"/>
+<circle cx="1430" cy="1030" r="120" fill="#1f6644"/>
+<circle cx="1250" cy="1030" r="110" fill="#1f6644"/>
+<circle cx="1520" cy="1030" r="160" fill="#1f6644"/>
+<circle cx="1610" cy="1030" r="120" fill="#1f6644"/>
+<circle cx="1430" cy="1030" r="110" fill="#1f6644"/>
+<circle cx="1700" cy="1030" r="160" fill="#1f6644"/>
+<circle cx="1790" cy="1030" r="120" fill="#1f6644"/>
+<circle cx="1610" cy="1030" r="110" fill="#1f6644"/>
+<circle cx="1880" cy="1030" r="160" fill="#1f6644"/>
+<circle cx="1970" cy="1030" r="120" fill="#1f6644"/>
+<circle cx="1790" cy="1030" r="110" fill="#1f6644"/>
+<circle cx="2060" cy="1030" r="160" fill="#1f6644"/>
+<circle cx="2150" cy="1030" r="120" fill="#1f6644"/>
+<circle cx="1970" cy="1030" r="110" fill="#1f6644"/>
+<circle cx="2240" cy="1030" r="160" fill="#1f6644"/>
+<circle cx="2330" cy="1030" r="120" fill="#1f6644"/>
+<circle cx="2150" cy="1030" r="110" fill="#1f6644"/>
+<circle cx="2420" cy="1030" r="160" fill="#1f6644"/>
+<circle cx="2510" cy="1030" r="120" fill="#1f6644"/>
+<circle cx="2330" cy="1030" r="110" fill="#1f6644"/>
+<circle cx="2600" cy="1030" r="160" fill="#1f6644"/>
+<circle cx="2690" cy="1030" r="120" fill="#1f6644"/>
+<circle cx="2510" cy="1030" r="110" fill="#1f6644"/>
+<circle cx="2780" cy="1030" r="160" fill="#1f6644"/>
+<circle cx="2870" cy="1030" r="120" fill="#1f6644"/>
+<circle cx="2690" cy="1030" r="110" fill="#1f6644"/>
+<circle cx="2960" cy="1030" r="160" fill="#1f6644"/>
+<circle cx="3050" cy="1030" r="120" fill="#1f6644"/>
+<circle cx="2870" cy="1030" r="110" fill="#1f6644"/>
+<circle cx="3140" cy="1030" r="160" fill="#1f6644"/>
+<circle cx="3230" cy="1030" r="120" fill="#1f6644"/>
+<circle cx="3050" cy="1030" r="110" fill="#1f6644"/>
+<circle cx="3320" cy="1030" r="160" fill="#1f6644"/>
+<circle cx="3410" cy="1030" r="120" fill="#1f6644"/>
+<circle cx="3230" cy="1030" r="110" fill="#1f6644"/>
+<circle cx="3500" cy="1030" r="160" fill="#1f6644"/>
+<circle cx="3590" cy="1030" r="120" fill="#1f6644"/>
+<circle cx="3410" cy="1030" r="110" fill="#1f6644"/>
+<circle cx="3680" cy="1030" r="160" fill="#1f6644"/>
+<circle cx="3770" cy="1030" r="120" fill="#1f6644"/>
+<circle cx="3590" cy="1030" r="110" fill="#1f6644"/>
+<circle cx="3860" cy="1030" r="160" fill="#1f6644"/>
+<circle cx="3950" cy="1030" r="120" fill="#1f6644"/>
+<circle cx="3770" cy="1030" r="110" fill="#1f6644"/>
+</svg>

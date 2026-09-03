@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3840 1536" width="3840" height="1536">
+<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#c9d4d2"/><stop offset=".42" stop-color="#d8aa76"/><stop offset="1" stop-color="#617e84"/></linearGradient>
+<linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#4d7f89"/><stop offset="1" stop-color="#173f4f"/></linearGradient></defs>
+<rect width="3840" height="1536" fill="#0b1d16"/>
+<rect width="3840" height="1536" fill="url(#sky)"/>
+<circle cx="3000" cy="520" r="115" fill="#f1d1a1"/>
+<rect x="0" y="890" width="3840" height="646" fill="url(#sea)"/>
+<path d="M0 690 L620 760 L980 980 L1330 1100 L1530 1536 L0 1536 Z" fill="#3f554a"/>
+<path d="M3840 640 L3380 720 L3090 900 L2860 1120 L2700 1536 L3840 1536 Z" fill="#45594c"/>
+<path d="M0 1030 Q650 960 1250 1030 T2500 1010 T3840 1020" stroke="#d8e2de" stroke-width="10" fill="none" opacity=".7"/>
+<path d="M0 1170 Q650 1100 1250 1170 T2500 1150 T3840 1160" stroke="#d8e2de" stroke-width="10" fill="none" opacity=".7"/>
+<path d="M0 1320 Q650 1250 1250 1320 T2500 1300 T3840 1310" stroke="#d8e2de" stroke-width="10" fill="none" opacity=".7"/>
+</svg>

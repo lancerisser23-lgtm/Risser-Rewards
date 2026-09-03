@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3840 1536" width="3840" height="1536">
+<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#c4d2d1"/><stop offset=".5" stop-color="#6f918b"/><stop offset="1" stop-color="#294d40"/></linearGradient></defs>
+<rect width="3840" height="1536" fill="#0b1d16"/>
+<rect width="3840" height="1536" fill="url(#sky)"/>
+<polygon points="0,1100 500,840 920,1040 1450,430 1940,1050 2550,590 3070,1020 3500,700 3840,950 3840,1536 0,1536" fill="#5a766e"/>
+<polygon points="1210,690 1450,430 1690,700 1540,630 1450,560 1360,640" fill="#e2e4dc"/>
+<polygon points="2350,780 2550,590 2770,810 2660,760 2550,700 2460,760" fill="#d9ddd7"/>
+<path d="M0 1260 Q700 1120 1380 1240 T2700 1190 T3840 1230 V1536 H0Z" fill="#2c5a44"/>
+<polygon points="80,1220 30,1450 130,1450" fill="#174333"/>
+<polygon points="220,1260 170,1450 270,1450" fill="#174333"/>
+<polygon points="360,1300 310,1450 410,1450" fill="#174333"/>
+<polygon points="500,1160 450,1450 550,1450" fill="#174333"/>
+<polygon points="640,1200 590,1450 690,1450" fill="#174333"/>
+<polygon points="780,1240 730,1450 830,1450" fill="#174333"/>
+<polygon points="920,1280 870,1450 970,1450" fill="#174333"/>
+<polygon points="1060,1140 1010,1450 1110,1450" fill="#174333"/>
+<polygon points="1200,1180 1150,1450 1250,1450" fill="#174333"/>
+<polygon points="1340,1220 1290,1450 1390,1450" fill="#174333"/>
+<polygon points="1480,1260 1430,1450 1530,1450" fill="#174333"/>
+<polygon points="1620,1300 1570,1450 1670,1450" fill="#174333"/>
+<polygon points="1760,1160 1710,1450 1810,1450" fill="#174333"/>
+<polygon points="1900,1200 1850,1450 1950,1450" fill="#174333"/>
+<polygon points="2040,1240 1990,1450 2090,1450" fill="#174333"/>
+<polygon points="2180,1280 2130,1450 2230,1450" fill="#174333"/>
+<polygon points="2320,1140 2270,1450 2370,1450" fill="#174333"/>
+<polygon points="2460,1180 2410,1450 2510,1450" fill="#174333"/>
+<polygon points="2600,1220 2550,1450 2650,1450" fill="#174333"/>
+<polygon points="2740,1260 2690,1450 2790,1450" fill="#174333"/>
+<polygon points="2880,1300 2830,1450 2930,1450" fill="#174333"/>
+<polygon points="3020,1160 2970,1450 3070,1450" fill="#174333"/>
+<polygon points="3160,1200 3110,1450 3210,1450" fill="#174333"/>
+<polygon points="3300,1240 3250,1450 3350,1450" fill="#174333"/>
+<polygon points="3440,1280 3390,1450 3490,1450" fill="#174333"/>
+<polygon points="3580,1140 3530,1450 3630,1450" fill="#174333"/>
+<polygon points="3720,1180 3670,1450 3770,1450" fill="#174333"/>
+</svg>

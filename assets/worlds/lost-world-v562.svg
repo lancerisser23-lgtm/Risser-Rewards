@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3840 1536" width="3840" height="1536">
+<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#d6c58b"/><stop offset=".45" stop-color="#73876a"/><stop offset="1" stop-color="#314c3e"/></linearGradient></defs>
+<rect width="3840" height="1536" fill="#0b1d16"/>
+<rect width="3840" height="1536" fill="url(#sky)"/>
+<path d="M450,1200 L490,680 L560,510 L640,590 L710,1200 Z" fill="#526853"/>
+<path d="M980,1200 L1020,590 L1090,420 L1250,500 L1320,1200 Z" fill="#526853"/>
+<path d="M1700,1200 L1740,730 L1810,560 L1910,640 L1980,1200 Z" fill="#526853"/>
+<path d="M2420,1200 L2460,530 L2530,360 L2770,440 L2840,1200 Z" fill="#526853"/>
+<path d="M3230,1200 L3270,670 L3340,500 L3460,580 L3530,1200 Z" fill="#526853"/>
+<path d="M0 1240 Q500 1120 1000 1210 T2000 1160 T3000 1210 T3840 1140 V1536 H0Z" fill="#31543e"/>
+<polygon points="40,1200 -15,1450 95,1450" fill="#244a35"/>
+<polygon points="180,1270 125,1450 235,1450" fill="#244a35"/>
+<polygon points="320,1130 265,1450 375,1450" fill="#244a35"/>
+<polygon points="460,1200 405,1450 515,1450" fill="#244a35"/>
+<polygon points="600,1270 545,1450 655,1450" fill="#244a35"/>
+<polygon points="740,1130 685,1450 795,1450" fill="#244a35"/>
+<polygon points="880,1200 825,1450 935,1450" fill="#244a35"/>
+<polygon points="1020,1270 965,1450 1075,1450" fill="#244a35"/>
+<polygon points="1160,1130 1105,1450 1215,1450" fill="#244a35"/>
+<polygon points="1300,1200 1245,1450 1355,1450" fill="#244a35"/>
+<polygon points="1440,1270 1385,1450 1495,1450" fill="#244a35"/>
+<polygon points="1580,1130 1525,1450 1635,1450" fill="#244a35"/>
+<polygon points="1720,1200 1665,1450 1775,1450" fill="#244a35"/>
+<polygon points="1860,1270 1805,1450 1915,1450" fill="#244a35"/>
+<polygon points="2000,1130 1945,1450 2055,1450" fill="#244a35"/>
+<polygon points="2140,1200 2085,1450 2195,1450" fill="#244a35"/>
+<polygon points="2280,1270 2225,1450 2335,1450" fill="#244a35"/>
+<polygon points="2420,1130 2365,1450 2475,1450" fill="#244a35"/>
+<polygon points="2560,1200 2505,1450 2615,1450" fill="#244a35"/>
+<polygon points="2700,1270 2645,1450 2755,1450" fill="#244a35"/>
+<polygon points="2840,1130 2785,1450 2895,1450" fill="#244a35"/>
+<polygon points="2980,1200 2925,1450 3035,1450" fill="#244a35"/>
+<polygon points="3120,1270 3065,1450 3175,1450" fill="#244a35"/>
+<polygon points="3260,1130 3205,1450 3315,1450" fill="#244a35"/>
+<polygon points="3400,1200 3345,1450 3455,1450" fill="#244a35"/>
+<polygon points="3540,1270 3485,1450 3595,1450" fill="#244a35"/>
+<polygon points="3680,1130 3625,1450 3735,1450" fill="#244a35"/>
+<polygon points="3820,1200 3765,1450 3875,1450" fill="#244a35"/>
+</svg>

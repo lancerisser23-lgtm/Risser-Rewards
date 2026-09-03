@@ -1,16 +1,20 @@
-Oak & Arrow World Art — V56.1
+Oak & Arrow World Art — V56.2
 
-These 10 scenery assets were created specifically for the Oak & Arrow world system in this project.
-They are stored locally in assets/worlds as lossless WebP files.
+FINAL PHASE 9 HARD-RESET BUILD
 
-Production rules:
+All 10 World masters are original SVG landscape artwork created specifically for Oak & Arrow.
+SVG was chosen deliberately because it remains crisp at any iPad, tablet, or desktop resolution
+and removes the raster-upscaling blur problem entirely.
+
+Rules:
 - scenery only
 - no animals or people
-- no logos, labels, badges, or UI baked into the asset crops
-- no third-party stock photography
+- no logos, labels, badges, or UI baked into artwork
+- no third-party stock imagery
+- no raster upscaling
 - no CSS blur/backdrop blur
-- no artificial enlargement/upscaling of the source pixels
-- Explorer avatar remains the character/focal subject in the product UI
+- Explorer avatar remains the character
+- all legacy world-art files removed from this build
 
-Internal compatibility:
-Desert Sands retains the existing Firestore world id "high-country".
+Compatibility:
+Desert Sands retains the saved internal Firestore id "high-country".

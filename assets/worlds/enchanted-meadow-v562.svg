@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3840 1536" width="3840" height="1536">
+<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#d9e4dc"/><stop offset=".45" stop-color="#a5c8bf"/><stop offset="1" stop-color="#608b72"/></linearGradient></defs>
+<rect width="3840" height="1536" fill="#0b1d16"/>
+<rect width="3840" height="1536" fill="url(#sky)"/>
+<polygon points="0,1110 530,910 1020,1030 1630,520 2140,1020 2820,730 3400,1020 3840,900 3840,1536 0,1536" fill="#668b72"/>
+<polygon points="0,1280 620,1130 1350,1260 2200,1100 3120,1260 3840,1130 3840,1536 0,1536" fill="#88a96e"/>
+<polygon points="0,1400 900,1260 1700,1420 2600,1240 3840,1380 3840,1536 0,1536" fill="#a7bd78"/>
+<circle cx="80" cy="1320" r="10" fill="#e8d7a4"/>
+<circle cx="170" cy="1320" r="10" fill="#c7bfd8"/>
+<circle cx="260" cy="1320" r="10" fill="#ddd6ec"/>
+<circle cx="350" cy="1320" r="10" fill="#f0e5b9"/>
+<circle cx="440" cy="1320" r="10" fill="#e8d7a4"/>
+<circle cx="530" cy="1320" r="10" fill="#c7bfd8"/>
+<circle cx="620" cy="1320" r="10" fill="#ddd6ec"/>
+<circle cx="710" cy="1320" r="10" fill="#f0e5b9"/>
+<circle cx="800" cy="1320" r="10" fill="#e8d7a4"/>
+<circle cx="890" cy="1320" r="10" fill="#c7bfd8"/>
+<circle cx="980" cy="1320" r="10" fill="#ddd6ec"/>
+<circle cx="1070" cy="1320" r="10" fill="#f0e5b9"/>
+<circle cx="1160" cy="1320" r="10" fill="#e8d7a4"/>
+<circle cx="1250" cy="1320" r="10" fill="#c7bfd8"/>
+<circle cx="1340" cy="1320" r="10" fill="#ddd6ec"/>
+<circle cx="1430" cy="1320" r="10" fill="#f0e5b9"/>
+<circle cx="1520" cy="1320" r="10" fill="#e8d7a4"/>
+<circle cx="1610" cy="1320" r="10" fill="#c7bfd8"/>
+<circle cx="1700" cy="1320" r="10" fill="#ddd6ec"/>
+<circle cx="1790" cy="1320" r="10" fill="#f0e5b9"/>
+<circle cx="1880" cy="1320" r="10" fill="#e8d7a4"/>
+<circle cx="1970" cy="1320" r="10" fill="#c7bfd8"/>
+<circle cx="2060" cy="1320" r="10" fill="#ddd6ec"/>
+<circle cx="2150" cy="1320" r="10" fill="#f0e5b9"/>
+<circle cx="2240" cy="1320" r="10" fill="#e8d7a4"/>
+<circle cx="2330" cy="1320" r="10" fill="#c7bfd8"/>
+<circle cx="2420" cy="1320" r="10" fill="#ddd6ec"/>
+<circle cx="2510" cy="1320" r="10" fill="#f0e5b9"/>
+<circle cx="2600" cy="1320" r="10" fill="#e8d7a4"/>
+<circle cx="2690" cy="1320" r="10" fill="#c7bfd8"/>
+<circle cx="2780" cy="1320" r="10" fill="#ddd6ec"/>
+<circle cx="2870" cy="1320" r="10" fill="#f0e5b9"/>
+<circle cx="2960" cy="1320" r="10" fill="#e8d7a4"/>
+<circle cx="3050" cy="1320" r="10" fill="#c7bfd8"/>
+<circle cx="3140" cy="1320" r="10" fill="#ddd6ec"/>
+<circle cx="3230" cy="1320" r="10" fill="#f0e5b9"/>
+<circle cx="3320" cy="1320" r="10" fill="#e8d7a4"/>
+<circle cx="3410" cy="1320" r="10" fill="#c7bfd8"/>
+<circle cx="3500" cy="1320" r="10" fill="#ddd6ec"/>
+<circle cx="3590" cy="1320" r="10" fill="#f0e5b9"/>
+<circle cx="3680" cy="1320" r="10" fill="#e8d7a4"/>
+<circle cx="3770" cy="1320" r="10" fill="#c7bfd8"/>
+</svg>
