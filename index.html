@@ -2182,6 +2182,63 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
     height:450px!important;
   }
 }
+
+/* ===== OAK & ARROW V60.3 — TO DO CATEGORY SWITCHER ===== */
+.oaTodoSubnav{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  align-items:center!important;
+  gap:4px!important;
+  padding:5px!important;
+  margin:0 0 12px!important;
+  border:1px solid rgba(23,63,46,.15)!important;
+  border-radius:13px!important;
+  background:rgba(255,250,240,.94)!important;
+  box-shadow:0 2px 8px rgba(23,63,46,.06)!important;
+}
+.oaTodoSubnavBtn{
+  min-width:0!important;
+  min-height:40px!important;
+  border:0!important;
+  border-radius:9px!important;
+  background:transparent!important;
+  color:#496057!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:6px!important;
+  padding:7px 8px!important;
+  font:inherit!important;
+  font-size:13px!important;
+  font-weight:750!important;
+  cursor:pointer!important;
+}
+.oaTodoSubnavBtn .oaIcon{
+  width:17px!important;
+  height:17px!important;
+  opacity:.72!important;
+}
+.oaTodoSubnavBtn.on{
+  background:#173f2e!important;
+  color:#fffaf0!important;
+  box-shadow:0 2px 5px rgba(23,63,46,.18)!important;
+}
+.oaTodoSubnavBtn.on .oaIcon{
+  filter:brightness(0) invert(1)!important;
+  opacity:1!important;
+}
+.oaTodoSubnavBtn:focus-visible{
+  outline:2px solid #caa95d!important;
+  outline-offset:2px!important;
+}
+@media(max-width:430px){
+  .oaTodoSubnavBtn{
+    font-size:12px!important;
+    gap:4px!important;
+    padding:7px 4px!important;
+  }
+  .oaTodoSubnavBtn .oaIcon{width:15px!important;height:15px!important}
+}
 </style>
 
 <!-- V56.2 full audit hardening: kid styling, school visibility persistence, accurate availability counts, Sunday settlement restoration -->
@@ -3331,10 +3388,19 @@ function todo(){
    </div>
  `);
 }
+function oaTodoSubnav(active){
+ const items=[
+  ["responsibilities","responsibilities","Responsibilities"],
+  ["pick","jobs","Jobs"],
+  ["level","growth","Growth"]
+ ];
+ return `<nav class="oaTodoSubnav" aria-label="To Do categories">${items.map(([view,key,label])=>`<button class="oaTodoSubnavBtn ${active===key?"on":""}" data-v="${view}" ${active===key?'aria-current="page"':""}>${oaIcon(key)}<span>${label}</span></button>`).join("")}</nav>`;
+}
 function responsibilityView(){
  let k=data.kids[kid],lib=library().filter(c=>isResponsibility(c)&&eligible(c,k.id));
  let ready=lib.filter(c=>canClaim(c,k.id)), other=lib.filter(c=>!canClaim(c,k.id));
  return oaKidPage(k,"Responsibilities","The things that are yours to handle. Build the habit, then keep moving.","responsibilities",`
+   ${oaTodoSubnav("responsibilities")}
    <div class="oaContentCard"><div class="oaList">${ready.map(c=>oaWorkRow(c,k,"resp")).join("")||`<div style="padding:18px;text-align:center">✅ You're caught up right now.</div>`}</div>
    ${other.length?`<details style="margin-top:10px"><summary class="muted" style="cursor:pointer">Done or not available yet (${other.length})</summary><div class="oaList">${other.map(c=>oaWorkRow(c,k,"resp")).join("")}</div></details>`:""}</div>
  `);
@@ -3343,6 +3409,7 @@ function pick(){
  let k=data.kids[kid],lib=library().filter(c=>isJob(c)&&eligible(c,k.id));
  let ready=lib.filter(c=>canClaim(c,k.id)), other=lib.filter(c=>!canClaim(c,k.id));
  return oaKidPage(k,"Jobs",moneyEnabled()?"Extra work. Real earning. Pick something available and get after it.":"Extra ways to pitch in and help the family.","jobs",`
+   ${oaTodoSubnav("jobs")}
    <div class="oaContentCard oaJobs"><div class="oaList">${ready.map(c=>oaWorkRow(c,k,"job")).join("")||`<div style="padding:18px;text-align:center">No jobs available right now.</div>`}</div>
    ${other.length?`<details style="margin-top:10px"><summary class="muted" style="cursor:pointer">Done or unavailable (${other.length})</summary><div class="oaList">${other.map(c=>oaWorkRow(c,k,"job")).join("")}</div></details>`:""}</div>
  `,"oaJobs");
@@ -3350,6 +3417,7 @@ function pick(){
 function level(){
  let k=data.kids[kid],dates=weekDates(),cs=challengeLibrary().filter(c=>!c.parentOnly&&c.active!==false),lp=levelProgress(k);
  return oaKidPage(k,"Growth Missions","Build skills, character and confidence. Growth earns XP toward your Adventure Level.","growth",`
+   ${oaTodoSubnav("growth")}
    <div class="oaJourneyHero" style="margin-bottom:12px"><div class="row between"><div><div class="tiny">THIS WEEK</div><b style="font-size:24px">${lp.earned}/${lp.goal} Growth wins</b></div><div style="text-align:right"><div class="tiny">ADVENTURE LEVEL</div><b>${xpLevel(k).cur.name}</b></div></div><div class="oaProgressBar"><div class="oaProgressFill" style="width:${lp.goal?Math.min(100,lp.earned/lp.goal*100):0}%"></div></div></div>
    <div class="oaGrowthGrid">${cs.map(c=>{
      let hits=weeklyHits(k.id,c.id),pend=challengePending(k.id,c.id),open=challengeOpen(k.id,c.id),available=challengeAvailable(c,k.id),mins=timerMinutesFor(c);

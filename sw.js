@@ -1,4 +1,4 @@
-const CACHE='oak-arrow-v60-2-oversized-journey-trophy';
+const CACHE='oak-arrow-v60-3-todo-category-switcher';
 const CORE=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png',
 './assets/noah-avatar.png','./assets/eli-avatar.png','./assets/shepherd-avatar.png','./assets/juniper-avatar.png',
 './assets/noah-world.png','./assets/eli-world.png','./assets/shepherd-world.png','./assets/juniper-world.png'];
