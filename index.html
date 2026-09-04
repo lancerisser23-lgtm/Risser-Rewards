@@ -1902,6 +1902,24 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
  .oaJourneyHeroRank>img{width:74px;height:88px}
  .oaRankStat>img{width:42px;height:48px}
 }
+
+/* ===== OAK & ARROW V59.3 — HERO-SCALE ADVENTURE BADGES ===== */
+.oaRankStat{gap:26px!important;align-items:center!important;min-height:200px!important}
+.oaRankStat>img{width:200px!important;height:210px!important;object-fit:contain!important;flex:0 0 auto!important;filter:drop-shadow(0 16px 26px rgba(0,0,0,.36))!important}
+.oaRankStat>div b{font-size:1.4em!important}
+.oaJourneyHeroRank{gap:38px!important;align-items:center!important}
+.oaJourneyHeroRank>img{width:290px!important;height:310px!important;object-fit:contain!important;filter:drop-shadow(0 20px 34px rgba(0,0,0,.36))!important}
+.oaRankTrail{gap:20px!important;align-items:start!important}
+.oaRankStep img{width:210px!important;height:225px!important;object-fit:contain!important;filter:drop-shadow(0 11px 18px rgba(0,0,0,.22))!important}
+.oaRankStep.current img{transform:scale(1.18)!important;filter:drop-shadow(0 17px 30px rgba(202,169,93,.52))!important}
+.oaRankStep.current .oaRankBadgeWrap{box-shadow:0 0 0 5px #caa95d,0 16px 34px rgba(202,169,93,.36)!important}
+.oaRankStep b{font-size:18px!important}.oaRankStep>span{font-size:13px!important}
+@media(max-width:760px){
+ .oaRankStat{min-height:160px!important;gap:18px!important}.oaRankStat>img{width:145px!important;height:155px!important}
+ .oaJourneyHeroRank>img{width:210px!important;height:225px!important}
+ .oaRankTrail{grid-template-columns:repeat(5,225px)!important;gap:18px!important;overflow-x:auto!important}
+ .oaRankStep img{width:190px!important;height:205px!important}
+}
 </style>
 
 <!-- V56.2 full audit hardening: kid styling, school visibility persistence, accurate availability counts, Sunday settlement restoration -->
@@ -2568,16 +2586,22 @@ function visibleFamilyProgress(r){
 
 const XP_LEVELS=[
  {id:"trailhead",name:"Trailhead",min:0,badge:"assets/badges/rank-trailhead-v592.png"},
- {id:"explorer",name:"Explorer",min:250,badge:"assets/badges/rank-explorer-v592.png"},
- {id:"adventurer",name:"Adventurer",min:750,badge:"assets/badges/rank-adventurer-v592.png"},
- {id:"pathfinder",name:"Pathfinder",min:1500,badge:"assets/badges/rank-pathfinder-v592.png"},
- {id:"trailblazer",name:"Trailblazer",min:2500,badge:"assets/badges/rank-trailblazer-v592.png"}
+ {id:"explorer",name:"Explorer",min:500,badge:"assets/badges/rank-explorer-v592.png"},
+ {id:"adventurer",name:"Adventurer",min:1500,badge:"assets/badges/rank-adventurer-v592.png"},
+ {id:"pathfinder",name:"Pathfinder",min:4000,badge:"assets/badges/rank-pathfinder-v592.png"},
+ {id:"trailblazer",name:"Trailblazer",min:10000,badge:"assets/badges/rank-trailblazer-v592.png"}
 ];
 function xpLevel(k){
  let xp=Math.max(0,+k?.xp||0),idx=0;
  for(let i=0;i<XP_LEVELS.length;i++)if(xp>=XP_LEVELS[i].min)idx=i;
+ // Preserve any rank already earned before the V59.3 ladder was stretched.
+ const old=[0,250,750,1500,2500];
+ const key=`oaRankFloor:v593:${data?.ownerUid||"family"}:${k?.id||"kid"}`;
+ let floor=localStorage.getItem(key);
+ if(floor===null){let n=0;for(let i=0;i<old.length;i++)if(xp>=old[i])n=i;floor=String(n);localStorage.setItem(key,floor)}
+ idx=Math.max(idx,Math.min(XP_LEVELS.length-1,+floor||0));
  let cur=XP_LEVELS[idx],next=XP_LEVELS[idx+1]||null;
- let pct=next?Math.min(100,Math.round((xp-cur.min)/(next.min-cur.min)*100)):100;
+ let pct=next?Math.min(100,Math.max(0,Math.round(xp/next.min*100))):100;
  return {xp,cur,next,pct,toGo:next?Math.max(0,next.min-xp):0};
 }
 
