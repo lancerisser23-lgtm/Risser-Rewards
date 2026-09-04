@@ -1944,6 +1944,17 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
 /* World names stay forest green unless the card itself is selected. */
 .oaWorldCard .oaWorldInfo b{color:#173f2e!important}
 .oaWorldCard:not(.on) .oaWorldInfo b{color:#173f2e!important}
+
+/* ===== OAK & ARROW V59.5 — CLEAN RANK ART ===== */
+.oaRankBadgeWrap{
+  background:transparent!important;
+  border-radius:0!important;
+  padding:0!important;
+}
+.oaRankStep.current .oaRankBadgeWrap{
+  box-shadow:none!important;
+}
+.oaRankCheck{display:none!important}
 </style>
 
 <!-- V56.2 full audit hardening: kid styling, school visibility persistence, accurate availability counts, Sunday settlement restoration -->
@@ -3050,7 +3061,7 @@ function journey(){
    </div>
    <div class="oaContentCard oaRankTrailCard">
     <div class="oaSectionIntro"><div><div class="tiny">ADVENTURE RANKS</div><h3>Your Trail</h3></div><span>${l.next?`${l.toGo} XP to ${l.next.name}`:"Trailblazer reached"}</span></div>
-    <div class="oaRankTrail">${XP_LEVELS.map((x,i)=>`<div class="oaRankStep ${i<curIdx?"done":i===curIdx?"current":"locked"}"><div class="oaRankBadgeWrap"><img src="${x.badge}" alt="${x.name} badge">${i<curIdx?`<span class="oaRankCheck">${oaIcon("check")}</span>`:""}</div><b>${x.name}</b><span>${x.min.toLocaleString()} XP</span></div>`).join("")}</div>
+    <div class="oaRankTrail">${XP_LEVELS.map((x,i)=>`<div class="oaRankStep ${i<curIdx?"done":i===curIdx?"current":"locked"}"><div class="oaRankBadgeWrap"><img src="${x.badge}" alt="${x.name} badge"></div><b>${x.name}</b><span>${x.min.toLocaleString()} XP</span></div>`).join("")}</div>
    </div>
    <div class="oaContentCard oaMilestoneCard">
     <div class="oaSectionIntro"><div><div class="tiny">MILESTONE BADGES</div><h3>Badges You've Earned</h3></div><span>${milestones.filter(x=>x.earned).length} of ${milestones.length}</span></div>
