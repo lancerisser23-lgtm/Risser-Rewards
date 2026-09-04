@@ -1,4 +1,4 @@
-const CACHE='oak-arrow-v59-9-avatar-edit-entry';
+const CACHE='oak-arrow-v60-0-journey-current-trophy';
 const CORE=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png',
 './assets/noah-avatar.png','./assets/eli-avatar.png','./assets/shepherd-avatar.png','./assets/juniper-avatar.png',
 './assets/noah-world.png','./assets/eli-world.png','./assets/shepherd-world.png','./assets/juniper-world.png'];
