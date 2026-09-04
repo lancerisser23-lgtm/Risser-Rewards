@@ -2054,6 +2054,52 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
   filter:none!important;
   image-rendering:auto!important;
 }
+
+/* ===== OAK & ARROW V59.9 — AVATAR EDIT AFFORDANCE ===== */
+.oaHeroAvatarButton{
+  position:relative!important;
+  display:inline-block!important;
+  flex:0 0 auto!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  background:transparent!important;
+  cursor:pointer!important;
+  overflow:visible!important;
+  line-height:0!important;
+}
+.oaHeroAvatarButton .oaHeroAvatar{
+  display:block!important;
+}
+.oaHeroAvatarEdit{
+  position:absolute!important;
+  right:-2px!important;
+  bottom:-2px!important;
+  width:30px!important;
+  height:30px!important;
+  border-radius:50%!important;
+  display:grid!important;
+  place-items:center!important;
+  background:#173f2e!important;
+  color:#fffaf0!important;
+  border:2px solid #caa95d!important;
+  box-shadow:0 4px 10px rgba(0,0,0,.22)!important;
+  pointer-events:none!important;
+}
+.oaHeroAvatarEdit .oaIcon{
+  width:15px!important;
+  height:15px!important;
+}
+.oaHeroAvatarButton:hover .oaHeroAvatarEdit{
+  transform:scale(1.06)!important;
+}
+.oaHeroAvatarButton:focus-visible{
+  outline:3px solid #caa95d!important;
+  outline-offset:4px!important;
+  border-radius:50%!important;
+}
+/* Retire the old oversized customization button if legacy markup ever appears. */
+.oaMakeYours{display:none!important}
 </style>
 
 <!-- V56.2 full audit hardening: kid styling, school visibility persistence, accurate availability counts, Sunday settlement restoration -->
@@ -3001,7 +3047,13 @@ function oaDashboard(k){
  let growth=challengeLibrary().filter(c=>!c.parentOnly&&c.active!==false&&challengeAvailable(c,k.id));
  let v=weeklyVerse(), streak=Math.max(0,+k.streak||0);
  return `<div class="oaKidShell" data-world="${oaWorldId(k)}" style="--oa-hero:url('${t.hero}')">
-   <div class="oaHeroIdentity"><img class="oaHeroAvatar" src="${oaAvatar(k)}" alt="${k.name}"><div class="oaHeroName"><div class="tiny">GOOD TO SEE YOU</div><h1>${k.name.toUpperCase()}'S<br>ADVENTURE</h1><span class="oaRank">${oaIcon("journey","inline")} ${level.cur.name}</span><button class="oaMakeYours" data-v="customize">${oaIcon("edit")} Make It Yours</button></div></div>
+   <div class="oaHeroIdentity">
+     <button class="oaHeroAvatarButton" data-v="customize" aria-label="Change avatar or world">
+       <img class="oaHeroAvatar" src="${oaAvatar(k)}" alt="${k.name}">
+       <span class="oaHeroAvatarEdit">${oaIcon("edit")}</span>
+     </button>
+     <div class="oaHeroName"><div class="tiny">GOOD TO SEE YOU</div><h1>${k.name.toUpperCase()}'S<br>ADVENTURE</h1><span class="oaRank">${oaIcon("journey","inline")} ${level.cur.name}</span></div>
+   </div>
    <div class="oaStats oaBalancedStats">
      <div class="oaStat oaRankStat">
        <img src="${level.cur.badge}" alt="${level.cur.name} badge">
