@@ -1920,6 +1920,30 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
  .oaRankTrail{grid-template-columns:repeat(5,225px)!important;gap:18px!important;overflow-x:auto!important}
  .oaRankStep img{width:190px!important;height:205px!important}
 }
+
+/* ===== OAK & ARROW V59.4 — AVATAR CROP + WORLD LABEL CONSISTENCY ===== */
+/* Five explorer masters need a tighter crop in the chooser so their artwork fills the circle consistently. */
+.oaExplorerCard img[src*="explorer-dinosaur-v576.jpg"],
+.oaExplorerCard img[src*="explorer-astronaut-v576.jpg"],
+.oaExplorerCard img[src*="explorer-sea-turtle-v576.jpg"],
+.oaExplorerCard img[src*="explorer-whale-v576.jpg"],
+.oaExplorerCard img[src*="explorer-elephant-v576.jpg"]{
+  width:100%!important;
+  height:auto!important;
+  margin:0 auto!important;
+  transform:scale(1.10)!important;
+  transform-origin:center center!important;
+}
+/* Keep the crop centered by subject where a tiny vertical adjustment improves framing. */
+.oaExplorerCard img[src*="explorer-dinosaur-v576.jpg"]{object-position:50% 48%!important}
+.oaExplorerCard img[src*="explorer-astronaut-v576.jpg"]{object-position:50% 49%!important}
+.oaExplorerCard img[src*="explorer-sea-turtle-v576.jpg"]{object-position:50% 50%!important}
+.oaExplorerCard img[src*="explorer-whale-v576.jpg"]{object-position:50% 50%!important}
+.oaExplorerCard img[src*="explorer-elephant-v576.jpg"]{object-position:50% 48%!important}
+
+/* World names stay forest green unless the card itself is selected. */
+.oaWorldCard .oaWorldInfo b{color:#173f2e!important}
+.oaWorldCard:not(.on) .oaWorldInfo b{color:#173f2e!important}
 </style>
 
 <!-- V56.2 full audit hardening: kid styling, school visibility persistence, accurate availability counts, Sunday settlement restoration -->
