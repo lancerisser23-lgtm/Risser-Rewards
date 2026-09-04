@@ -1858,6 +1858,50 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
 
 /* ===== OAK & ARROW V58.6 — JOURNEY AVATAR CLEANUP ===== */
 .oaJourneyPage .oaPageTop .oaWorldEmblem{display:none!important}
+
+/* ===== OAK & ARROW V59 — ADVENTURE RANKS + MILESTONE BADGES ===== */
+.oaRankStat{display:flex!important;align-items:center!important;gap:10px!important}
+.oaRankStat>img{width:52px;height:58px;object-fit:contain;flex:0 0 auto}
+.oaRankStat>div{display:flex;flex-direction:column;min-width:0}
+.oaJourneyHeroRank{display:flex;align-items:center;gap:18px;margin-bottom:14px}
+.oaJourneyHeroRank>img{width:92px;height:108px;object-fit:contain;filter:drop-shadow(0 7px 12px rgba(0,0,0,.18))}
+.oaSectionIntro{display:flex;justify-content:space-between;align-items:end;gap:12px;margin-bottom:16px}
+.oaSectionIntro h3{font-family:var(--oa-serif);font-size:26px;margin:2px 0 0;color:var(--oa-forest)}
+.oaSectionIntro>span{font-size:13px;font-weight:800;color:#6d746d}
+.oaRankTrailCard,.oaMilestoneCard{margin-top:16px}
+.oaRankTrail{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;position:relative}
+.oaRankTrail:before{content:"";position:absolute;left:8%;right:8%;top:48px;border-top:2px dashed #c8b98f;z-index:0}
+.oaRankStep{position:relative;z-index:1;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px}
+.oaRankBadgeWrap{position:relative;background:#fffaf0;border-radius:50%;padding:4px}
+.oaRankStep img{width:76px;height:90px;object-fit:contain;display:block}
+.oaRankStep b{font-family:var(--oa-serif);color:#173f2e;font-size:14px}
+.oaRankStep>span{font-size:11px;color:#6d746d}
+.oaRankStep.locked{opacity:.34;filter:grayscale(1)}
+.oaRankStep.current .oaRankBadgeWrap{box-shadow:0 0 0 3px #caa95d,0 8px 20px rgba(202,169,93,.25)}
+.oaRankCheck{position:absolute;right:-2px;bottom:8px;width:24px;height:24px;border-radius:50%;background:#173f2e;color:#fff;display:grid;place-items:center}
+.oaRankCheck .oaIcon{width:14px;height:14px}
+.oaMilestoneGrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:12px}
+.oaMilestone{text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.oaMilestone img{width:76px;height:84px;object-fit:contain}
+.oaMilestone b{font-size:12px;color:#173f2e}
+.oaMilestone span{font-size:10px;color:#72766f;line-height:1.25}
+.oaMilestone.locked{opacity:.30;filter:grayscale(1)}
+.oaMilestone.earned img{filter:drop-shadow(0 5px 8px rgba(24,63,46,.16))}
+.oaRankCelebration{position:fixed;inset:0;z-index:9999;background:rgba(6,24,17,.76);backdrop-filter:blur(7px);display:grid;place-items:center;padding:20px}
+.oaRankCelebrationCard{width:min(430px,94vw);background:linear-gradient(180deg,#143c2b,#0d2d21);border:1px solid #caa95d;border-radius:28px;padding:28px;text-align:center;color:#fff9e9;box-shadow:0 28px 70px rgba(0,0,0,.38)}
+.oaRankCelebrationCard>img{width:175px;height:205px;object-fit:contain;filter:drop-shadow(0 0 22px rgba(230,190,88,.38));margin:6px auto}
+.oaRankCelebrationCard .tiny{color:#e4ca84;letter-spacing:.15em}
+.oaRankKicker{font-size:15px;letter-spacing:.12em;font-weight:800;color:#e4ca84}
+.oaRankCelebrationCard h2{font-family:var(--oa-serif);font-size:42px;color:#fff9e9;margin:3px 0 8px}
+.oaRankCelebrationCard p{margin:0 auto 18px;max-width:300px;color:#e9e2d2}
+.oaRankCelebrationCard .btn{background:#caa95d!important;color:#173f2e!important;border:0!important}
+@media(max-width:760px){
+ .oaRankTrail{grid-template-columns:repeat(5,92px);overflow-x:auto;padding-bottom:8px}
+ .oaRankTrail:before{display:none}
+ .oaMilestoneGrid{grid-template-columns:repeat(3,1fr)}
+ .oaJourneyHeroRank>img{width:74px;height:88px}
+ .oaRankStat>img{width:42px;height:48px}
+}
 </style>
 
 <!-- V56.2 full audit hardening: kid styling, school visibility persistence, accurate availability counts, Sunday settlement restoration -->
@@ -2523,7 +2567,11 @@ function visibleFamilyProgress(r){
 }
 
 const XP_LEVELS=[
- {name:"Trailhead",min:0},{name:"Explorer",min:250},{name:"Adventurer",min:750},{name:"Pathfinder",min:1500},{name:"Trailblazer",min:2500}
+ {id:"trailhead",name:"Trailhead",min:0,badge:"assets/badges/rank-trailhead.svg"},
+ {id:"explorer",name:"Explorer",min:250,badge:"assets/badges/rank-explorer.svg"},
+ {id:"adventurer",name:"Adventurer",min:750,badge:"assets/badges/rank-adventurer.svg"},
+ {id:"pathfinder",name:"Pathfinder",min:1500,badge:"assets/badges/rank-pathfinder.svg"},
+ {id:"trailblazer",name:"Trailblazer",min:2500,badge:"assets/badges/rank-trailblazer.svg"}
 ];
 function xpLevel(k){
  let xp=Math.max(0,+k?.xp||0),idx=0;
@@ -2531,6 +2579,49 @@ function xpLevel(k){
  let cur=XP_LEVELS[idx],next=XP_LEVELS[idx+1]||null;
  let pct=next?Math.min(100,Math.round((xp-cur.min)/(next.min-cur.min)*100)):100;
  return {xp,cur,next,pct,toGo:next?Math.max(0,next.min-xp):0};
+}
+
+function oaPositiveLedger(kidId){
+ return (data?.ledger||[]).filter(x=>x.kidId===kidId&&x.type!=="required_miss"&&x.type!=="behavior_deduction"&&x.type!=="reversal");
+}
+function oaMilestones(k){
+ const ledger=oaPositiveLedger(k.id), logs=(data?.challengeLogs||[]).filter(x=>x.kidId===k.id&&x.status==="approved");
+ const taskWins=ledger.filter(x=>x.type==="earning"&&(+x.xp>0||+x.points>0||+x.cash>0||+x.car>0)).length;
+ const respWins=Math.max(taskWins,+k.requiredDone||0);
+ const growthWins=logs.length||ledger.filter(x=>x.type==="levelup_earning").length;
+ const outdoorIds=new Set(challengeLibrary().filter(c=>/outside|outdoor|hike|walk|nature|camp/i.test(`${c.id} ${c.name} ${c.desc||""}`)).map(c=>c.id));
+ const outdoorWins=logs.filter(x=>outdoorIds.has(x.challengeId)).length;
+ const helperWins=logs.filter(x=>{let c=challengeLibrary().find(c=>c.id===x.challengeId);return /help|kind|service|family|neighbor/i.test(`${c?.name||""} ${c?.desc||""}`)}).length;
+ const learningWins=logs.filter(x=>{let c=challengeLibrary().find(c=>c.id===x.challengeId);return /learn|read|study|practice|skill|homework/i.test(`${c?.name||""} ${c?.desc||""}`)}).length;
+ const defs=[
+  {id:"first-ten",name:"10 Completed",desc:"Complete 10 real-world tasks.",earned:taskWins>=10,asset:"assets/badges/milestone-first-ten.svg"},
+  {id:"growth-25",name:"25 Growth Missions",desc:"Complete 25 Growth Missions.",earned:growthWins>=25,asset:"assets/badges/milestone-growth-25.svg"},
+  {id:"streak-7",name:"7-Day Streak",desc:"Build a 7-day Adventure Streak.",earned:(+k.streak||0)>=7,asset:"assets/badges/milestone-streak-7.svg"},
+  {id:"responsibility-100",name:"100 Responsibilities",desc:"Follow through 100 times.",earned:respWins>=100,asset:"assets/badges/milestone-responsibility-100.svg"},
+  {id:"outside-10",name:"10 Outdoor Adventures",desc:"Complete 10 outdoor Growth Missions.",earned:outdoorWins>=10,asset:"assets/badges/milestone-outside-10.svg"},
+  {id:"helper",name:"Helping Others",desc:"Complete 10 helping or service missions.",earned:helperWins>=10,asset:"assets/badges/milestone-helper.svg"},
+  {id:"learning",name:"Love of Learning",desc:"Complete 10 learning or skill missions.",earned:learningWins>=10,asset:"assets/badges/milestone-learning.svg"}
+ ];
+ defs[5].earned=helperWins>=10; defs[6].earned=learningWins>=10;
+ return defs;
+}
+function oaSeenRankKey(k){return `oaSeenRank:${data?.ownerUid||"family"}:${k.id}`}
+function oaMaybeRankCelebration(k){
+ const l=xpLevel(k),key=oaSeenRankKey(k),seen=localStorage.getItem(key);
+ // Establish current rank silently the first time this release is opened so existing XP does not create a false "just unlocked" celebration.
+ if(seen===null){localStorage.setItem(key,l.cur.id);return ""}
+ const seenIdx=XP_LEVELS.findIndex(x=>x.id===seen),curIdx=XP_LEVELS.findIndex(x=>x.id===l.cur.id);
+ if(curIdx<=Math.max(0,seenIdx))return "";
+ localStorage.setItem(key,l.cur.id);
+ return `<div class="oaRankCelebration" role="dialog" aria-modal="true">
+   <div class="oaRankCelebrationCard">
+    <div class="tiny">ADVENTURE RANK UNLOCKED</div>
+    <img src="${l.cur.badge}" alt="${l.cur.name} badge">
+    <div class="oaRankKicker">YOU MADE</div><h2>${l.cur.name.toUpperCase()}!</h2>
+    <p>Your real-world work moved you up the trail.</p>
+    <button class="btn" data-close-rank>See My Journey</button>
+   </div>
+  </div>`;
 }
 function xpProgressCard(k){let l=xpLevel(k);return `<div class="v5038XpCard"><div class="v5038XpRow"><div><div class="tiny muted">${oaIcon("flame","inline")} ADVENTURE LEVEL</div><b>${l.cur.name}</b></div><div style="text-align:right"><b>${l.xp} XP</b><div class="tiny muted">${l.next?`${l.toGo} XP to ${l.next.name}`:"Top level reached"}</div></div></div><div class="v5038XpBar"><div class="v5038XpFill" style="width:${l.pct}%"></div></div></div>`}
 function kidPointsSummary(k){let ps=rewardPointStats(k.id);return `<div class="v5038KidEconomy"><div><b>⭐ ${Math.max(0,+k.rewardPoints||0)}</b><span>Reward Points</span></div><div><b>+${ps.week}</b><span>Earned This Week</span></div></div>`}
@@ -2754,7 +2845,7 @@ function oaDashboard(k){
  return `<div class="oaKidShell" data-world="${oaWorldId(k)}" style="--oa-hero:url('${t.hero}')">
    <div class="oaHeroIdentity"><img class="oaHeroAvatar" src="${oaAvatar(k)}" alt="${k.name}"><div class="oaHeroName"><div class="tiny">GOOD TO SEE YOU</div><h1>${k.name.toUpperCase()}'S<br>ADVENTURE</h1><span class="oaRank">${oaIcon("journey","inline")} ${level.cur.name}</span><button class="oaMakeYours" data-v="customize">${oaIcon("edit")} Make It Yours</button></div></div>
    <div class="oaStats">
-     <div class="oaStat"><b>${level.cur.name}</b><span>${level.next?`${level.toGo} XP to ${level.next.name}`:"Top Adventure Level"}</span></div>
+     <div class="oaStat oaRankStat"><img src="${level.cur.badge}" alt=""><div><b>${level.cur.name}</b><span>${level.next?`${level.toGo} XP to ${level.next.name}`:"Top Adventure Level"}</span></div></div>
      <div class="oaStat"><b>${oaIcon("star","inline")} ${Math.max(0,+k.rewardPoints||0)}</b><span>Reward Points</span></div>
      <div class="oaStat"><b>${moneyEnabled()?money(cashOwed(k)):`${rp.pct}%`}</b><span>${moneyEnabled()?"Spend Now":"Next Reward"}</span></div>
    </div>
@@ -2769,7 +2860,7 @@ function oaDashboard(k){
      <div class="oaMotiv"><div class="label">${oaIcon("rewards")} NEXT REWARD</div><div class="big">${rp.ready?"READY!":`${Math.max(0,(+goal.cost||1)-Math.max(0,+k.rewardPoints||0))}`}</div><div class="small">${rp.ready?`${goal.icon} ${goal.name}`:`points to ${goal.icon} ${goal.name}`}</div></div>
    </div>
    ${oaKidNav("world")}
- </div>`
+ </div>`+oaMaybeRankCelebration(k)
 }
 function world(k){
  let t=theme(k),r=reliability(k),goal=rewardGoal(k),rp=visibleRewardProgress(k,goal);
@@ -2900,14 +2991,25 @@ function oaWorkRow(c,k,type){
  return `<button class="oaListRow" data-c="${c.id}" ${allowed?"":"disabled"}><span class="oaListIcon">${oaIcon(oaTaskIcon(c,type))}</span><span><span class="oaListName">${c.name}</span><span class="oaListMeta">${frequencyLabel(c)}${timerRequirementLabel(c)}</span></span><span><span class="oaListValue">${value}</span><br>${state}</span></button>`;
 }
 function journey(){
- let k=data.kids[kid],l=xpLevel(k),ps=rewardPointStats(k.id),r=reliability(k);
+ let k=data.kids[kid],l=xpLevel(k),ps=rewardPointStats(k.id),r=reliability(k),milestones=oaMilestones(k);
  let recent=(data.ledger||[]).filter(x=>x.kidId===k.id).slice().sort((a,b)=>(b.at||0)-(a.at||0)).slice(0,8);
+ let curIdx=XP_LEVELS.findIndex(x=>x.id===l.cur.id);
  return oaKidPage(k,"My Journey","See how your consistency, Growth Missions and completed work are building over time.","journey",`
-   <div class="oaJourneyHero"><div class="tiny">ADVENTURE LEVEL</div><div class="oaJourneyLevel">${l.cur.name}</div><div>${l.next?`${l.toGo} XP until ${l.next.name}`:"Top level reached"}</div><div class="oaProgressBar"><div class="oaProgressFill" style="width:${l.pct}%"></div></div>
-     <div class="oaJourneyStats"><div><b>${l.xp}</b><span>TOTAL XP</span></div><div><b>${r}%</b><span>RESPONSIBILITIES</span></div><div><b>+${ps.week}</b><span>POINTS THIS WEEK</span></div></div>
+   <div class="oaJourneyHero">
+    <div class="oaJourneyHeroRank"><img src="${l.cur.badge}" alt="${l.cur.name} badge"><div><div class="tiny">ADVENTURE LEVEL</div><div class="oaJourneyLevel">${l.cur.name}</div><div>${l.next?`${l.toGo} XP to ${l.next.name}`:"Top level reached"}</div></div></div>
+    <div class="oaProgressBar"><div class="oaProgressFill" style="width:${l.pct}%"></div></div>
+    <div class="oaJourneyStats"><div><b>${l.xp}</b><span>TOTAL XP</span></div><div><b>${r}%</b><span>RESPONSIBILITIES</span></div><div><b>+${ps.week}</b><span>POINTS THIS WEEK</span></div></div>
+   </div>
+   <div class="oaContentCard oaRankTrailCard">
+    <div class="oaSectionIntro"><div><div class="tiny">ADVENTURE RANKS</div><h3>Your Trail</h3></div><span>${l.next?`${l.toGo} XP to ${l.next.name}`:"Trailblazer reached"}</span></div>
+    <div class="oaRankTrail">${XP_LEVELS.map((x,i)=>`<div class="oaRankStep ${i<curIdx?"done":i===curIdx?"current":"locked"}"><div class="oaRankBadgeWrap"><img src="${x.badge}" alt="${x.name} badge">${i<curIdx?`<span class="oaRankCheck">${oaIcon("check")}</span>`:""}</div><b>${x.name}</b><span>${x.min.toLocaleString()} XP</span></div>`).join("")}</div>
+   </div>
+   <div class="oaContentCard oaMilestoneCard">
+    <div class="oaSectionIntro"><div><div class="tiny">MILESTONE BADGES</div><h3>Badges You've Earned</h3></div><span>${milestones.filter(x=>x.earned).length} of ${milestones.length}</span></div>
+    <div class="oaMilestoneGrid">${milestones.map(x=>`<div class="oaMilestone ${x.earned?"earned":"locked"}"><img src="${x.asset}" alt="${x.name} badge"><b>${x.name}</b><span>${x.earned?"Earned":x.desc}</span></div>`).join("")}</div>
    </div>
    <div class="oaContentCard"><h3 style="margin:0 0 8px">Recent accomplishments</h3><div class="oaList">${recent.map(x=>`<div class="oaListRow" style="cursor:default"><span class="oaListIcon">${oaIcon(x.type==="points_redemption"?"rewards":x.type==="required_miss"?"timer":"star")}</span><span><span class="oaListName">${x.label||"Progress"}</span><span class="oaListMeta">${new Date(x.at||Date.now()).toLocaleDateString()}</span></span><span class="oaListValue">${x.xp?`${x.xp>0?"+":""}${x.xp} XP`:x.points?`${x.points>0?"+":""}${x.points} pts`:""}</span></div>`).join("")||`<div class="muted">Your journey will fill in as you complete things.</div>`}</div></div>
- `,"oaJourneyPage");
+ `,"oaJourneyPage")+oaMaybeRankCelebration(k);
 }
 function week(){
  let k=data.kids[kid];
@@ -3623,7 +3725,8 @@ $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCoun
  });
 
  $$("[data-rredeem]").forEach(b=>b.onclick=()=>{let r=individualRewards().find(x=>x.id===b.dataset.rredeem),k=kidById(b.dataset.rkid);if(!r||!k||(+k.rewardPoints||0)<r.cost)return;askConfirm("Complete this goal?",`${k.name} reached ${r.name}. Completing it resets the saved reward progress so a new goal can begin.`,"Complete Goal",async()=>{await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),cur=d.kids.find(x=>x.id===k.id);if(!cur||(+cur.rewardPoints||0)<r.cost)return;let kids=d.kids.map(x=>x.id===k.id?{...x,rewardPoints:(+x.rewardPoints||0)-r.cost}:x);let ledger=[...(d.ledger||[]),{id:newId(),type:"points_redemption",kidId:k.id,label:r.name,points:-r.cost,by:user?.email||"kid",at:Date.now()}].slice(-300);tr.update(familyRef,{kids,ledger})})})});
- $$("[data-kidrewardrequest]").forEach(b=>b.onclick=async()=>{
+ $$("[data-close-rank]").forEach(b=>b.onclick=()=>{document.querySelector(".oaRankCelebration")?.remove();if(view!=="journey"){view="journey";render()}});
+  $$("[data-kidrewardrequest]").forEach(b=>b.onclick=async()=>{
    const rewardId=b.dataset.kidrewardrequest,k=data.kids[kid],r=individualRewards().find(x=>x.id===rewardId);
    if(!k||!r||(+k.rewardPoints||0)<(+r.cost||0))return;
    b.disabled=true;

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 70">
+<circle cx="32" cy="31" r="27" fill="#173f2e" stroke="#caa95d" stroke-width="2.5"/>
+<circle cx="32" cy="31" r="22" fill="none" stroke="#f0dfac" stroke-width="1" stroke-dasharray="2 2"/>
+<g fill="none" stroke="#f3e5b8" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"><path d="M32 48V23M32 31c-8 0-13-5-14-12 8 0 13 4 14 12zm0 7c8 0 13-5 14-12-8 0-13 4-14 12z"/></g>
+<text x="32" y="66" text-anchor="middle" font-family="Arial,sans-serif" font-size="5.5" font-weight="700" fill="#173f2e">25 GROWTH</text>
+</svg>

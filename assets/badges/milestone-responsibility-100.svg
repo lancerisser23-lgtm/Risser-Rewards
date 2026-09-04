@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 70">
+<circle cx="32" cy="31" r="27" fill="#173f2e" stroke="#caa95d" stroke-width="2.5"/>
+<circle cx="32" cy="31" r="22" fill="none" stroke="#f0dfac" stroke-width="1" stroke-dasharray="2 2"/>
+<g fill="none" stroke="#f3e5b8" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 23h28v26H18zM24 17h16v8H24zM24 32h16M24 39h12"/></g>
+<text x="32" y="66" text-anchor="middle" font-family="Arial,sans-serif" font-size="5.5" font-weight="700" fill="#173f2e">100 RESP.</text>
+</svg>

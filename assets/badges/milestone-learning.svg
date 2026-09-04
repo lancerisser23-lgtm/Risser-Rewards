@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 70">
+<circle cx="32" cy="31" r="27" fill="#173f2e" stroke="#caa95d" stroke-width="2.5"/>
+<circle cx="32" cy="31" r="22" fill="none" stroke="#f0dfac" stroke-width="1" stroke-dasharray="2 2"/>
+<g fill="none" stroke="#f3e5b8" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 20c8-2 14 0 18 5v27c-4-5-10-7-18-5V20zm36 0c-8-2-14 0-18 5v27c4-5 10-7 18-5V20z"/></g>
+<text x="32" y="66" text-anchor="middle" font-family="Arial,sans-serif" font-size="5.5" font-weight="700" fill="#173f2e">LEARNING</text>
+</svg>
