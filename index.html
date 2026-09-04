@@ -2150,6 +2150,13 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
   }
   .oaJourneyPage .oaJourneyLevel{font-size:27px!important}
 }
+
+/* ===== OAK & ARROW V60.1 — CLEAR PENCIL EDIT ICON ===== */
+.oaHeroAvatarEdit .oaIcon{
+  width:18px!important;
+  height:18px!important;
+  display:block!important;
+}
 </style>
 
 <!-- V56.2 full audit hardening: kid styling, school visibility persistence, accurate availability counts, Sunday settlement restoration -->
@@ -3014,7 +3021,7 @@ const OA_ICON_MAP={
  "👨‍👩‍👧‍👦":"family","👋":"family","📖":"bible","⛳":"golf","🎉":"celebrate","🎊":"celebrate","📅":"calendar","ℹ️":"info","📷":"camera",
  "🎯":"star","🌳":"plant","🌞":"sun","✦":"star","✨":"star","💰":"money","🏡":"home","🏠":"home","🔔":"pending","🧠":"growth"
 };
-const OA_DIRECT_ICONS=new Set(["home","responsibilities","jobs","growth","rewards","journey","money","settings","bed","paw","book","broom","plant","trash","laundry","dishes","car","leaf","chef","box","dumbbell","atom","heart-hands","timer","star","wallet","flame","check","lock","dog","goat","chicken","duck","snake","cat","backpack","homework","sports","archery","screen","no-screen","pool","garage","towel","cardboard","water","bible-verse","kindness","outside","clean","check-circle","x-circle","edit","delete","add","filter","history","save","logout","search","menu","kid","sun","vacation","warning","pending","approve","undo","switch-kid","family","bible","golf","summer","school","arrow-left","calendar","info","celebrate","coin","shield","camera"]);
+const OA_DIRECT_ICONS=new Set(["home","responsibilities","jobs","growth","rewards","journey","money","settings","bed","paw","book","broom","plant","trash","laundry","dishes","car","leaf","chef","box","dumbbell","atom","heart-hands","timer","star","wallet","flame","check","lock","dog","goat","chicken","duck","snake","cat","backpack","homework","sports","archery","screen","no-screen","pool","garage","towel","cardboard","water","bible-verse","kindness","outside","clean","check-circle","x-circle","edit","delete","add","filter","history","save","logout","search","menu","kid","sun","vacation","warning","pending","approve","undo","switch-kid","family","bible","golf","summer","school","arrow-left","calendar","info","celebrate","coin","shield","camera","pencil-edit"]);
 function oaIconFor(raw,fallback="star"){if(OA_DIRECT_ICONS.has(raw))return raw;return OA_ICON_MAP[raw]||fallback}
 
 function oaTaskIcon(c,type="resp"){
@@ -3100,7 +3107,7 @@ function oaDashboard(k){
    <div class="oaHeroIdentity">
      <button class="oaHeroAvatarButton" data-v="customize" aria-label="Change avatar or world">
        <img class="oaHeroAvatar" src="${oaAvatar(k)}" alt="${k.name}">
-       <span class="oaHeroAvatarEdit">${oaIcon("edit")}</span>
+       <span class="oaHeroAvatarEdit">${oaIcon("pencil-edit")}</span>
      </button>
      <div class="oaHeroName"><div class="tiny">GOOD TO SEE YOU</div><h1>${k.name.toUpperCase()}'S<br>ADVENTURE</h1><span class="oaRank">${oaIcon("journey","inline")} ${level.cur.name}</span></div>
    </div>
