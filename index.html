@@ -3336,7 +3336,7 @@ function oaKidPage(k,title,subtitle,active,body,extraClass=""){
  let t=oaTheme(k);
  let sectionActive=active;
  return header()+`<section class="oaKidPage ${extraClass}" style="--oa-page-hero:url('${t.hero}');--oa-accent:${t.accent}">
-   <div class="oaPageTop"><div class="oaPageTopLeft"><div class="oaAvatarWrap"><img class="oaExplorerAvatar" src="${oaAvatar(k)}" alt="${k.name}"><img class="oaWorldEmblem" src="${oaEmblem(k)}" alt=""></div><div><div class="oaPageEyebrow">${t.name.toUpperCase()} · ${xpLevel(k).cur.name.toUpperCase()}</div><div class="oaPageTitle">${title}</div><div class="oaPageSub">${subtitle}</div></div></div><button class="oaBack" data-v="week">← My World</button></div>
+   <div class="oaPageTop"><div class="oaPageTopLeft"><div class="oaAvatarWrap"><img class="oaExplorerAvatar" src="${oaAvatar(k)}" alt="${k.name}"></div><div><div class="oaPageEyebrow">${t.name.toUpperCase()} · ${xpLevel(k).cur.name.toUpperCase()}</div><div class="oaPageTitle">${title}</div><div class="oaPageSub">${subtitle}</div></div></div><button class="oaBack" data-v="week">← My World</button></div>
    ${oaKidSectionNav(sectionActive)}
    ${body}
    ${oaKidNav(active)}
