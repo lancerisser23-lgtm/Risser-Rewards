@@ -1855,6 +1855,9 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
   backdrop-filter:blur(4px) saturate(108%)!important;
 }
 
+
+/* ===== OAK & ARROW V58.6 — JOURNEY AVATAR CLEANUP ===== */
+.oaJourneyPage .oaPageTop .oaWorldEmblem{display:none!important}
 </style>
 
 <!-- V56.2 full audit hardening: kid styling, school visibility persistence, accurate availability counts, Sunday settlement restoration -->
@@ -2904,7 +2907,7 @@ function journey(){
      <div class="oaJourneyStats"><div><b>${l.xp}</b><span>TOTAL XP</span></div><div><b>${r}%</b><span>RESPONSIBILITIES</span></div><div><b>+${ps.week}</b><span>POINTS THIS WEEK</span></div></div>
    </div>
    <div class="oaContentCard"><h3 style="margin:0 0 8px">Recent accomplishments</h3><div class="oaList">${recent.map(x=>`<div class="oaListRow" style="cursor:default"><span class="oaListIcon">${oaIcon(x.type==="points_redemption"?"rewards":x.type==="required_miss"?"timer":"star")}</span><span><span class="oaListName">${x.label||"Progress"}</span><span class="oaListMeta">${new Date(x.at||Date.now()).toLocaleDateString()}</span></span><span class="oaListValue">${x.xp?`${x.xp>0?"+":""}${x.xp} XP`:x.points?`${x.points>0?"+":""}${x.points} pts`:""}</span></div>`).join("")||`<div class="muted">Your journey will fill in as you complete things.</div>`}</div></div>
- `);
+ `,"oaJourneyPage");
 }
 function week(){
  let k=data.kids[kid];
