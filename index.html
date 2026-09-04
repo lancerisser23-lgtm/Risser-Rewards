@@ -2157,6 +2157,31 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
   height:18px!important;
   display:block!important;
 }
+
+/* ===== OAK & ARROW V60.2 — OVERSIZED JOURNEY TROPHY ===== */
+.oaJourneyPage .oaJourneyHeroRank{
+  min-height:440px!important;
+  overflow:visible!important;
+}
+.oaJourneyPage .oaJourneyHeroRank>img{
+  width:575px!important;
+  height:638px!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:contain!important;
+  transform:none!important;
+  filter:drop-shadow(0 24px 38px rgba(0,0,0,.38))!important;
+}
+@media(max-width:700px){
+  .oaJourneyPage .oaJourneyHeroRank{
+    min-height:320px!important;
+    grid-template-columns:minmax(105px,.65fr) 1.7fr minmax(8px,.1fr)!important;
+  }
+  .oaJourneyPage .oaJourneyHeroRank>img{
+    width:400px!important;
+    height:450px!important;
+  }
+}
 </style>
 
 <!-- V56.2 full audit hardening: kid styling, school visibility persistence, accurate availability counts, Sunday settlement restoration -->
