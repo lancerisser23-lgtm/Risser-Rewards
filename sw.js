@@ -1,4 +1,4 @@
-const CACHE='oak-arrow-v59-5-clean-rank-art';
+const CACHE='oak-arrow-v59-7-balanced-my-world-stats';
 const CORE=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png',
 './assets/noah-avatar.png','./assets/eli-avatar.png','./assets/shepherd-avatar.png','./assets/juniper-avatar.png',
 './assets/noah-world.png','./assets/eli-world.png','./assets/shepherd-world.png','./assets/juniper-world.png'];

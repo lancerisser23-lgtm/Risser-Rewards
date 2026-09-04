@@ -1921,30 +1921,9 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
  .oaRankStep img{width:190px!important;height:205px!important}
 }
 
-/* ===== OAK & ARROW V59.4 — AVATAR CROP + WORLD LABEL CONSISTENCY ===== */
-/* Five explorer masters need a tighter crop in the chooser so their artwork fills the circle consistently. */
-.oaExplorerCard img[src*="explorer-dinosaur-v576.jpg"],
-.oaExplorerCard img[src*="explorer-astronaut-v576.jpg"],
-.oaExplorerCard img[src*="explorer-sea-turtle-v576.jpg"],
-.oaExplorerCard img[src*="explorer-whale-v576.jpg"],
-.oaExplorerCard img[src*="explorer-elephant-v576.jpg"]{
-  width:100%!important;
-  height:auto!important;
-  margin:0 auto!important;
-  transform:scale(1.10)!important;
-  transform-origin:center center!important;
-}
-/* Keep the crop centered by subject where a tiny vertical adjustment improves framing. */
-.oaExplorerCard img[src*="explorer-dinosaur-v576.jpg"]{object-position:50% 48%!important}
-.oaExplorerCard img[src*="explorer-astronaut-v576.jpg"]{object-position:50% 49%!important}
-.oaExplorerCard img[src*="explorer-sea-turtle-v576.jpg"]{object-position:50% 50%!important}
-.oaExplorerCard img[src*="explorer-whale-v576.jpg"]{object-position:50% 50%!important}
-.oaExplorerCard img[src*="explorer-elephant-v576.jpg"]{object-position:50% 48%!important}
-
-/* World names stay forest green unless the card itself is selected. */
+/* ===== OAK & ARROW V59.6 — UNIFORM AVATAR MASTERS + WORLD LABEL CONSISTENCY ===== */
 .oaWorldCard .oaWorldInfo b{color:#173f2e!important}
 .oaWorldCard:not(.on) .oaWorldInfo b{color:#173f2e!important}
-
 /* ===== OAK & ARROW V59.5 — CLEAN RANK ART ===== */
 .oaRankBadgeWrap{
   background:transparent!important;
@@ -1955,6 +1934,119 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
   box-shadow:none!important;
 }
 .oaRankCheck{display:none!important}
+
+/* V59.6: every avatar uses the exact same circle size and centering. */
+.oaExplorerCard .oaExplorerImg{
+  width:82%!important;
+  aspect-ratio:1/1!important;
+  height:auto!important;
+  margin:10px auto 0!important;
+  border-radius:50%!important;
+  overflow:hidden!important;
+}
+.oaExplorerCard .oaExplorerImg img,
+.oaExplorerCard img{
+  width:100%!important;
+  height:100%!important;
+  aspect-ratio:1/1!important;
+  object-fit:cover!important;
+  object-position:50% 50%!important;
+  margin:0!important;
+  transform:none!important;
+  display:block!important;
+}
+
+/* ===== OAK & ARROW V59.7 — BALANCED MY WORLD STATS ===== */
+.oaBalancedStats{
+  display:grid!important;
+  grid-template-columns:1.25fr .875fr .875fr!important;
+  gap:14px!important;
+  align-items:stretch!important;
+}
+.oaBalancedStats .oaStat{
+  min-height:190px!important;
+  padding:20px 22px!important;
+  border-radius:22px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  background:rgba(7,42,30,.78)!important;
+  border:1px solid rgba(202,169,93,.45)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035)!important;
+}
+.oaBalancedStats .oaRankStat{
+  gap:24px!important;
+  justify-content:flex-start!important;
+}
+.oaBalancedStats .oaRankStat>img{
+  width:145px!important;
+  height:155px!important;
+  flex:0 0 145px!important;
+  object-fit:contain!important;
+  filter:drop-shadow(0 12px 20px rgba(0,0,0,.34))!important;
+}
+.oaRankCopy{
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  align-items:flex-start!important;
+  min-width:0!important;
+}
+.oaRankCopy .oaStatLabel{
+  font-size:11px!important;
+  font-weight:850!important;
+  letter-spacing:.12em!important;
+  color:#dbc47e!important;
+  margin-bottom:7px!important;
+}
+.oaRankCopy b{
+  font-family:var(--oa-serif)!important;
+  font-size:30px!important;
+  line-height:1!important;
+  color:#fffaf0!important;
+}
+.oaRankCopy .oaStatSub{
+  margin-top:8px!important;
+  font-size:13px!important;
+  color:#f4ecd9!important;
+}
+.oaMetricStat{
+  flex-direction:column!important;
+  text-align:center!important;
+  gap:6px!important;
+}
+.oaMetricStat .oaMetricIcon{
+  width:42px!important;
+  height:42px!important;
+  border-radius:50%!important;
+  display:grid!important;
+  place-items:center!important;
+  background:rgba(202,169,93,.13)!important;
+  border:1px solid rgba(202,169,93,.5)!important;
+  margin-bottom:4px!important;
+}
+.oaMetricStat .oaMetricIcon .oaIcon{
+  width:22px!important;
+  height:22px!important;
+}
+.oaMetricStat>b{
+  font-family:var(--oa-serif)!important;
+  font-size:34px!important;
+  line-height:1!important;
+  color:#fffaf0!important;
+}
+.oaMetricStat>span:last-child{
+  font-size:12px!important;
+  color:#eee5d0!important;
+  letter-spacing:.02em!important;
+}
+@media(max-width:760px){
+ .oaBalancedStats{grid-template-columns:1fr 1fr!important}
+ .oaBalancedStats .oaRankStat{grid-column:1/-1!important;min-height:165px!important}
+ .oaBalancedStats .oaRankStat>img{width:122px!important;height:132px!important;flex-basis:122px!important}
+ .oaBalancedStats .oaStat{min-height:135px!important;padding:16px!important}
+ .oaMetricStat>b{font-size:29px!important}
+}
 </style>
 
 <!-- V56.2 full audit hardening: kid styling, school visibility persistence, accurate availability counts, Sunday settlement restoration -->
@@ -2702,16 +2794,16 @@ const OA_WORLD_CATALOG=[
 const OA_DEFAULT_WORLD_BY_KID={noah:"wildwood",eli:"golden-plains",shepherd:"high-country",juniper:"enchanted-meadow"};
 
 const OA_EXPLORER_CATALOG=[
- {id:"lion",name:"Lion",asset:"assets/avatars/explorer-lion-v576.jpg"},
- {id:"wolf",name:"Wolf",asset:"assets/avatars/explorer-wolf-v576.jpg"},
- {id:"snake",name:"Snake",asset:"assets/avatars/explorer-snake-v576.jpg"},
- {id:"unicorn",name:"Unicorn",asset:"assets/avatars/explorer-unicorn-v576.jpg"},
- {id:"dinosaur",name:"Dinosaur",asset:"assets/avatars/explorer-dinosaur-v576.jpg"},
- {id:"astronaut",name:"Astronaut",asset:"assets/avatars/explorer-astronaut-v576.jpg"},
- {id:"sea-turtle",name:"Sea Turtle",asset:"assets/avatars/explorer-sea-turtle-v576.jpg"},
- {id:"whale",name:"Whale",asset:"assets/avatars/explorer-whale-v576.jpg"},
- {id:"elephant",name:"Elephant",asset:"assets/avatars/explorer-elephant-v576.jpg"},
- {id:"fox",name:"Fox",asset:"assets/avatars/explorer-fox-v576.jpg"}
+ {id:"lion",name:"Lion",asset:"assets/avatars/explorer-lion-v596.jpg"},
+ {id:"wolf",name:"Wolf",asset:"assets/avatars/explorer-wolf-v596.jpg"},
+ {id:"snake",name:"Snake",asset:"assets/avatars/explorer-snake-v596.jpg"},
+ {id:"unicorn",name:"Unicorn",asset:"assets/avatars/explorer-unicorn-v596.jpg"},
+ {id:"dinosaur",name:"Dinosaur",asset:"assets/avatars/explorer-dinosaur-v596.jpg"},
+ {id:"astronaut",name:"Astronaut",asset:"assets/avatars/explorer-astronaut-v596.jpg"},
+ {id:"sea-turtle",name:"Sea Turtle",asset:"assets/avatars/explorer-sea-turtle-v596.jpg"},
+ {id:"whale",name:"Whale",asset:"assets/avatars/explorer-whale-v596.jpg"},
+ {id:"elephant",name:"Elephant",asset:"assets/avatars/explorer-elephant-v596.jpg"},
+ {id:"fox",name:"Fox",asset:"assets/avatars/explorer-fox-v596.jpg"}
 ];
 const OA_DEFAULT_EXPLORER_BY_KID={noah:"wolf",eli:"lion",shepherd:"snake",juniper:"unicorn"};
 function oaExplorerId(k){return k?.oaExplorer||OA_DEFAULT_EXPLORER_BY_KID[k?.id]||"wolf"}
@@ -2903,10 +2995,21 @@ function oaDashboard(k){
  let v=weeklyVerse(), streak=Math.max(0,+k.streak||0);
  return `<div class="oaKidShell" data-world="${oaWorldId(k)}" style="--oa-hero:url('${t.hero}')">
    <div class="oaHeroIdentity"><img class="oaHeroAvatar" src="${oaAvatar(k)}" alt="${k.name}"><div class="oaHeroName"><div class="tiny">GOOD TO SEE YOU</div><h1>${k.name.toUpperCase()}'S<br>ADVENTURE</h1><span class="oaRank">${oaIcon("journey","inline")} ${level.cur.name}</span><button class="oaMakeYours" data-v="customize">${oaIcon("edit")} Make It Yours</button></div></div>
-   <div class="oaStats">
-     <div class="oaStat oaRankStat"><img src="${level.cur.badge}" alt=""><div><b>${level.cur.name}</b><span>${level.next?`${level.toGo} XP to ${level.next.name}`:"Top Adventure Level"}</span></div></div>
-     <div class="oaStat"><b>${oaIcon("star","inline")} ${Math.max(0,+k.rewardPoints||0)}</b><span>Reward Points</span></div>
-     <div class="oaStat"><b>${moneyEnabled()?money(cashOwed(k)):`${rp.pct}%`}</b><span>${moneyEnabled()?"Spend Now":"Next Reward"}</span></div>
+   <div class="oaStats oaBalancedStats">
+     <div class="oaStat oaRankStat">
+       <img src="${level.cur.badge}" alt="${level.cur.name} badge">
+       <div class="oaRankCopy"><span class="oaStatLabel">ADVENTURE LEVEL</span><b>${level.cur.name}</b><span class="oaStatSub">${level.next?`${level.toGo} XP to ${level.next.name}`:"Top Adventure Level"}</span></div>
+     </div>
+     <div class="oaStat oaMetricStat">
+       <span class="oaMetricIcon">${oaIcon("star")}</span>
+       <b>${Math.max(0,+k.rewardPoints||0)}</b>
+       <span>Reward Points</span>
+     </div>
+     <div class="oaStat oaMetricStat">
+       <span class="oaMetricIcon">${oaIcon(moneyEnabled()?"wallet":"rewards")}</span>
+       <b>${moneyEnabled()?money(cashOwed(k)):`${rp.pct}%`}</b>
+       <span>${moneyEnabled()?"Spend Now":"Next Reward"}</span>
+     </div>
    </div>
    <div class="oaBoard">
      <div class="oaPanel"><div class="oaPanelHead"><b>${oaIcon("responsibilities","inline")} RESPONSIBILITIES</b><button data-v="responsibilities">See More</button></div>${oaRows(resp,k,"resp")}<div class="oaPanelFoot">${resp.length?`${resp.length} ready today`:"All caught up today"}</div></div>
