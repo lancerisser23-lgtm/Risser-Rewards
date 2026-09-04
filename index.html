@@ -1935,27 +1935,6 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
 }
 .oaRankCheck{display:none!important}
 
-/* V59.6: every avatar uses the exact same circle size and centering. */
-.oaExplorerCard .oaExplorerImg{
-  width:82%!important;
-  aspect-ratio:1/1!important;
-  height:auto!important;
-  margin:10px auto 0!important;
-  border-radius:50%!important;
-  overflow:hidden!important;
-}
-.oaExplorerCard .oaExplorerImg img,
-.oaExplorerCard img{
-  width:100%!important;
-  height:100%!important;
-  aspect-ratio:1/1!important;
-  object-fit:cover!important;
-  object-position:50% 50%!important;
-  margin:0!important;
-  transform:none!important;
-  display:block!important;
-}
-
 /* ===== OAK & ARROW V59.7 — BALANCED MY WORLD STATS ===== */
 .oaBalancedStats{
   display:grid!important;
@@ -2046,6 +2025,34 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
  .oaBalancedStats .oaRankStat>img{width:122px!important;height:132px!important;flex-basis:122px!important}
  .oaBalancedStats .oaStat{min-height:135px!important;padding:16px!important}
  .oaMetricStat>b{font-size:29px!important}
+}
+
+/* ===== OAK & ARROW V59.8 — APPROVED AVATAR ASSETS ===== */
+.oaExplorerCard img[src*="explorer-"][src*="-v598.png"]{
+  display:block!important;
+  width:88%!important;
+  aspect-ratio:1/1!important;
+  height:auto!important;
+  margin:10px auto 0!important;
+  object-fit:cover!important;
+  object-position:center center!important;
+  border-radius:50%!important;
+  border:0!important;
+  padding:0!important;
+  background:transparent!important;
+  transform:none!important;
+  filter:none!important;
+  image-rendering:auto!important;
+}
+.oaHeroAvatar[src*="-v598.png"],
+.oaExplorerAvatar[src*="-v598.png"],
+.kidAvatarImg[src*="-v598.png"],
+.oaCurrentWorld img[src*="-v598.png"]{
+  object-fit:cover!important;
+  object-position:center center!important;
+  transform:none!important;
+  filter:none!important;
+  image-rendering:auto!important;
 }
 </style>
 
@@ -2794,16 +2801,16 @@ const OA_WORLD_CATALOG=[
 const OA_DEFAULT_WORLD_BY_KID={noah:"wildwood",eli:"golden-plains",shepherd:"high-country",juniper:"enchanted-meadow"};
 
 const OA_EXPLORER_CATALOG=[
- {id:"lion",name:"Lion",asset:"assets/avatars/explorer-lion-v596.jpg"},
- {id:"wolf",name:"Wolf",asset:"assets/avatars/explorer-wolf-v596.jpg"},
- {id:"snake",name:"Snake",asset:"assets/avatars/explorer-snake-v596.jpg"},
- {id:"unicorn",name:"Unicorn",asset:"assets/avatars/explorer-unicorn-v596.jpg"},
- {id:"dinosaur",name:"Dinosaur",asset:"assets/avatars/explorer-dinosaur-v596.jpg"},
- {id:"astronaut",name:"Astronaut",asset:"assets/avatars/explorer-astronaut-v596.jpg"},
- {id:"sea-turtle",name:"Sea Turtle",asset:"assets/avatars/explorer-sea-turtle-v596.jpg"},
- {id:"whale",name:"Whale",asset:"assets/avatars/explorer-whale-v596.jpg"},
- {id:"elephant",name:"Elephant",asset:"assets/avatars/explorer-elephant-v596.jpg"},
- {id:"fox",name:"Fox",asset:"assets/avatars/explorer-fox-v596.jpg"}
+ {id:"lion",name:"Lion",asset:"assets/avatars/explorer-lion-v598.png"},
+ {id:"wolf",name:"Wolf",asset:"assets/avatars/explorer-wolf-v598.png"},
+ {id:"snake",name:"Snake",asset:"assets/avatars/explorer-snake-v598.png"},
+ {id:"unicorn",name:"Unicorn",asset:"assets/avatars/explorer-unicorn-v598.png"},
+ {id:"dinosaur",name:"Dinosaur",asset:"assets/avatars/explorer-dinosaur-v598.png"},
+ {id:"astronaut",name:"Astronaut",asset:"assets/avatars/explorer-astronaut-v598.png"},
+ {id:"sea-turtle",name:"Sea Turtle",asset:"assets/avatars/explorer-sea-turtle-v598.png"},
+ {id:"whale",name:"Whale",asset:"assets/avatars/explorer-whale-v598.png"},
+ {id:"elephant",name:"Elephant",asset:"assets/avatars/explorer-elephant-v598.png"},
+ {id:"fox",name:"Fox",asset:"assets/avatars/explorer-fox-v598.png"}
 ];
 const OA_DEFAULT_EXPLORER_BY_KID={noah:"wolf",eli:"lion",shepherd:"snake",juniper:"unicorn"};
 function oaExplorerId(k){return k?.oaExplorer||OA_DEFAULT_EXPLORER_BY_KID[k?.id]||"wolf"}
