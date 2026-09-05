@@ -1,5 +1,5 @@
-const CACHE='oak-arrow-v60-11-2-vacation-visible-paused';
-const CORE=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png',
+const CACHE='oak-arrow-v60-11-3-vacation-custom-icon';
+const CORE=['./assets/icons/vacation.png','./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png',
 './assets/noah-avatar.png','./assets/eli-avatar.png','./assets/shepherd-avatar.png','./assets/juniper-avatar.png',
 './assets/noah-world.png','./assets/eli-world.png','./assets/shepherd-world.png','./assets/juniper-world.png'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting())));
