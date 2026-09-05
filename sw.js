@@ -1,4 +1,4 @@
-const CACHE='oak-arrow-v60-12-weekly-jobs-above-beyond';
+const CACHE='oak-arrow-v60-12-2-kid-reward-picker';
 const CORE=['./assets/icons/vacation.png','./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png',
 './assets/noah-avatar.png','./assets/eli-avatar.png','./assets/shepherd-avatar.png','./assets/juniper-avatar.png',
 './assets/noah-world.png','./assets/eli-world.png','./assets/shepherd-world.png','./assets/juniper-world.png'];

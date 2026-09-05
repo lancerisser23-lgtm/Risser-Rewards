@@ -13,7 +13,7 @@
 <link rel="shortcut icon" href="./oak-arrow-icon-192.png?v=513">
 <link rel="apple-touch-icon" sizes="180x180" href="./oak-arrow-touch.png?v=513">
 <title>Oak &amp; Arrow</title>
-<meta name="application-version" content="50.4.0">
+<meta name="application-version" content="50.4.2">
 <style>
 :root{--g:#1f6848;--bg:#f5f5ef;--ink:#182019;--muted:#68736b;--line:#e0e6de;--gold:#d6a62f;--red:#b64e45;--amber:#986a14;--shadow:0 10px 28px rgba(28,64,41,.10)}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-family:ui-rounded,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
@@ -2511,6 +2511,11 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
 @media(max-width:760px){.v612KidCaps{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 
+<style>
+/* V60.12.2 — kid reward goal picker */
+.oaRewardPicker select{width:100%;font-size:16px;font-weight:800;padding:12px 13px;border-radius:12px;border:1px solid var(--line);background:#fff}
+</style>
+
 </head>
 <body><div id="app" class="app"></div>
 <script type="module">
@@ -2844,7 +2849,7 @@ function effortLabel(x){return x==="easy"?"Easy":x==="hard"?"Hard":x==="big"?"Bi
 function aboveBeyondXp(c){const e=c?.effortLevel||"standard";return e==="easy"?2:(e==="hard"||e==="big")?5:3}
 function autoBaseReward(kidId,d=data){
   const cap=kidId?weeklyEarningCap(kidId,d):Math.max(0,+d?.weeklyTotalCap||25);
-  return Math.max(.5,Math.round((cap/5)*4)/4);
+  return Math.max(.5,Math.round((cap/9)*4)/4);
 }
 function autoChoreGross(c,kidId,d=data){
   if(!(d?.moneyEnabled??true)||!c?.paid)return 0;
@@ -3925,6 +3930,14 @@ function rewards(forceKid=false){
          :`<button type="button" class="btn small" style="margin-top:16px" data-kidrewardrequest="${g.id}">${oaIcon("rewards","inline")} Ask Parent to Redeem</button><div class="tiny" style="margin-top:7px">Your points are only spent after a parent approves.</div>`)
        :""}
      </div>
+     <div class="oaContentCard oaRewardPicker">
+       <div class="tiny">YOUR GOAL</div>
+       <h3 style="margin:4px 0 6px">Change My Reward</h3>
+       <p class="muted" style="margin:0 0 10px">Pick what you want to work toward. Your Reward Points stay with you when you switch goals.</p>
+       <select data-kid-goal="${k.id}" aria-label="Choose reward goal">
+         ${individualRewards().map(r=>`<option value="${r.id}" ${g.id===r.id?"selected":""}>${r.icon} ${r.name} · ${r.cost} points</option>`).join("")}
+       </select>
+     </div>
      <div class="oaContentCard"><h3 style="margin:0 0 8px">Family progress</h3><div class="oaFamilyMini">${data.kids.map(x=>`<div><img src="${oaAvatar(x)}" alt="${x.name}"><b>${x.name}</b><span>${oaIcon("star","inline")} ${Math.max(0,+x.rewardPoints||0)} points</span></div>`).join("")}</div>
        <div style="margin-top:14px"><div class="row between"><b>${oaIcon(oaIconFor(familyGoal.icon,"rewards"),"inline")} ${familyGoal.name}</b><b>${fp.pct}%</b></div><div class="goalBar" style="margin-top:7px"><div class="goalFill" style="width:${fp.pct}%"></div></div></div>
      </div>
@@ -4039,7 +4052,7 @@ function settings(){
 
  <div class="card" id="workSettingsV50">
    <div class="v50SectionTitle"><div><h2 style="margin:0">${oaIcon("responsibilities","inline")} Responsibilities & Jobs</h2><div class="muted">Keep it simple: choose who does it, whether it's a Responsibility or Job, and when it happens. Open More Options only when you need them.</div></div></div>
-   ${(()=>{let b=jobBalancePreview();return `<div class="notice" style="margin-bottom:12px"><b>${oaIcon("money","inline")} Smart Job Balance</b><div class="muted" style="margin-top:4px">Automatic Job values are balanced around about <b>5 Standard jobs/week</b> using each kid’s weekly earning goal. Suggested values: Easy ${money(b.easy)} · Standard ${money(b.standard)} · Hard ${money(b.hard)} · Big Job ${money(b.big)}. Custom-priced jobs stay exactly what you set, and the weekly cap still protects the total.</div></div>`})()}
+   ${(()=>{let b=jobBalancePreview();return `<div class="notice" style="margin-bottom:12px"><b>${oaIcon("money","inline")} Smart Job Balance</b><div class="muted" style="margin-top:4px">Automatic Job values are balanced around about <b>9 Standard jobs/week</b> using each kid’s weekly earning goal, so most kids need roughly 8–10 normal Jobs to reach the full weekly opportunity. Suggested values: Easy ${money(b.easy)} · Standard ${money(b.standard)} · Hard ${money(b.hard)} · Big Job ${money(b.big)}. Custom-priced jobs stay exactly what you set, and the weekly cap still protects the total.</div></div>`})()}
    <div style="display:grid;gap:10px">${lib.map((c,i)=>`<details class="v50Advanced masterCard"><summary>${oaIcon(oaTaskIcon(c,c.required?"resp":"job"),"inline")} ${c.name} <span class="tiny muted" data-work-type="${i}">· ${c.required?"Responsibility":"Job"} · ${frequencyLabel(c)}</span></summary><div class="v50AdvancedBody">
      <div class="tiny muted" style="margin-bottom:6px"><b>Who does this?</b></div><div class="assignments">${data.kids.map(k=>`<label><input data-assign="${i}|${k.id}" type="checkbox" ${(c.assignedTo||[]).includes(k.id)?"checked":""}> ${k.name}</label>`).join("")}</div>
      <div class="settingsGrid v505SimpleWork">
@@ -4492,7 +4505,42 @@ $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCoun
 
  $$("[data-rredeem]").forEach(b=>b.onclick=()=>{let r=individualRewards().find(x=>x.id===b.dataset.rredeem),k=kidById(b.dataset.rkid);if(!r||!k||(+k.rewardPoints||0)<r.cost)return;askConfirm("Complete this goal?",`${k.name} reached ${r.name}. Completing it resets the saved reward progress so a new goal can begin.`,"Complete Goal",async()=>{await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),cur=d.kids.find(x=>x.id===k.id);if(!cur||(+cur.rewardPoints||0)<r.cost)return;let kids=d.kids.map(x=>x.id===k.id?{...x,rewardPoints:(+x.rewardPoints||0)-r.cost}:x);let ledger=[...(d.ledger||[]),{id:newId(),type:"points_redemption",kidId:k.id,label:r.name,points:-r.cost,by:user?.email||"kid",at:Date.now()}].slice(-300);tr.update(familyRef,{kids,ledger})})})});
  $$("[data-close-rank]").forEach(b=>b.onclick=()=>{document.querySelector(".oaRankCelebration")?.remove();if(view!=="journey"){view="journey";render()}});
-  $$("[data-kidrewardrequest]").forEach(b=>b.onclick=async()=>{
+  $$("[data-kid-goal]").forEach(sel=>sel.onchange=async()=>{
+   const kidId=sel.dataset.kidGoal,rewardId=sel.value;
+   if(!individualRewards().some(r=>r.id===rewardId))return;
+   sel.disabled=true;
+   try{
+     await runTransaction(db,async tr=>{
+       const s=await tr.get(familyRef),d=s.data();
+       const rewards=(Array.isArray(d.individualRewards)&&d.individualRewards.length?d.individualRewards:DEFAULT_INDIVIDUAL_REWARDS)
+         .map(r=>({active:true,...r})).filter(r=>r.active!==false);
+       if(!rewards.some(r=>r.id===rewardId))return;
+       const kids=(d.kids||[]).map(k=>k.id===kidId?{...k,rewardGoal:rewardId}:k);
+       tr.update(familyRef,{kids});
+     });
+   }catch(err){
+     console.error("Could not change reward goal",err);
+     alert("Could not change your reward right now. Please try again.");
+     sel.disabled=false;
+   }
+ });
+ $$("[data-goal]").forEach(sel=>sel.onchange=async()=>{
+   const kidId=sel.dataset.goal,rewardId=sel.value;
+   if(!individualRewards().some(r=>r.id===rewardId))return;
+   sel.disabled=true;
+   try{
+     await runTransaction(db,async tr=>{
+       const s=await tr.get(familyRef),d=s.data();
+       const kids=(d.kids||[]).map(k=>k.id===kidId?{...k,rewardGoal:rewardId}:k);
+       tr.update(familyRef,{kids});
+     });
+   }catch(err){
+     console.error("Could not change reward goal",err);
+     alert("Could not change the reward goal right now. Please try again.");
+     sel.disabled=false;
+   }
+ });
+ $$("[data-kidrewardrequest]").forEach(b=>b.onclick=async()=>{
    const rewardId=b.dataset.kidrewardrequest,k=data.kids[kid],r=individualRewards().find(x=>x.id===rewardId);
    if(!k||!r||(+k.rewardPoints||0)<(+r.cost||0))return;
    b.disabled=true;
@@ -4875,7 +4923,7 @@ $("#newRequired")?.addEventListener("change",()=>{$("#newMoneyArea").dataset.ove
       const historicalCapHit=totalCap<=0||usedGross>=totalCap-.009||weekRows.some(x=>x.totalCapLimited===true||((x.capLimited||x.totalCapLimited)&&(+x.rawGross||0)>(+x.gross||0)+.009));
 
       const effort=chore.effortLevel||"standard",mult=effort==="easy"?.6:effort==="hard"?1.5:effort==="big"?2.25:1;
-      const autoBase=Math.max(.5,Math.round((totalCap/5)*4)/4);
+      const autoBase=Math.max(.5,Math.round((totalCap/9)*4)/4);
       const normalJobGross=chore.useCustomAmount?Math.max(0,+chore.customAmount||0):+(Math.round(autoBase*mult*4)/4).toFixed(2);
 
       let rawGross=0,gross=0,cash=0,car=0,xp=0,pts=0,aboveBeyond=false,totalCapLimited=false;
