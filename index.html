@@ -2421,6 +2421,17 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
   .oaEntryCopy h1{font-size:43px}
   .oaEntryTagline{margin-top:24px}
 }
+
+/* ===== OAK & ARROW V60.8 — GROWTH MYSTERY UNLOCKS ===== */
+.oaMysteryUnlock{display:grid;grid-template-columns:110px 1fr;gap:16px;align-items:center;margin:16px 0;padding:15px 18px;border:1px solid #caa95d;border-radius:18px;background:linear-gradient(135deg,#173f2e,#0d2f22);color:#fffaf0;box-shadow:0 10px 24px rgba(23,63,46,.16)}
+.oaMysteryUnlock img{width:106px;height:106px;border-radius:50%;object-fit:cover;border:2px solid #caa95d}.oaMysteryUnlock h3{font-family:var(--oa-serif);font-size:25px;margin:2px 0 4px}.oaMysteryUnlock p{margin:0;color:#f1e8d5;font-size:13px}.oaMysteryUnlock .tiny{color:#d8b866}
+.oaMysteryDots{display:flex;gap:7px;margin-top:11px}.oaMysteryDots span{width:28px;height:6px;border-radius:99px;background:rgba(255,255,255,.18)}.oaMysteryDots span.done{background:#d8b866}
+.oaUnlockOverlay{position:fixed;z-index:99999;inset:0;display:grid;place-items:center;padding:20px;background:rgba(5,24,16,.84);backdrop-filter:blur(9px)}
+.oaUnlockCelebration{position:relative;width:min(560px,100%);max-height:94vh;overflow:auto;text-align:center;padding:32px 30px 28px;border:2px solid #d2aa4e;border-radius:28px;background:#fffaf0;box-shadow:0 30px 80px rgba(0,0,0,.42)}
+.oaUnlockCelebration:before{content:"";position:absolute;inset:8px;border:1px solid rgba(202,169,93,.42);border-radius:21px;pointer-events:none}.oaUnlockSpark{font-size:42px;color:#c99e3e;line-height:1}.oaUnlockCelebration>.tiny{color:#9a742d;letter-spacing:.18em;font-weight:900}
+.oaUnlockCelebration h1{font-family:var(--oa-serif);color:#173f2e;font-size:clamp(30px,5vw,45px);line-height:1;margin:8px auto 18px;max-width:470px}.oaUnlockRevealArt{display:block;width:min(290px,70vw);height:min(290px,70vw);margin:0 auto 16px;object-fit:cover;border-radius:50%;border:5px solid #d2aa4e;box-shadow:0 15px 35px rgba(23,63,46,.2)}.oaUnlockRevealArt.world{width:min(390px,78vw);height:220px;border-radius:20px}
+.oaUnlockCelebration h2{font-family:var(--oa-serif);font-size:29px;color:#173f2e;margin:5px 0}.oaUnlockCelebration p{color:#59675e;margin:0 0 18px}.oaUnlockActions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap}
+@media(max-width:520px){.oaMysteryUnlock{grid-template-columns:82px 1fr;padding:12px}.oaMysteryUnlock img{width:78px;height:78px}.oaMysteryUnlock h3{font-size:21px}.oaUnlockCelebration{padding:26px 17px 22px}}
 </style>
 
 <!-- V56.2 full audit hardening: kid styling, school visibility persistence, accurate availability counts, Sunday settlement restoration -->
@@ -2786,10 +2797,11 @@ function oaCustomizeKid(){
      <div class="tiny">YOUR AVATAR</div>
      <h2>Pick Your Avatar</h2>
      <p>Tap the one you want.</p>
-     <div class="oaExplorerPicker">${OA_EXPLORER_CATALOG.map(x=>`<button type="button" class="oaExplorerCard ${x.id===oaExplorerId(k)?"on":""}" data-explorerpick="${x.id}">
+     <div class="oaExplorerPicker">${OA_EXPLORER_CATALOG.filter(x=>oaExplorerUnlocked(k.id,x.id)).map(x=>`<button type="button" class="oaExplorerCard ${x.id===oaExplorerId(k)?"on":""}" data-explorerpick="${x.id}">
        <img src="${x.asset}" alt="${x.name}">
        <span><b>${x.name}</b><small>${x.id===oaExplorerId(k)?"YOUR AVATAR":"CHOOSE"}</small></span>
      </button>`).join("")}</div>
+     ${oaNextMysteryCard(k.id)}
    </div>
 
    <div class="oaCurrentWorld">
@@ -2800,7 +2812,7 @@ function oaCustomizeKid(){
 
    <h2 class="oaWorldPickerTitle">Change Your World</h2>
    <p class="muted" style="margin-top:-5px">Tap a picture to change your theme.</p>
-   <div class="oaWorldPicker">${OA_WORLD_CATALOG.map((x,i)=>`<button type="button" class="oaWorldCard ${x.id===w.id?"on":""}" data-worldpick="${x.id}" style="--wc:${x.accent};--wh:url('${x.thumb||x.hero}')">
+   <div class="oaWorldPicker">${OA_WORLD_CATALOG.filter(x=>oaWorldUnlocked(k.id,x.id)).map((x,i)=>`<button type="button" class="oaWorldCard ${x.id===w.id?"on":""}" data-worldpick="${x.id}" style="--wc:${x.accent};--wh:url('${x.thumb||x.hero}')">
       <span class="oaWorldNum">${i+1}</span>
       <span class="oaWorldArt"></span>
       <span class="oaWorldInfo"><b>${x.name}</b><small>${x.traits}</small></span>
@@ -3161,7 +3173,7 @@ const OA_WORLD_CATALOG=[
  {id:"lost-world",name:"Lost World",traits:"Wild · Strong · Unstoppable",accent:"#445c32",thumb:"assets/worlds/lost-world-native-v570.jpeg",hero:"assets/worlds/lost-world-native-v570.jpeg",emblem:"assets/emblems/lost-world.svg",icon:"outside"},
  {id:"high-country",name:"Desert Sands",traits:"Independent · Focused · Steady",accent:"#365d52",thumb:"assets/worlds/desert-sands-native-v570.jpeg",hero:"assets/worlds/desert-sands-native-v570.jpeg",emblem:"assets/emblems/high-country.svg",icon:"journey"},
  {id:"jungle-trail",name:"Jungle Trail",traits:"Explore · Adapt · Thrive",accent:"#4b6237",thumb:"assets/worlds/jungle-trail-native-v570.jpeg",hero:"assets/worlds/jungle-trail-native-v570.jpeg",emblem:"assets/emblems/jungle-trail.svg",icon:"leaf"},
- {id:"enchanted-meadow",name:"Enchanted Meadow",traits:"Kind · Creative · Magical",accent:"#80648e",thumb:"assets/worlds/enchanted-meadow-native-v570.jpeg",hero:"assets/worlds/enchanted-meadow-native-v570.jpeg",emblem:"assets/emblems/enchanted-meadow.svg",icon:"kindness"},
+ {id:"enchanted-meadow",name:"Enchanted Forest",traits:"Kind · Creative · Magical",accent:"#80648e",thumb:"assets/worlds/enchanted-meadow-native-v570.jpeg",hero:"assets/worlds/enchanted-meadow-native-v570.jpeg",emblem:"assets/emblems/enchanted-meadow.svg",icon:"kindness"},
  {id:"coastal-adventure",name:"Coastal Adventure",traits:"Free · Bold · Real",accent:"#2e6870",thumb:"assets/worlds/coastal-adventure-native-v570.jpeg",hero:"assets/worlds/coastal-adventure-native-v570.jpeg",emblem:"assets/emblems/coastal-adventure.svg",icon:"water"},
  {id:"basecamp",name:"Basecamp",traits:"Prepared · Reliable · Ready",accent:"#5b5437",thumb:"assets/worlds/basecamp-native-v570.jpeg",hero:"assets/worlds/basecamp-native-v570.jpeg",emblem:"assets/emblems/basecamp.svg",icon:"outside"}
 ];
@@ -3177,12 +3189,41 @@ const OA_EXPLORER_CATALOG=[
  {id:"sea-turtle",name:"Sea Turtle",asset:"assets/avatars/explorer-sea-turtle-v598.png"},
  {id:"whale",name:"Whale",asset:"assets/avatars/explorer-whale-v598.png"},
  {id:"elephant",name:"Elephant",asset:"assets/avatars/explorer-elephant-v598.png"},
- {id:"fox",name:"Fox",asset:"assets/avatars/explorer-fox-v598.png"}
+ {id:"fox",name:"Fox",asset:"assets/avatars/explorer-fox-v598.png"},
+ {id:"raccoon",name:"Raccoon",asset:"assets/avatars/explorer-raccoon-v608.png"},
+ {id:"octopus",name:"Octopus",asset:"assets/avatars/explorer-octopus-v608.png"},
+ {id:"eagle",name:"Eagle",asset:"assets/avatars/explorer-eagle-v608.png"},
+ {id:"bear",name:"Bear",asset:"assets/avatars/explorer-bear-v608.png"},
+ {id:"elk",name:"Elk",asset:"assets/avatars/explorer-elk-v608.png"}
 ];
 const OA_DEFAULT_EXPLORER_BY_KID={noah:"wolf",eli:"lion",shepherd:"snake",juniper:"unicorn"};
 function oaExplorerId(k){return k?.oaExplorer||OA_DEFAULT_EXPLORER_BY_KID[k?.id]||"wolf"}
 function oaExplorerById(id){return OA_EXPLORER_CATALOG.find(x=>x.id===id)||OA_EXPLORER_CATALOG[0]}
 function oaExplorer(k){return oaExplorerById(oaExplorerId(oaEffectiveKid(k)))}
+const OA_STARTER_EXPLORERS=["unicorn","wolf","fox","snake","astronaut"];
+const OA_STARTER_WORLDS=["wildwood","lost-world","enchanted-meadow","starbound","deep-blue"];
+const OA_UNLOCK_EVERY=4;
+const OA_UNLOCK_SEQUENCE=[
+ {type:"explorer",id:"raccoon"},{type:"world",id:"golden-plains"},
+ {type:"explorer",id:"bear"},{type:"world",id:"jungle-trail"},
+ {type:"explorer",id:"eagle"},{type:"world",id:"coastal-adventure"},
+ {type:"explorer",id:"octopus"},{type:"world",id:"high-country"},
+ {type:"explorer",id:"elk"},{type:"world",id:"basecamp"},
+ {type:"explorer",id:"lion"},{type:"explorer",id:"dinosaur"},
+ {type:"explorer",id:"sea-turtle"},{type:"explorer",id:"whale"},
+ {type:"explorer",id:"elephant"}
+];
+function oaApprovedGrowthCount(kidId){return challengeLogs().filter(x=>x.kidId===kidId&&x.status==="approved").length}
+function oaEarnedUnlockCount(kidId){return Math.min(OA_UNLOCK_SEQUENCE.length,Math.floor(oaApprovedGrowthCount(kidId)/OA_UNLOCK_EVERY))}
+function oaUnlockedRewards(kidId){return OA_UNLOCK_SEQUENCE.slice(0,oaEarnedUnlockCount(kidId))}
+function oaExplorerUnlocked(kidId,id){return OA_STARTER_EXPLORERS.includes(id)||oaUnlockedRewards(kidId).some(x=>x.type==="explorer"&&x.id===id)}
+function oaWorldUnlocked(kidId,id){return OA_STARTER_WORLDS.includes(id)||oaUnlockedRewards(kidId).some(x=>x.type==="world"&&x.id===id)}
+function oaUnlockProgress(kidId){let n=oaApprovedGrowthCount(kidId),e=oaEarnedUnlockCount(kidId),p=n%4;return {earned:e,progress:p,left:e>=OA_UNLOCK_SEQUENCE.length?0:4-p,complete:e>=OA_UNLOCK_SEQUENCE.length}}
+function oaNextMysteryCard(kidId){let u=oaUnlockProgress(kidId);if(u.complete)return `<div class="oaMysteryUnlock complete"><img src="assets/avatars/mystery-unlock-v608.png" alt=""><div><div class="tiny">MYSTERY UNLOCKS</div><h3>All Discovered!</h3><p>You found every Explorer and World.</p></div></div>`;return `<div class="oaMysteryUnlock"><img src="assets/avatars/mystery-unlock-v608.png" alt="Mystery unlock"><div><div class="tiny">MYSTERY UNLOCK</div><h3>Keep Growing</h3><p><b>${u.left} more Growth Mission${u.left===1?"":"s"}</b> to reveal your next Explorer or World.</p><div class="oaMysteryDots">${[0,1,2,3].map(i=>`<span class="${i<u.progress?"done":""}"></span>`).join("")}</div></div></div>`}
+function oaUnlockSeenKey(kidId){return `oaUnlockSeen:v608:${data?.ownerUid||"family"}:${kidId}`}
+function oaPendingUnlockReveal(kidId){let e=oaEarnedUnlockCount(kidId),s=Math.max(0,+localStorage.getItem(oaUnlockSeenKey(kidId))||0);return e>s?{index:s,reward:OA_UNLOCK_SEQUENCE[s]}:null}
+function oaUnlockReveal(k){let p=oaPendingUnlockReveal(k.id);if(!p)return "";let r=p.reward,item=r.type==="explorer"?oaExplorerById(r.id):oaWorldById(r.id),art=r.type==="explorer"?item.asset:(item.thumb||item.hero);return `<div class="oaUnlockOverlay" role="dialog" aria-modal="true"><div class="oaUnlockCelebration"><div class="oaUnlockSpark">✦</div><div class="tiny">MYSTERY REVEALED</div><h1>YOU UNLOCKED A NEW ${r.type==="explorer"?"EXPLORER":"WORLD"}!</h1><img class="oaUnlockRevealArt ${r.type}" src="${art}" alt="${item.name}"><h2>Congratulations, ${k.name}!</h2><p>Your Growth Missions unlocked <b>${item.name}</b>.</p><div class="oaUnlockActions"><button class="btn" data-unlock-use="${r.type}:${r.id}:${p.index+1}">Use This ${r.type==="explorer"?"Explorer":"World"}</button><button class="btn secondary" data-unlock-keep="${p.index+1}">Keep My Current</button></div></div></div>`}
+
 const OA_KID_PREFS_KEY="oakArrowKidPrefsV1";
 function oaLocalKidPrefs(){try{return JSON.parse(localStorage.getItem(OA_KID_PREFS_KEY)||"{}")||{}}catch(e){return {}}}
 function oaLocalKidPref(kidId){return oaLocalKidPrefs()[kidId]||{}}
@@ -3260,7 +3301,7 @@ const OA_THEMES={
  noah:{name:"Wildwood",hero:"assets/worlds/wildwood-native-v570.jpeg",avatar:"assets/avatars/noah.png",emblem:"assets/emblems/wildwood.svg",accent:"#315b49"},
  eli:{name:"Golden Plains",hero:"assets/worlds/golden-plains-native-v570.jpeg",avatar:"assets/avatars/eli.png",emblem:"assets/emblems/golden-plains.svg",accent:"#a56a19"},
  shepherd:{name:"Desert Sands",hero:"assets/worlds/desert-sands-native-v570.jpeg",avatar:"assets/avatars/shepherd.png",emblem:"assets/emblems/high-country.svg",accent:"#365d52"},
- juniper:{name:"Enchanted Meadow",hero:"assets/worlds/enchanted-meadow-native-v570.jpeg",avatar:"assets/avatars/juniper.png",emblem:"assets/emblems/enchanted-meadow.svg",accent:"#80648e"}
+ juniper:{name:"Enchanted Forest",hero:"assets/worlds/enchanted-meadow-native-v570.jpeg",avatar:"assets/avatars/juniper.png",emblem:"assets/emblems/enchanted-meadow.svg",accent:"#80648e"}
 };
 function oaTheme(k){
  const effective=oaEffectiveKid(k),w=oaWorld(effective),legacy=OA_THEMES[effective?.id]||{};
@@ -3546,6 +3587,7 @@ function oaKidPage(k,title,subtitle,active,body,extraClass=""){
  let t=oaTheme(k);
  let sectionActive=active;
  return header()+`<section class="oaKidPage ${extraClass}" style="--oa-page-hero:url('${t.hero}');--oa-accent:${t.accent}">
+   ${oaUnlockReveal(k)}
    <div class="oaPageTop"><div class="oaPageTopLeft"><div class="oaAvatarWrap"><img class="oaExplorerAvatar" src="${oaAvatar(k)}" alt="${k.name}"></div><div><div class="oaPageEyebrow">${t.name.toUpperCase()} · ${xpLevel(k).cur.name.toUpperCase()}</div><div class="oaPageTitle">${title}</div><div class="oaPageSub">${subtitle}</div></div></div><button class="oaBack" data-v="week">← My World</button></div>
    ${oaKidSectionNav(sectionActive)}
    ${body}
@@ -3628,6 +3670,7 @@ function level(){
  let k=data.kids[kid],dates=weekDates(),cs=challengeLibrary().filter(c=>!c.parentOnly&&c.active!==false),lp=levelProgress(k);
  return oaKidPage(k,"Growth Missions","Build skills, character and confidence. Growth earns XP toward your Adventure Level.","growth",`
    ${oaTodoSubnav("growth")}
+   ${oaNextMysteryCard(k.id)}
    <div class="oaJourneyHero" style="margin-bottom:12px"><div class="row between"><div><div class="tiny">THIS WEEK</div><b style="font-size:24px">${lp.earned}/${lp.goal} Growth wins</b></div><div style="text-align:right"><div class="tiny">ADVENTURE LEVEL</div><b>${xpLevel(k).cur.name}</b></div></div><div class="oaProgressBar"><div class="oaProgressFill" style="width:${lp.goal?Math.min(100,lp.earned/lp.goal*100):0}%"></div></div></div>
    <div class="oaGrowthGrid">${cs.map(c=>{
      let hits=weeklyHits(k.id,c.id),pend=challengePending(k.id,c.id),available=challengeAvailable(c,k.id);
@@ -4275,10 +4318,13 @@ $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCoun
    askConfirm(`Did you finish ${c.name}?`,`We'll tell Mom or Dad you're done.`,`Yes, I Did It`,finish);
  });
 
+ $$("[data-unlock-keep]").forEach(b=>b.onclick=()=>{let k=data.kids[kid];if(!k)return;localStorage.setItem(oaUnlockSeenKey(k.id),b.dataset.unlockKeep);render()});
+ $$("[data-unlock-use]").forEach(b=>b.onclick=async()=>{let k=data.kids[kid];if(!k)return;let [type,id,seen]=b.dataset.unlockUse.split(":");localStorage.setItem(oaUnlockSeenKey(k.id),seen);if(type==="explorer")await oaSaveSyncedKidProfile(k.id,{oaExplorer:id});else await oaSaveSyncedKidProfile(k.id,{oaWorld:id});render()});
+
  $$("[data-worldpick]").forEach(b=>b.onclick=async e=>{
    e.preventDefault();
    const world=b.dataset.worldpick,k=data.kids[kid],kidId=k?.id;
-   if(!OA_WORLD_CATALOG.some(x=>x.id===world)||!kidId)return;
+   if(!OA_WORLD_CATALOG.some(x=>x.id===world)||!kidId||!oaWorldUnlocked(kidId,world))return;
    oaSaveLocalKidPref(kidId,{oaWorld:world});
    kidProfiles[kidId]={...(kidProfiles[kidId]||{}),oaWorld:world};
    render();
@@ -4288,7 +4334,7 @@ $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCoun
  $$("[data-explorerpick]").forEach(b=>b.onclick=async e=>{
    e.preventDefault();
    const explorer=b.dataset.explorerpick,k=data.kids[kid],kidId=k?.id,choice=OA_EXPLORER_CATALOG.find(x=>x.id===explorer);
-   if(!choice||!kidId)return;
+   if(!choice||!kidId||!oaExplorerUnlocked(kidId,explorer))return;
    oaSaveLocalKidPref(kidId,{oaExplorer:explorer,oaAvatar:choice.asset});
    kidProfiles[kidId]={...(kidProfiles[kidId]||{}),oaExplorer:explorer,oaAvatar:choice.asset};
    render();
