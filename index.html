@@ -2432,6 +2432,32 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
 .oaUnlockCelebration h1{font-family:var(--oa-serif);color:#173f2e;font-size:clamp(30px,5vw,45px);line-height:1;margin:8px auto 18px;max-width:470px}.oaUnlockRevealArt{display:block;width:min(290px,70vw);height:min(290px,70vw);margin:0 auto 16px;object-fit:cover;border-radius:50%;border:5px solid #d2aa4e;box-shadow:0 15px 35px rgba(23,63,46,.2)}.oaUnlockRevealArt.world{width:min(390px,78vw);height:220px;border-radius:20px}
 .oaUnlockCelebration h2{font-family:var(--oa-serif);font-size:29px;color:#173f2e;margin:5px 0}.oaUnlockCelebration p{color:#59675e;margin:0 0 18px}.oaUnlockActions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap}
 @media(max-width:520px){.oaMysteryUnlock{grid-template-columns:82px 1fr;padding:12px}.oaMysteryUnlock img{width:78px;height:78px}.oaMysteryUnlock h3{font-size:21px}.oaUnlockCelebration{padding:26px 17px 22px}}
+
+/* ===== OAK & ARROW V60.9 — REWARD CHOICE SYNC ===== */
+.oaKidRewardChooser{
+  margin-top:18px;
+  padding:14px;
+  border:1px solid rgba(202,169,93,.55);
+  border-radius:16px;
+  background:rgba(255,250,240,.08);
+  text-align:left;
+}
+.oaKidRewardChooser label{
+  display:block;
+  margin-bottom:7px;
+  color:#fffaf0;
+  font-family:var(--oa-serif);
+  font-size:17px;
+}
+.oaKidRewardChooser select{
+  background:#fffaf0;
+  border-color:#d1b56f;
+  color:#173f2e;
+}
+.oaKidRewardChooser .tiny{
+  margin-top:7px;
+  color:rgba(255,250,240,.78);
+}
 </style>
 
 <!-- V56.2 full audit hardening: kid styling, school visibility persistence, accurate availability counts, Sunday settlement restoration -->
@@ -3233,6 +3259,7 @@ function oaCleanKidProfile(raw={}){
  const out={};
  if(OA_EXPLORER_CATALOG.some(x=>x.id===raw.oaExplorer))out.oaExplorer=raw.oaExplorer;
  if(OA_WORLD_CATALOG.some(x=>x.id===raw.oaWorld))out.oaWorld=raw.oaWorld;
+ if(individualRewards().some(x=>x.id===raw.rewardGoal))out.rewardGoal=raw.rewardGoal;
  if(out.oaExplorer)out.oaAvatar=oaExplorerById(out.oaExplorer).asset;
  return out;
 }
@@ -3260,6 +3287,7 @@ async function oaSaveSyncedKidProfile(kidId,changes){
      updatedByUid:user.uid,
      oaExplorer:clean.oaExplorer||oaExplorerId(base),
      oaWorld:clean.oaWorld||oaWorldId(base),
+     rewardGoal:clean.rewardGoal||rewardGoal(base).id,
      updatedAt:serverTimestamp()
    },{merge:true});
    const confirmed=await getDoc(oaKidProfileRef(kidId));
@@ -3706,7 +3734,7 @@ function familyRewards(){
   return (saved||DEFAULT_FAMILY_REWARDS).map(r=>({active:true,...r})).filter(r=>r.active!==false);
 }
 function familyPoints(){return data.kids.reduce((s,k)=>s+(+k.familyPoints||0),0)}
-function rewardGoal(k){let rs=individualRewards();return rs.find(r=>r.id===(k.rewardGoal||rs[0]?.id))||rs[0]||{id:"none",icon:"⭐",name:"No reward selected",cost:1}}
+function rewardGoal(k){let rs=individualRewards(),effective=oaEffectiveKid(k),goalId=effective?.rewardGoal||k?.rewardGoal||rs[0]?.id;return rs.find(r=>r.id===goalId)||rs[0]||{id:"none",icon:"⭐",name:"No reward selected",cost:1}}
 function dayStartMs(){
   let d=new Date(); d.setHours(0,0,0,0); return d.getTime();
 }
@@ -3783,6 +3811,7 @@ function rewards(forceKid=false){
    let k=data.kids[kid],g=rewardGoal(k),rp=visibleRewardProgress(k,g),current=Math.max(0,+k.rewardPoints||0),toGo=Math.max(0,(+g.cost||1)-current),redeemRequest=pendingRewardRequestFor(k.id,g.id);
    return oaKidPage(k,"Rewards","Pick a reward, earn the points, then ask a parent when you're ready.","rewards",`
      <div class="oaRewardHero"><div class="tiny">${oaIcon("rewards")} NEXT REWARD</div><div class="oaRewardName">${oaIcon(oaIconFor(g.icon,"rewards"))} ${g.name}</div><div>${rp.ready?"You earned it!":`${toGo} points to go`}</div><div class="oaProgressBar"><div class="oaProgressFill" style="width:${rp.pct}%"></div></div><div class="oaRewardNumbers"><div><b>${oaIcon("star")} ${current}</b><span>Reward Points</span></div><div><b>${rp.pct}%</b><span>Goal Progress</span></div></div>
+       <div class="oaKidRewardChooser"><label for="kidRewardGoal">Choose My Reward</label><select id="kidRewardGoal" data-kid-goal="${k.id}">${individualRewards().map(r=>`<option value="${r.id}" ${g.id===r.id?"selected":""}>${r.icon} ${r.name} · ${r.cost} pts</option>`).join("")}</select><div class="tiny">You can change what you're working toward anytime. Parents control which rewards are available.</div></div>
        ${rp.ready?(redeemRequest
          ?`<button type="button" class="btn small" style="margin-top:16px" disabled>${oaIcon("check-circle","inline")} Parent Asked</button><div class="tiny" style="margin-top:7px">Waiting for a parent to approve your reward.</div>`
          :`<button type="button" class="btn small" style="margin-top:16px" data-kidrewardrequest="${g.id}">${oaIcon("rewards","inline")} Ask Parent to Redeem</button><div class="tiny" style="margin-top:7px">Your points are only spent after a parent approves.</div>`)
@@ -3808,7 +3837,7 @@ function rewards(forceKid=false){
            <div><b>${ps.week}</b><span>This Week</span></div>
          </div>
          <div class="tiny muted" style="margin-top:7px">${rp.ready?"🎉 Goal reached!":"Keep doing Responsibilities, Jobs and Growth Missions."}</div>
-         <div style="margin-top:11px"><label>Working toward</label><select data-goal="${k.id}">${individualRewards().slice(0,5).map(r=>`<option value="${r.id}" ${g.id===r.id?"selected":""}>${r.icon} ${r.name}</option>`).join("")}</select></div>
+         <div style="margin-top:11px"><label>Working toward</label><select data-goal="${k.id}">${individualRewards().map(r=>`<option value="${r.id}" ${g.id===r.id?"selected":""}>${r.icon} ${r.name}</option>`).join("")}</select></div>
          ${rp.ready?`<button class="btn small" style="margin-top:10px" data-rredeem="${g.id}" data-rkid="${k.id}">Complete Goal</button>`:""}
        </div>`;
      }).join("")}</div>
@@ -4343,7 +4372,20 @@ $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCoun
 
  $$("[data-rredeem]").forEach(b=>b.onclick=()=>{let r=individualRewards().find(x=>x.id===b.dataset.rredeem),k=kidById(b.dataset.rkid);if(!r||!k||(+k.rewardPoints||0)<r.cost)return;askConfirm("Complete this goal?",`${k.name} reached ${r.name}. Completing it resets the saved reward progress so a new goal can begin.`,"Complete Goal",async()=>{await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),cur=d.kids.find(x=>x.id===k.id);if(!cur||(+cur.rewardPoints||0)<r.cost)return;let kids=d.kids.map(x=>x.id===k.id?{...x,rewardPoints:(+x.rewardPoints||0)-r.cost}:x);let ledger=[...(d.ledger||[]),{id:newId(),type:"points_redemption",kidId:k.id,label:r.name,points:-r.cost,by:user?.email||"kid",at:Date.now()}].slice(-300);tr.update(familyRef,{kids,ledger})})})});
  $$("[data-close-rank]").forEach(b=>b.onclick=()=>{document.querySelector(".oaRankCelebration")?.remove();if(view!=="journey"){view="journey";render()}});
-  $$("[data-kidrewardrequest]").forEach(b=>b.onclick=async()=>{
+  $$("[data-kid-goal]").forEach(sel=>sel.onchange=async()=>{
+   const kidId=sel.dataset.kidGoal,rewardId=sel.value,k=data.kids.find(x=>x.id===kidId);
+   if(!k||!individualRewards().some(r=>r.id===rewardId))return;
+   await oaSaveSyncedKidProfile(kidId,{rewardGoal:rewardId});
+   render();
+ });
+ $$("[data-goal]").forEach(sel=>sel.onchange=async()=>{
+   const kidId=sel.dataset.goal,rewardId=sel.value,k=data.kids.find(x=>x.id===kidId);
+   if(!k||!individualRewards().some(r=>r.id===rewardId))return;
+   await oaSaveSyncedKidProfile(kidId,{rewardGoal:rewardId});
+   render();
+ });
+
+ $$("[data-kidrewardrequest]").forEach(b=>b.onclick=async()=>{
    const rewardId=b.dataset.kidrewardrequest,k=data.kids[kid],r=individualRewards().find(x=>x.id===rewardId);
    if(!k||!r||(+k.rewardPoints||0)<(+r.cost||0))return;
    b.disabled=true;
