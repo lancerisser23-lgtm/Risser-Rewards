@@ -13,7 +13,7 @@
 <link rel="shortcut icon" href="./oak-arrow-icon-192.png?v=513">
 <link rel="apple-touch-icon" sizes="180x180" href="./oak-arrow-touch.png?v=513">
 <title>Oak &amp; Arrow</title>
-<meta name="application-version" content="50.3.9">
+<meta name="application-version" content="50.4.0">
 <style>
 :root{--g:#1f6848;--bg:#f5f5ef;--ink:#182019;--muted:#68736b;--line:#e0e6de;--gold:#d6a62f;--red:#b64e45;--amber:#986a14;--shadow:0 10px 28px rgba(28,64,41,.10)}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-family:ui-rounded,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
@@ -2497,6 +2497,20 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
 }
 </style>
 
+<style>
+/* V60.12 — per-kid weekly earning caps + Above & Beyond */
+.oaAboveBeyond{margin:0 0 12px;padding:14px 16px;border:1px solid rgba(201,158,45,.55);border-radius:16px;background:linear-gradient(135deg,rgba(20,74,52,.96),rgba(38,94,65,.96));color:#fff8df;box-shadow:0 8px 20px rgba(20,55,39,.12)}
+.oaAboveBeyond b{display:block;font-size:15px;letter-spacing:.08em;color:#f0cf6a}
+.oaAboveBeyond span{display:block;font-weight:850;margin-top:4px}
+.oaAboveBeyond small{display:block;margin-top:5px;opacity:.9;line-height:1.35}
+.oaWeeklyLeft{margin:0 0 12px}
+.v612KidCaps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:15px;background:#fafbf8}
+.v612KidCaps>.tiny{grid-column:1/-1}
+.v612KidCaps label{display:block}
+.v612KidCaps small{display:block;margin-top:3px;color:var(--muted);font-weight:500}
+@media(max-width:760px){.v612KidCaps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+
 </head>
 <body><div id="app" class="app"></div>
 <script type="module">
@@ -2818,31 +2832,73 @@ const FUTURE_DESTINATIONS=[
  ["unsure","🤷 Not sure yet — keep tracking here for now"]
 ];
 function weeklyTotalCap(){return Math.max(0,+data.weeklyTotalCap||25)}
+function weeklyEarningCap(kidId,d=data){
+  const k=(d?.kids||[]).find(x=>x.id===kidId);
+  return Math.max(0,k?.weeklyEarningCap!=null?+k.weeklyEarningCap:(+d?.weeklyTotalCap||25));
+}
 function weeklyCashCap(){return Math.max(0,+data.weeklyCashCap||15)}
 function cashPct(){return Math.min(100,Math.max(0,+data.cashSplitPct||60))}
 function futurePct(){return 100-cashPct()}
 function effortMultiplier(x){return x==="easy"?.6:x==="hard"?1.5:x==="big"?2.25:1}
 function effortLabel(x){return x==="easy"?"Easy":x==="hard"?"Hard":x==="big"?"Big Job":"Standard"}
-function autoBaseReward(){return Math.max(.5,Math.round((weeklyTotalCap()/5)*4)/4)}
-function autoChoreGross(c){if(!moneyEnabled()||!c?.paid)return 0;if(c.useCustomAmount)return Math.max(0,+c.customAmount||0);return +(Math.round(autoBaseReward()*effortMultiplier(c.effortLevel||"standard")*4)/4).toFixed(2)}
-function autoChorePreview(c){let gross=autoChoreGross(c),cash=+(gross*cashPct()/100).toFixed(2);return {gross,cash,future:+(gross-cash).toFixed(2)}}
-function jobBalancePreview(){let base=autoBaseReward();return {easy:+(Math.round(base*effortMultiplier("easy")*4)/4).toFixed(2),standard:+base.toFixed(2),hard:+(Math.round(base*effortMultiplier("hard")*4)/4).toFixed(2),big:+(Math.round(base*effortMultiplier("big")*4)/4).toFixed(2)}}
+function aboveBeyondXp(c){const e=c?.effortLevel||"standard";return e==="easy"?2:(e==="hard"||e==="big")?5:3}
+function autoBaseReward(kidId,d=data){
+  const cap=kidId?weeklyEarningCap(kidId,d):Math.max(0,+d?.weeklyTotalCap||25);
+  return Math.max(.5,Math.round((cap/5)*4)/4);
+}
+function autoChoreGross(c,kidId,d=data){
+  if(!(d?.moneyEnabled??true)||!c?.paid)return 0;
+  if(c.useCustomAmount)return Math.max(0,+c.customAmount||0);
+  return +(Math.round(autoBaseReward(kidId,d)*effortMultiplier(c.effortLevel||"standard")*4)/4).toFixed(2);
+}
+function autoChorePreview(c,kidId,d=data){
+  const gross=autoChoreGross(c,kidId,d),pct=Math.min(100,Math.max(0,+d?.cashSplitPct||60));
+  const cash=+(gross*pct/100).toFixed(2);
+  return {gross,cash,future:+(gross-cash).toFixed(2)};
+}
+function jobBalancePreview(kidId){
+  const base=autoBaseReward(kidId);
+  return {easy:+(Math.round(base*.6*4)/4).toFixed(2),standard:+base.toFixed(2),hard:+(Math.round(base*1.5*4)/4).toFixed(2),big:+(Math.round(base*2.25*4)/4).toFixed(2)};
+}
 function weekStartMs(){
- let d=new Date(),day=(d.getDay()+6)%7;d.setHours(0,0,0,0);d.setDate(d.getDate()-day);return d.getTime()
+  const d=new Date(),day=(d.getDay()+6)%7;d.setHours(0,0,0,0);d.setDate(d.getDate()-day);return d.getTime()
 }
-function weeklyGross(kidId){
- return (data.ledger||[]).filter(x=>x.type==="earning"&&x.kidId===kidId&&(x.at||0)>=weekStartMs()).reduce((s,x)=>s+(+x.gross||(+x.cash||0)+(+x.car||0)),0)
+function weeklyEarningRows(kidId,d=data){
+  const ws=weekStartMs();
+  return (d?.ledger||[]).filter(x=>x.type==="earning"&&x.kidId===kidId&&(x.at||0)>=ws);
 }
-function weeklyCash(kidId){
- return (data.ledger||[]).filter(x=>x.type==="earning"&&x.kidId===kidId&&(x.at||0)>=weekStartMs()).reduce((s,x)=>s+(+x.cash||0),0)
+function weeklyGross(kidId,d=data){
+  return +weeklyEarningRows(kidId,d).reduce((s,x)=>s+(+x.gross||(+x.cash||0)+(+x.car||0)),0).toFixed(2)
 }
-function weeklyTotalRoom(kidId){return Math.max(0,weeklyTotalCap()-weeklyGross(kidId))}
+function weeklyCash(kidId,d=data){
+  return +weeklyEarningRows(kidId,d).reduce((s,x)=>s+(+x.cash||0),0).toFixed(2)
+}
+function weeklyCapWasReached(kidId,d=data){
+  const cap=weeklyEarningCap(kidId,d),rows=weeklyEarningRows(kidId,d),used=weeklyGross(kidId,d);
+  if(cap<=0||used>=cap-.009)return true;
+  return rows.some(x=>x.totalCapLimited===true || ((x.capLimited||x.totalCapLimited)&&(+x.rawGross||0)>(+x.gross||0)+.009));
+}
+function weeklyTotalRoom(kidId,d=data){
+  if(weeklyCapWasReached(kidId,d))return 0;
+  return +Math.max(0,weeklyEarningCap(kidId,d)-weeklyGross(kidId,d)).toFixed(2)
+}
 function weeklyCashRoom(kidId){return Math.max(0,weeklyCashCap()-weeklyCash(kidId))}
 function splitGross(gross,kidId){
- let desiredCash=+(gross*cashPct()/100).toFixed(2);
- let cash=+Math.min(desiredCash,weeklyCashRoom(kidId)).toFixed(2);
- let future=+(gross-cash).toFixed(2);
- return {cash,future}
+  const desiredCash=+(gross*cashPct()/100).toFixed(2);
+  const cash=+Math.min(desiredCash,weeklyCashRoom(kidId)).toFixed(2);
+  return {cash,future:+(gross-cash).toFixed(2)}
+}
+function jobRewardState(c,kidId,d=data){
+  const paid=!!c?.paid&&(d?.moneyEnabled??true),left=weeklyTotalRoom(kidId,d);
+  if(!paid)return {paid:false,aboveBeyond:false,gross:0,xp:0,left,rawGross:0};
+  const rawGross=autoChoreGross(c,kidId,d),aboveBeyond=weeklyCapWasReached(kidId,d)||left<=.009;
+  return aboveBeyond
+    ?{paid:true,aboveBeyond:true,gross:0,xp:aboveBeyondXp(c),left:0,rawGross}
+    :{paid:true,aboveBeyond:false,gross:+Math.min(rawGross,left).toFixed(2),xp:0,left,rawGross};
+}
+function jobRewardLabel(c,kidId,d=data){
+  const r=jobRewardState(c,kidId,d);
+  return r.paid?(r.aboveBeyond?`+${r.xp} XP`:money(r.gross)):`${c?.points||3} pts`
 }
 function reliability(k){let d=+k.requiredDue||0,c=+k.requiredDone||0;return d?Math.round(c/d*100):100}
 function relClass(r){return r>=90?"good":r>=75?"mid":"low"}
@@ -3479,7 +3535,7 @@ function oaRows(items,k,type,limit=4){
  if(!rows.length)return `<div class="oaRows"><div class="oaRow"><span class="ico">${oaIcon(type==="job"?"jobs":type==="growth"?"growth":"responsibilities")}</span><span class="nm">Nothing waiting right now</span><span></span></div></div>`;
  return `<div class="oaRows">${rows.map(c=>{
    let fallback=type==="job"?"jobs":type==="growth"?"growth":"responsibilities";
-   let value=type==="job"?(moneyEnabled()&&c.paid?money(autoChoreGross(c)):`${c.points||3} pts`):type==="growth"?`${c.xp||0} XP`:`${c.points||2} pts`;
+   let value=type==="job"?jobRewardLabel(c,k.id):type==="growth"?`${c.xp||0} XP`:`${c.points||2} pts`;
    let attr=type==="growth"?`data-ch="${c.id}"`:`data-c="${c.id}"`;
    let paused=(type!=="growth"&&!!c.vacationPaused);    return `<div class="oaRow ${paused?"oaVacationPaused":""}" ${attr}><span class="ico">${oaIcon(oaTaskIcon(c,type))}</span><span class="nm">${c.name}${paused?`<small style="display:block">Paused for Vacation</small>`:""}</span><span class="val">${paused?oaIcon("vacation","inline"):value}</span></div>`
  }).join("")}</div>`
@@ -3515,7 +3571,7 @@ function oaDashboard(k){
    </div>
    <div class="oaBoard">
      <div class="oaPanel"><div class="oaPanelHead"><b>${oaIcon("responsibilities","inline")} RESPONSIBILITIES</b><button data-v="responsibilities">See More</button></div>${oaRows(resp,k,"resp")}<div class="oaPanelFoot">${vacationMode()?`${resp.length} paused for vacation`:resp.length?`${resp.length} ready today`:"All caught up today"}</div></div>
-     <div class="oaPanel jobs"><div class="oaPanelHead"><b>${oaIcon("jobs","inline")} JOBS</b><button data-v="pick">See More</button></div>${oaRows(jobs,k,"job")}<div class="oaPanelFoot">${vacationMode()?`${jobs.length} paused for vacation`:`${jobs.length} available now`}</div></div>
+     <div class="oaPanel jobs"><div class="oaPanelHead"><b>${oaIcon("jobs","inline")} JOBS</b><button data-v="pick">See More</button></div>${oaRows(jobs,k,"job")}<div class="oaPanelFoot">${vacationMode()?`${jobs.length} paused for vacation`:weeklyCapWasReached(k.id)?`ABOVE & BEYOND · +XP`:`${money(weeklyTotalRoom(k.id))} left to earn this week`}</div></div>
      <div class="oaPanel growth"><div class="oaPanelHead"><b>${oaIcon("growth","inline")} GROWTH MISSIONS</b><button data-v="level">See More</button></div>${oaRows(growth,k,"growth")}<div class="oaPanelFoot">${growth.length} available now</div></div>
    </div>
    <div class="oaMotivation">
@@ -3647,7 +3703,7 @@ function kidsLanding(){
 function home(){
  let needs=needsSomeone();
  return header()+(needs.length?`<div class="card attention"><h2 style="margin-top:0">${oaIcon("warning","inline")} Needs Someone</h2>${needs.map(c=>`<div class="task"><div><b>${c.icon} ${c.name}</b><div class="reward">${(c.frequency==="daily"||c.frequency==="weekdays")?"Due today":c.frequency==="weekly"?"Due this week":"Due now"} · ${(c.assignedTo||[]).map(id=>kidById(id)?.name).filter(Boolean).join(", ")}</div></div><span class="pill due">Unclaimed</span></div>`).join("")}</div>`:"")
- +`<div class="card notice"><b>${oaIcon("screen","inline")} Family Screen Goal</b><div class="muted">Weekdays: no recreational screens while the sun is out + 20 minutes or less total. Weekends can be more flexible and are parent-judged.</div></div><div class="grid">${data.kids.map((k,i)=>{let r=reliability(k),left=requiredLeft(k),t=theme(k),pct=Math.min(100,(+k.car||0)/(+k.target||7500)*100);return `<div class="card half"><div class="row"><div><div style="font-size:36px">${t[1]}</div><b>${k.name}</b><div class="tiny ${relClass(r)}">🎯 ${r}% reliability</div></div><button data-k="${i}" class="btn secondary">Open</button></div><div class="row wrap" style="margin-top:12px"><span>💵 Owed <b>${money(cashOwed(k))}</b></span><span>🚗 <b>${money(k.car||0)}</b></span><span>⭐ <b>${k.xp||0}</b></span></div><div class="progress" style="margin-top:12px"><div class="bar" style="width:${pct}%"></div></div><div class="tiny muted" style="margin-top:7px">${left?`⚠️ ${left} required mission${left===1?"":"s"} still due`:"✅ Required missions current"}</div><div class="tiny" style="margin-top:9px"><b>💰 Total: ${money(weeklyGross(k.id))} / ${money(weeklyTotalCap())}</b> · 💵 Cash: ${money(weeklyCash(k.id))} / ${money(weeklyCashCap())}</div></div>`}).join("")}</div>`;
+ +`<div class="card notice"><b>${oaIcon("screen","inline")} Family Screen Goal</b><div class="muted">Weekdays: no recreational screens while the sun is out + 20 minutes or less total. Weekends can be more flexible and are parent-judged.</div></div><div class="grid">${data.kids.map((k,i)=>{let r=reliability(k),left=requiredLeft(k),t=theme(k),pct=Math.min(100,(+k.car||0)/(+k.target||7500)*100);return `<div class="card half"><div class="row"><div><div style="font-size:36px">${t[1]}</div><b>${k.name}</b><div class="tiny ${relClass(r)}">🎯 ${r}% reliability</div></div><button data-k="${i}" class="btn secondary">Open</button></div><div class="row wrap" style="margin-top:12px"><span>💵 Owed <b>${money(cashOwed(k))}</b></span><span>🚗 <b>${money(k.car||0)}</b></span><span>⭐ <b>${k.xp||0}</b></span></div><div class="progress" style="margin-top:12px"><div class="bar" style="width:${pct}%"></div></div><div class="tiny muted" style="margin-top:7px">${left?`⚠️ ${left} required mission${left===1?"":"s"} still due`:"✅ Required missions current"}</div><div class="tiny" style="margin-top:9px"><b>💰 Total: ${money(weeklyGross(k.id))} / ${money(weeklyEarningCap(k.id))}</b> · 💵 Cash: ${money(weeklyCash(k.id))} / ${money(weeklyCashCap())}</div></div>`}).join("")}</div>`;
 }
 
 function kidHubActive(k){
@@ -3678,8 +3734,7 @@ function oaKidPage(k,title,subtitle,active,body,extraClass=""){
 function oaWorkRow(c,k,type){
  let paused=!!c.vacationPaused,allowed=canClaim(c,k.id), owner=c.exclusive?sharedLive(c):null, liveTask=live(c,k.id);
  let done=(c.frequency!=="anytime")&&(c.exclusive?sharedApproved(c):approved(c,k.id));
- let q=type==="job"?autoChorePreview(c):null;
- let value=type==="job"?(moneyEnabled()&&c.paid&&q?.gross?money(q.gross):`${c.points||3} pts`):`${c.points||2} pts`;
+ let q=type==="job"?jobRewardState(c,k.id):null;  let value=type==="job"?jobRewardLabel(c,k.id):`${c.points||2} pts`;
  let state=paused?`<span class="oaState">${oaIcon("vacation","inline")} Paused for Vacation</span>`:liveTask?.status==="pending"?`<span class="oaState pending">${oaIcon("pending","inline")} Waiting for Mom or Dad</span>`:owner?`<span class="oaState">${oaIcon("lock","inline")} ${kidById(owner.kidId)?.name||"Claimed"}</span>`:done?`<span class="oaState">${oaIcon("check-circle","inline")} Done</span>`:allowed?`<span class="oaState ready">${oaIcon("check","inline")} I Did It</span>`:`<span class="oaState">Not now</span>`;
  return `<button class="oaListRow ${paused?"oaVacationPaused":""}" data-c="${c.id}" ${(allowed||paused)?"":"disabled"}><span class="oaListIcon">${oaIcon(oaTaskIcon(c,type))}</span><span><span class="oaListName">${c.name}</span><span class="oaListMeta">${paused?"Vacation Mode · ":""}${frequencyLabel(c)}</span></span><span><span class="oaListValue">${value}</span><br>${state}</span></button>`;
 }
@@ -3739,15 +3794,16 @@ function responsibilityView(){
  `);
 }
 function pick(){
- let k=data.kids[kid],lib=library().filter(c=>isJob(c)&&eligible(c,k.id));
- let ready=vacationMode()?lib:lib.filter(c=>canClaim(c,k.id)), other=vacationMode()?[]:lib.filter(c=>!canClaim(c,k.id));
- return oaKidPage(k,"Jobs",moneyEnabled()?"Extra work. Real earning. Pick something available and get after it.":"Extra ways to pitch in and help the family.","jobs",`
-   ${oaTodoSubnav("jobs")}
-   <div class="oaContentCard oaJobs"><div class="oaList">${ready.map(c=>oaWorkRow(c,k,"job")).join("")||`<div style="padding:18px;text-align:center">No jobs available right now.</div>`}</div>
-   ${other.length?`<details style="margin-top:10px"><summary class="muted" style="cursor:pointer">Done or unavailable (${other.length})</summary><div class="oaList">${other.map(c=>oaWorkRow(c,k,"job")).join("")}</div></details>`:""}</div>
- `,"oaJobs");
-}
-function level(){
+  let k=data.kids[kid],lib=library().filter(c=>isJob(c)&&eligible(c,k.id));
+  let ready=vacationMode()?lib:lib.filter(c=>canClaim(c,k.id)),other=vacationMode()?[]:lib.filter(c=>!canClaim(c,k.id));
+  let cap=weeklyEarningCap(k.id),room=weeklyTotalRoom(k.id),above=weeklyCapWasReached(k.id);
+  return oaKidPage(k,"Jobs",moneyEnabled()?"Extra work. Real earning. Pick something available and get after it.":"Extra ways to pitch in and help the family.","jobs",`
+    ${oaTodoSubnav("jobs")}
+    ${moneyEnabled()?above?`<div class="oaAboveBeyond"><b>🌲 ABOVE &amp; BEYOND</b><span>Earning goal complete — now you're building character.</span><small>You earned your full ${money(cap)} this week! Jobs now earn a little XP for going Above &amp; Beyond.</small></div>`:`<div class="notice oaWeeklyLeft"><b>${money(room)} left to earn this week.</b></div>`:""}
+    <div class="oaContentCard oaJobs"><div class="oaList">${ready.map(c=>oaWorkRow(c,k,"job")).join("")||`<div style="padding:18px;text-align:center">No jobs available right now.</div>`}</div>
+    ${other.length?`<details style="margin-top:10px"><summary class="muted" style="cursor:pointer">Done or unavailable (${other.length})</summary><div class="oaList">${other.map(c=>oaWorkRow(c,k,"job")).join("")}</div></details>`:""}</div>
+  `,"oaJobs");
+} function level(){
  let k=data.kids[kid],dates=weekDates(),cs=challengeLibrary().filter(c=>!c.parentOnly&&c.active!==false),lp=levelProgress(k);
  return oaKidPage(k,"Growth Missions","Build skills, character and confidence. Growth earns XP toward your Adventure Level.","growth",`
    ${oaTodoSubnav("growth")}
@@ -3905,7 +3961,7 @@ function rewards(forceKid=false){
 function parent(){
  return header()+`<div class="card">
    <div class="v50SectionTitle"><div><div class="tiny muted">PARENT ACTION CENTER</div><h2 style="margin:3px 0"><span class="parentEditorial">${oaIcon("pending","inline")} Waiting for Approval</span>${waitingApprovalCount()?` (${waitingApprovalCount()})`:""}</h2><div class="muted">One place for Responsibilities, Jobs, Growth Missions and excuse requests.</div></div><button id="bulkBasics" class="btn secondary small">Approve Daily Basics</button></div>
-   ${pending().map(t=>{let k=kidById(t.kidId),type=t.required?"RESPONSIBILITY":"JOB";return `<div class="parentPremium"><div class="approval"><div><div class="v50ApprovalType">${type}</div><b>${oaIcon(oaTaskIcon(t,t.required?"resp":"job"),"inline")} ${k?.name} — ${t.name}</b><div class="reward">${t.required?"Ready for approval":moneyEnabled()?`Earnings calculated when approved`:"Ready for approval"}</div></div><div class="actions"><button data-app="${t.id}" class="btn small">Approve</button><button data-back="${t.id}" class="btn red small">Send Back</button></div></div>`}).join("")}
+   ${pending().map(t=>{let k=kidById(t.kidId),type=t.required?"RESPONSIBILITY":"JOB",c=!t.required?library().find(x=>x.id===t.choreId):null,jr=c?jobRewardState(c,t.kidId):null;return `<div class="parentPremium"><div class="approval"><div><div class="v50ApprovalType">${type}${jr?.aboveBeyond?" · ABOVE & BEYOND":""}</div><b>${oaIcon(oaTaskIcon(t,t.required?"resp":"job"),"inline")} ${k?.name} — ${t.name}</b><div class="reward">${t.required?"Ready for approval":jr?.paid?(jr.aboveBeyond?`🌲 No cash · +${jr.xp} XP if approved now`:`${money(jr.gross)} if approved now · ${money(jr.left)} left this week`):moneyEnabled()?`Earnings calculated when approved`:"Ready for approval"}</div></div><div class="actions"><button data-app="${t.id}" class="btn small">Approve</button><button data-back="${t.id}" class="btn red small">Send Back</button></div></div>`}).join("")}
    ${pendingLevelUps().map(x=>{let c=challengeLibrary().find(c=>c.id===x.challengeId),k=kidById(x.kidId);return `<div class="approval"><div><div class="v50ApprovalType">GROWTH MISSION</div><b>${oaIcon(oaTaskIcon(c||{},"growth"),"inline")} ${k?.name} — ${c?.name||"Mission"}</b><div class="reward">${x.challengeId==="pushups"?`${x.count||0} pushups`:`🔥 ${c?.xp||10} XP`}</div></div><div class="actions"><button class="btn small" data-chapp="${x.id}">Approve</button><button class="btn red small" data-chreject="${x.id}">Send Back</button></div></div>`}).join("")}
    ${pendingRewardRequests().map(x=>{let k=kidById(x.kidId);return `<div class="approval"><div><div class="v50ApprovalType">REWARD REQUEST</div><b>${oaIcon("rewards","inline")} ${k?.name} — ${x.label||"Reward"}</b><div class="reward">${x.cost||0} Reward Points · Ready to redeem</div></div><div class="actions"><button class="btn small" data-rewardapprove="${x.id}">Approve + Redeem</button><button class="btn red small" data-rewarddeny="${x.id}">Not Yet</button></div></div>`}).join("")}
    ${pendingExcuseRequests().map(x=>{let k=kidById(x.kidId),name=String(x.label||"Missed responsibility").replace("Missed required chore — ","");return `<div class="approval"><div><div class="v50ApprovalType">EXCUSE REQUEST</div><b>${oaIcon("kid","inline")} ${k?.name} — ${name}</b><div class="due">${x.xp||0} XP · ${x.forDate||""}</div></div><div class="actions"><button class="btn small" data-excuseapprove="${x.id}">Excuse + Restore XP</button><button class="btn red small" data-excusedeny="${x.id}">Keep Penalty</button></div></div>`}).join("")}
@@ -3974,16 +4030,16 @@ function settings(){
    <p class="muted">Responsibilities teach ownership. Jobs teach earning. Growth builds character. Rewards give them something worth working toward.</p>
    <div class="v50SetupGrid">
      <div><label>Do you want kids to earn real money?</label><select id="moneyEnabled"><option value="1" ${moneyEnabled()?"selected":""}>Yes</option><option value="0" ${!moneyEnabled()?"selected":""}>No</option></select></div>
-     <div><label>Weekly earning amount / child</label><input id="weeklyTotalCap" type="number" min="0" step="1" value="${weeklyTotalCap()}"></div>
+     <div><label>Default weekly earning amount</label><input id="weeklyTotalCap" type="number" min="0" step=".25" value="${weeklyTotalCap()}"><div class="tiny muted">Used unless a kid has their own weekly amount below.</div></div>
      <div><label>Save some automatically to Future Fund?</label><select id="futureFundSimple"><option value="1" ${futurePct()>0?"selected":""}>Yes</option><option value="0" ${futurePct()===0?"selected":""}>No</option></select></div>
    </div>
-   <div id="futureFundSimpleWrap" style="margin-top:10px;${futurePct()>0?"":"display:none"}"><label>Future Fund %</label><input id="futureFundPct" type="number" min="0" max="100" value="${Math.round(futurePct()||40)}"></div>
+   <div id="futureFundSimpleWrap" style="margin-top:10px;${futurePct()>0?"":"display:none"}"><label>Future Fund %</label><input id="futureFundPct" type="number" min="0" max="100" value="${Math.round(futurePct()||40)}"></div><div class="v612KidCaps"><div class="tiny muted">WEEKLY EARNING OPPORTUNITY BY KID</div>${data.kids.map(k=>`<label>${k.name}<input data-kid-weekly-cap="${k.id}" type="number" min="0" step=".25" value="${k.weeklyEarningCap!=null?Math.max(0,+k.weeklyEarningCap):weeklyTotalCap()}"><small>Weekly Jobs goal</small></label>`).join("")}</div>
    <button id="saveMoneyRules" class="btn" style="margin-top:12px">Save Family Money Setup</button>
  </div>
 
  <div class="card" id="workSettingsV50">
    <div class="v50SectionTitle"><div><h2 style="margin:0">${oaIcon("responsibilities","inline")} Responsibilities & Jobs</h2><div class="muted">Keep it simple: choose who does it, whether it's a Responsibility or Job, and when it happens. Open More Options only when you need them.</div></div></div>
-   ${(()=>{let b=jobBalancePreview();return `<div class="notice" style="margin-bottom:12px"><b>${oaIcon("money","inline")} Smart Job Balance</b><div class="muted" style="margin-top:4px">Your ${money(weeklyTotalCap())} weekly earning max is balanced around about <b>5 Standard jobs/week</b>. Suggested values: Easy ${money(b.easy)} · Standard ${money(b.standard)} · Hard ${money(b.hard)} · Big Job ${money(b.big)}. Custom-priced jobs stay exactly what you set, and the weekly cap still protects the total.</div></div>`})()}
+   ${(()=>{let b=jobBalancePreview();return `<div class="notice" style="margin-bottom:12px"><b>${oaIcon("money","inline")} Smart Job Balance</b><div class="muted" style="margin-top:4px">Automatic Job values are balanced around about <b>5 Standard jobs/week</b> using each kid’s weekly earning goal. Suggested values: Easy ${money(b.easy)} · Standard ${money(b.standard)} · Hard ${money(b.hard)} · Big Job ${money(b.big)}. Custom-priced jobs stay exactly what you set, and the weekly cap still protects the total.</div></div>`})()}
    <div style="display:grid;gap:10px">${lib.map((c,i)=>`<details class="v50Advanced masterCard"><summary>${oaIcon(oaTaskIcon(c,c.required?"resp":"job"),"inline")} ${c.name} <span class="tiny muted" data-work-type="${i}">· ${c.required?"Responsibility":"Job"} · ${frequencyLabel(c)}</span></summary><div class="v50AdvancedBody">
      <div class="tiny muted" style="margin-bottom:6px"><b>Who does this?</b></div><div class="assignments">${data.kids.map(k=>`<label><input data-assign="${i}|${k.id}" type="checkbox" ${(c.assignedTo||[]).includes(k.id)?"checked":""}> ${k.name}</label>`).join("")}</div>
      <div class="settingsGrid v505SimpleWork">
@@ -4123,11 +4179,11 @@ function paidParent(){
      </div>
 
      <div class="tiny muted" style="margin-top:10px">This week</div>
-     <div><b>Total ${money(weeklyGross(k.id))} / ${money(weeklyTotalCap())}</b></div>
-     <div class="tiny muted">Cash ${money(weeklyCash(k.id))} / ${money(weeklyCashCap())} · Total room ${money(weeklyTotalRoom(k.id))}</div>
+     <div><b>Total ${money(weeklyGross(k.id))} / ${money(weeklyEarningCap(k.id))}</b></div>
+     <div class="tiny muted">Cash ${money(weeklyCash(k.id))} / ${money(weeklyCashCap())} · ${weeklyCapWasReached(k.id)?"ABOVE & BEYOND":`Total room ${money(weeklyTotalRoom(k.id))}`}</div>
    </div>`}).join("")}</div>
 
- <div class="card"><h2>📜 Recent Earnings History</h2>${(data.ledger||[]).slice().sort((a,b)=>(b.at||0)-(a.at||0)).slice(0,80).map(x=>`<div class="ledgerRow"><div><b>${kidById(x.kidId)?.name||""}</b> — ${x.label}</div><div>${x.type==="payment"?"Cash Paid":x.type==="future_fund_deposit"?"Future Funded":x.type==="reversal"?"Reversed":x.type==="behavior_deduction"?"Consequence":x.type==="required_miss"?"Miss":"Earned"}</div><div>${x.type==="payment"?"-"+money(x.amount):x.type==="future_fund_deposit"?`🌱 ${money(x.amount)}${x.destinationLabel?` · ${x.destinationLabel}`:""}`:x.type==="reversal"?`↩️ 💵 ${money(Math.abs(x.cash||0))} · 🌱 ${money(Math.abs(x.car||0))}`:x.type==="behavior_deduction"?`⚠️ ${x.xp?`${x.xp} XP · `:""}${x.cash?`💵 ${money(Math.abs(x.cash))}`:""}`:x.type==="required_miss"?`⚠️ ${x.xp||0} XP`:`Total ${money(x.gross||((x.cash||0)+(x.car||0)))} · 💵 ${money(x.cash||0)} · 🌱 ${money(x.car||0)}`}</div><div class="tiny muted">${new Date(x.at||Date.now()).toLocaleDateString()}</div></div>`).join("")||`<p class="muted">No history yet.</p>`}</div>`;
+ <div class="card"><h2>📜 Recent Earnings History</h2>${(data.ledger||[]).slice().sort((a,b)=>(b.at||0)-(a.at||0)).slice(0,80).map(x=>`<div class="ledgerRow"><div><b>${kidById(x.kidId)?.name||""}</b> — ${x.label}</div><div>${x.type==="payment"?"Cash Paid":x.type==="future_fund_deposit"?"Future Funded":x.type==="reversal"?"Reversed":x.type==="behavior_deduction"?"Consequence":x.type==="required_miss"?"Miss":"Earned"}</div><div>${x.type==="payment"?"-"+money(x.amount):x.type==="future_fund_deposit"?`🌱 ${money(x.amount)}${x.destinationLabel?` · ${x.destinationLabel}`:""}`:x.type==="reversal"?`↩️ 💵 ${money(Math.abs(x.cash||0))} · 🌱 ${money(Math.abs(x.car||0))}`:x.type==="behavior_deduction"?`⚠️ ${x.xp?`${x.xp} XP · `:""}${x.cash?`💵 ${money(Math.abs(x.cash))}`:""}`:x.type==="required_miss"?`⚠️ ${x.xp||0} XP`:x.aboveBeyond?`🌲 ABOVE & BEYOND · +${x.xp||0} XP · $0 cash`:`Total ${money(x.gross||((x.cash||0)+(x.car||0)))} · 💵 ${money(x.cash||0)} · 🌱 ${money(x.car||0)}`}</div><div class="tiny muted">${new Date(x.at||Date.now()).toLocaleDateString()}</div></div>`).join("")||`<p class="muted">No history yet.</p>`}</div>`;
 }
 function paidKid(){
  let k=data.kids[kid],owed=cashOwed(k),future=Math.max(0,+k.car||0),week=weeklyGross(k.id),life=lifetimeTotalEarned(k);
@@ -4380,6 +4436,15 @@ function bind(){
      document.querySelector(sel)?.scrollIntoView({behavior:"smooth",block:"center"});
    },60);
  });
+$("#saveMoneyRules")?.addEventListener("click",async()=>{
+  const def=Math.max(0,+$("#weeklyTotalCap")?.value||0),moneyOn=$("#moneyEnabled")?.value==="1";
+  const saveFuture=$("#futureFundSimple")?.value==="1",fp=saveFuture?Math.min(100,Math.max(0,+$("#futureFundPct")?.value||0)):0;
+  const kids=(data.kids||[]).map(k=>{const el=$(`[data-kid-weekly-cap="${k.id}"]`);return {...k,weeklyEarningCap:el?Math.max(0,+el.value||0):def}});
+  const cashSplitPct=100-fp;
+  data={...data,moneyEnabled:moneyOn,weeklyTotalCap:def,cashSplitPct,kids};
+  render();
+  await patch({moneyEnabled:moneyOn,weeklyTotalCap:def,cashSplitPct,kids});
+});
 $("#futureFundSimple")?.addEventListener("change",e=>{let w=$("#futureFundSimpleWrap");if(w)w.style.display=e.target.value==="1"?"block":"none"});
  $$("[data-active-select]").forEach(e=>e.onchange=()=>{let box=$(`[data-active="${e.dataset.activeSelect}"]`);if(box)box.checked=e.value==="1"});
 $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCount=0;view="week";oaWatchSelectedKidProfile(data.kids[kid]?.id);render()});
@@ -4388,8 +4453,7 @@ $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCoun
    const choreId=b.dataset.c,k=data.kids[kid],c=library().find(x=>x.id===choreId);
    if(!k||!c)return;
    const submitFinished=async(chore)=>{
-     const now=Date.now(),q=autoChorePreview(chore);
-     const task={id:newId(),choreId:chore.id,kidId:k.id,name:chore.name,required:!!chore.required,paid:!!chore.paid,points:+chore.points||0,xp:+chore.xp||10,cash:q?.cash||0,car:q?.future||0,status:"pending",periodKey:periodKey(chore),createdAt:now,submittedAt:now};
+     const now=Date.now(),jr=!chore.required?jobRewardState(chore,k.id):null;      const task={id:newId(),choreId:chore.id,kidId:k.id,name:chore.name,required:!!chore.required,paid:!!chore.paid,points:chore.paid&&!chore.required?0:(+chore.points||0),xp:chore.paid&&!chore.required?0:(+chore.xp||10),cash:0,car:0,submittedRewardPreview:jr?{gross:jr.gross,aboveBeyond:jr.aboveBeyond,xp:jr.xp}:null,status:"pending",periodKey:periodKey(chore),createdAt:now,submittedAt:now};
      try{await patch({tasks:arrayUnion(task)});render()}catch(err){console.error("Could not submit task",err);alert("Ask Mom or Dad to open Parent Mode on this device, then try again.")}
    };
    if(c.vacationPaused){
@@ -4400,7 +4464,7 @@ $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCoun
      });return;
    }
    if(!canClaim(c,k.id))return;
-   askConfirm(`Did you finish ${c.name}?`,`We'll tell Mom or Dad you're done.`,`Yes, I Did It`,()=>submitFinished(c));
+   {const jr=!c.required?jobRewardState(c,k.id):null;const body=jr?.paid?(jr.aboveBeyond?`🌲 Above & Beyond: this Job earns +${jr.xp} XP and $0.`:`This Job is worth ${money(jr.gross)} right now. Mom or Dad will use your current weekly total when they approve it.`):`We\'ll tell Mom or Dad you\'re done.`;askConfirm(`Did you finish ${c.name}?`,body,`Yes, I Did It`,()=>submitFinished(c));}
  });
 
  $$("[data-unlock-keep]").forEach(b=>b.onclick=()=>{let k=data.kids[kid];if(!k)return;localStorage.setItem(oaUnlockSeenKey(k.id),b.dataset.unlockKeep);render()});
@@ -4496,10 +4560,10 @@ $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCoun
  });$("#deductNote").value=""})});
  $$("[data-undoapproval]").forEach(b=>b.onclick=()=>{let tid=b.dataset.undoapproval,t=data.tasks.find(x=>x.id===tid);if(!t||t.status!=="approved")return;askConfirm("Undo this approval?",`This will reverse ${money(t.cash||0)} cash, ${money(t.car||0)} Future Fund and ${t.xp||0} XP, then return ${t.name} to Waiting for Approval.`,"Undo Approval",async()=>{await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),cur=d.tasks.find(x=>x.id===tid);if(!cur||cur.status!=="approved")return;
  let cash=+cur.cash||0,car=+cur.car||0,xp=+cur.xp||0;
- let kids=d.kids.map(k=>k.id===cur.kidId?{...k,cash:+Math.max(0,(+k.cash||0)-cash).toFixed(2),car:+Math.max(0,(+k.car||0)-car).toFixed(2),xp:Math.max(0,(+k.xp||0)-xp),rewardPoints:Math.max(0,(+k.rewardPoints||0)-(+cur.points|| (cur.required?2:3))),familyPoints:Math.max(0,(+k.familyPoints||0)-(+cur.points|| (cur.required?2:3))),requiredDone:Math.max(0,(+k.requiredDone||0)-(cur.required?1:0)),requiredDue:Math.max(0,(+k.requiredDue||0)-(cur.required?1:0))}:k);
+ let kids=d.kids.map(k=>k.id===cur.kidId?{...k,cash:+Math.max(0,(+k.cash||0)-cash).toFixed(2),car:+Math.max(0,(+k.car||0)-car).toFixed(2),xp:Math.max(0,(+k.xp||0)-xp),rewardPoints:Math.max(0,(+k.rewardPoints||0)-(cur.points!=null?+cur.points:(cur.required?2:3))),familyPoints:Math.max(0,(+k.familyPoints||0)-(cur.points!=null?+cur.points:(cur.required?2:3))),requiredDone:Math.max(0,(+k.requiredDone||0)-(cur.required?1:0)),requiredDue:Math.max(0,(+k.requiredDue||0)-(cur.required?1:0))}:k);
  let tasks=d.tasks.map(x=>x.id===tid?{...x,status:"pending",approvedBy:null,approvedAt:null,undoneBy:user.email,undoneAt:Date.now()}:x);
  let ledger=(d.ledger||[]).filter(x=>!(x.type==="earning"&&((x.taskId&&x.taskId===tid)||(!x.taskId&&x.kidId===cur.kidId&&x.label===cur.name&&Math.abs((+x.cash||0)-cash)<0.001&&Math.abs((+x.car||0)-car)<0.001))));
- let pts=+cur.points||(cur.required?2:3);ledger.push({id:newId(),type:"reversal",taskId:tid,kidId:cur.kidId,label:`Undo approval — ${cur.name}`,cash:-cash,car:-car,xp:-xp,points:-pts,by:user.email,at:Date.now()});
+ let pts=cur.points!=null?+cur.points:(cur.required?2:3);ledger.push({id:newId(),type:"reversal",taskId:tid,kidId:cur.kidId,label:`Undo approval — ${cur.name}`,cash:-cash,car:-car,xp:-xp,points:-pts,by:user.email,at:Date.now()});
  tr.update(familyRef,{kids,tasks,ledger:ledger.slice(-300)});
  })})});
  $$("[data-requestexcuse]").forEach(b=>b.onclick=async()=>{
@@ -4790,80 +4854,85 @@ $("#newRequired")?.addEventListener("change",()=>{$("#newMoneyArea").dataset.ove
  });
 
  $$("[data-app]").forEach(b=>b.onclick=async()=>{
-   const tid=b.dataset.app;
-   b.disabled=true;
-   try{
-     await runTransaction(db,async tr=>{
-       const snap=await tr.get(familyRef),d=snap.data(),task=(d.tasks||[]).find(x=>x.id===tid);
-       if(!task||task.status!=="pending")return;
+  const tid=b.dataset.app;b.disabled=true;
+  try{
+    await runTransaction(db,async tr=>{
+      const snap=await tr.get(familyRef),d=snap.data(),task=(d.tasks||[]).find(x=>x.id===tid);
+      if(!task||task.status!=="pending")return;
+      const lib=(Array.isArray(d.choreLibrary)&&d.choreLibrary.length?d.choreLibrary:DEFAULTS).map(normalize);
+      const chore=lib.find(x=>x.id===task.choreId);
+      if(!chore)throw new Error(`Unknown chore: ${task.choreId}`);
 
-       const lib=(Array.isArray(d.choreLibrary)&&d.choreLibrary.length?d.choreLibrary:DEFAULTS).map(normalize);
-       const chore=lib.find(x=>x.id===task.choreId);
-       if(!chore)throw new Error(`Unknown chore: ${task.choreId}`);
+      const now=Date.now(),moneyOn=(d.moneyEnabled??true),isPaidJob=!chore.required&&!!chore.paid&&moneyOn;
+      const kidRow=(d.kids||[]).find(x=>x.id===task.kidId);
+      const totalCap=Math.max(0,kidRow?.weeklyEarningCap!=null?+kidRow.weeklyEarningCap:(+d.weeklyTotalCap||25));
+      const cashCap=Math.max(0,+d.weeklyCashCap||15);
 
-       const moneyOn=(d.moneyEnabled??true);
-       const totalCap=Math.max(0,+d.weeklyTotalCap||25);
-       const cashCap=Math.max(0,+d.weeklyCashCap||15);
-       const effort=chore.effortLevel||"standard",mult=effort==="easy"?.6:effort==="hard"?1.5:effort==="big"?2.25:1;
-       const autoBase=Math.max(.5,Math.round((totalCap/5)*4)/4);
-       const jobGross=chore.useCustomAmount?Math.max(0,+chore.customAmount||0):+(Math.round(autoBase*mult*4)/4).toFixed(2);
-       const rawGross=!moneyOn?0:chore.required?0:(task.type==="golf"?Math.max(0,Math.min(100,+task.count||0))*((d.golfCash||.05)+(d.golfCar||.10)):(chore.paid?jobGross:0));
+      const dd=new Date(),day=(dd.getDay()+6)%7;dd.setHours(0,0,0,0);dd.setDate(dd.getDate()-day);const ws=dd.getTime();
+      const weekRows=(d.ledger||[]).filter(x=>x.type==="earning"&&x.kidId===task.kidId&&(x.at||0)>=ws);
+      const usedGross=+weekRows.reduce((sum,x)=>sum+(+x.gross||(+x.cash||0)+(+x.car||0)),0).toFixed(2);
+      const usedCash=+weekRows.reduce((sum,x)=>sum+(+x.cash||0),0).toFixed(2);
+      const historicalCapHit=totalCap<=0||usedGross>=totalCap-.009||weekRows.some(x=>x.totalCapLimited===true||((x.capLimited||x.totalCapLimited)&&(+x.rawGross||0)>(+x.gross||0)+.009));
 
-       const now=Date.now(),dd=new Date(),day=(dd.getDay()+6)%7;
-       dd.setHours(0,0,0,0);
-       dd.setDate(dd.getDate()-day);
-       const ws=dd.getTime();
+      const effort=chore.effortLevel||"standard",mult=effort==="easy"?.6:effort==="hard"?1.5:effort==="big"?2.25:1;
+      const autoBase=Math.max(.5,Math.round((totalCap/5)*4)/4);
+      const normalJobGross=chore.useCustomAmount?Math.max(0,+chore.customAmount||0):+(Math.round(autoBase*mult*4)/4).toFixed(2);
 
-       const weekRows=(d.ledger||[]).filter(x=>x.type==="earning"&&x.kidId===task.kidId&&(x.at||0)>=ws);
-       const usedGross=weekRows.reduce((sum,x)=>sum+(+x.gross||(+x.cash||0)+(+x.car||0)),0);
-       const usedCash=weekRows.reduce((sum,x)=>sum+(+x.cash||0),0);
+      let rawGross=0,gross=0,cash=0,car=0,xp=0,pts=0,aboveBeyond=false,totalCapLimited=false;
 
-       const gross=+Math.min(rawGross,Math.max(0,totalCap-usedGross)).toFixed(2);
-       const pct=Math.min(100,Math.max(0,+d.cashSplitPct||60));
-       const desiredCash=+(gross*pct/100).toFixed(2);
-       const cash=+Math.min(desiredCash,Math.max(0,cashCap-usedCash)).toFixed(2);
-       const car=+(gross-cash).toFixed(2);
-       const xp=+chore.xp||10;
+      if(isPaidJob){
+        rawGross=normalJobGross;
+        if(historicalCapHit){
+          aboveBeyond=true;
+          xp=effort==="easy"?2:(effort==="hard"||effort==="big")?5:3;
+        }else{
+          const room=Math.max(0,totalCap-usedGross);
+          gross=+Math.min(rawGross,room).toFixed(2);
+          totalCapLimited=gross<rawGross-.009;
+          const pct=Math.min(100,Math.max(0,+d.cashSplitPct||60)),desiredCash=+(gross*pct/100).toFixed(2);
+          cash=+Math.min(desiredCash,Math.max(0,cashCap-usedCash)).toFixed(2);
+          car=+(gross-cash).toFixed(2);
+          xp=0;pts=0;
+        }
+      }else{
+        // Preserve existing Risser Rewards behavior for Responsibilities and non-cash Jobs.
+        xp=+chore.xp||10;
+        pts=(chore.points!=null?+chore.points:(chore.required?2:3));
+        if(chore.maxRewardedClaimsPerDay&&rewardedClaimsToday(chore)>=chore.maxRewardedClaimsPerDay)pts=0;
+      }
 
-       let pts=(chore.points!=null?+chore.points:(chore.required?2:3));
-       if(chore.maxRewardedClaimsPerDay&&rewardedClaimsToday(chore)>=chore.maxRewardedClaimsPerDay)pts=0;
+      const kids=(d.kids||[]).map(k=>k.id===task.kidId?{
+        ...k,
+        cash:+((k.cash||0)+cash).toFixed(2),
+        car:+((k.car||0)+car).toFixed(2),
+        xp:(k.xp||0)+xp,
+        rewardPoints:(+k.rewardPoints||0)+pts,
+        familyPoints:(+k.familyPoints||0)+pts,
+        requiredDone:(k.requiredDone||0)+(chore.required?1:0),
+        requiredDue:(k.requiredDue||0)+(chore.required?1:0)
+      }:k);
 
-       const kids=(d.kids||[]).map(k=>k.id===task.kidId?{
-         ...k,
-         cash:+((k.cash||0)+cash).toFixed(2),
-         car:+((k.car||0)+car).toFixed(2),
-         xp:(k.xp||0)+xp,
-         rewardPoints:(+k.rewardPoints||0)+pts,
-         familyPoints:(+k.familyPoints||0)+pts,
-         requiredDone:(k.requiredDone||0)+(chore.required?1:0),
-         requiredDue:(k.requiredDue||0)+(chore.required?1:0)
-       }:k);
+      const tasks=(d.tasks||[]).map(x=>x.id===tid?{
+        ...x,gross,cash,car,xp,points:pts,status:"approved",
+        aboveBeyond,totalCapLimited,rawGross,
+        approvedBy:user.email,approvedAt:now,
+        capLimited:totalCapLimited
+      }:x);
 
-       const tasks=(d.tasks||[]).map(x=>x.id===tid?{
-         ...x,
-         gross,cash,car,xp,points:pts,status:"approved",
-         approvedBy:user.email,approvedAt:now,
-         capLimited:gross<rawGross||cash<desiredCash
-       }:x);
+      const ledger=[...(d.ledger||[]),{
+        id:newId(),type:"earning",taskId:task.id,kidId:task.kidId,label:chore.name,
+        gross,cash,car,xp,points:pts,rawGross,aboveBeyond,totalCapLimited,
+        capLimited:totalCapLimited,by:user.email,at:now
+      }].slice(-300);
 
-       const ledger=[...(d.ledger||[]),{
-         id:newId(),type:"earning",taskId:task.id,kidId:task.kidId,label:chore.name,
-         gross,cash,car,xp,points:pts,rawGross,
-         capLimited:gross<rawGross||cash<desiredCash,
-         by:user.email,at:now
-       }].slice(-300);
-
-       tr.update(familyRef,{kids,tasks,ledger});
-     });
-   }catch(err){
-     console.error("Task approval failed",err);
-     alert(`Could not approve this task.
-
-${err?.message||"Please try again."}`);
-     b.disabled=false;
-   }
- });
-
+      tr.update(familyRef,{kids,tasks,ledger});
+    });
+  }catch(err){
+    console.error("Task approval failed",err);
+    alert(`Could not approve this task.  ${err?.message||"Please try again."}`);
+    b.disabled=false;
+  }
+});
 $("#bulkBasics")?.addEventListener("click",async()=>{let basics=pending().filter(t=>t.required&&(+t.cash||0)===0&&(+t.car||0)===0);if(!basics.length)return alert("No unpaid required basics are waiting.");if(!confirm(`Approve ${basics.length} required basics?`))return;for(const t of basics){await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),cur=d.tasks.find(x=>x.id===t.id);if(!cur||cur.status!=="pending")return;let now=Date.now(),xp=cur.xp||10,pts=2;let kids=d.kids.map(k=>k.id===cur.kidId?{...k,xp:(k.xp||0)+xp,rewardPoints:(+k.rewardPoints||0)+pts,familyPoints:(+k.familyPoints||0)+pts,requiredDone:(k.requiredDone||0)+1,requiredDue:(k.requiredDue||0)+1}:k);let tasks=d.tasks.map(x=>x.id===cur.id?{...x,xp,points:pts,status:"approved",approvedBy:user.email,approvedAt:now}:x);let ledger=[...(d.ledger||[]),{id:newId(),type:"points_earning",taskId:cur.id,kidId:cur.kidId,label:cur.name,xp,points:pts,cash:0,car:0,by:user.email,at:now}].slice(-300);tr.update(familyRef,{kids,tasks,ledger})})}});
 
  $$("[data-pushn]").forEach(b=>b.onclick=()=>{pushupCount=Math.max(0,Math.min(100,pushupCount+(+b.dataset.pushn)));render()});
