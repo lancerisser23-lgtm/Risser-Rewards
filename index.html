@@ -516,11 +516,6 @@ input:focus,select:focus{outline:2px solid rgba(52,99,70,.18);border-color:#6d92
 @media(max-width:620px){.v5035SettingsTop{align-items:flex-start}.v5035ModeControls{max-width:190px}.v5035Mode{padding:6px 8px}}
 
 
-/* V56.2.1 persistent kid timers */
-.v5037MiniTimer{margin-top:6px;display:inline-block;padding:5px 9px;border-radius:999px;background:var(--g);color:#fff;font-weight:950;font-variant-numeric:tabular-nums;letter-spacing:.04em}
-.v5037GrowthTimer{margin-top:9px;padding:12px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.7);text-align:center}
-.v5037BigTimer{font-size:38px;line-height:1;font-weight:950;font-variant-numeric:tabular-nums;letter-spacing:.02em;margin:2px 0 8px}
-.v5037GrowthTimer .btn{margin-top:10px}
 .v5037ActiveTask{align-items:center}
 @media(max-width:620px){.v5037BigTimer{font-size:34px}.v5037ActiveTask{gap:8px;align-items:flex-start}}
 
@@ -2239,6 +2234,10 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
   }
   .oaTodoSubnavBtn .oaIcon{width:15px!important;height:15px!important}
 }
+
+/* ===== OAK & ARROW V60.6 — TIMER-FREE TASKS & MISSIONS =====
+   Responsibilities, Jobs and Growth Missions now use the same simple
+   "I Did It" -> parent approval flow. Legacy timer values are ignored. */
 </style>
 
 <!-- V56.2 full audit hardening: kid styling, school visibility persistence, accurate availability counts, Sunday settlement restoration -->
@@ -2768,7 +2767,7 @@ function lastChallengeApproval(cid,kidId=null){
   return arr[0]||null;
 }
 function liveChallenge(cid,kidId=null){
-  return challengeLogs().some(x=>x.challengeId===cid&&["open","pending"].includes(x.status)&&(!kidId||x.kidId===kidId));
+  return challengeLogs().some(x=>x.challengeId===cid&&x.status==="pending"&&(!kidId||x.kidId===kidId));
 }
 function challengeAvailabilityLabel(c){
   if(c.frequency==="everyhours")return `Every ${Math.max(1,+c.intervalHours||1)} hours`;
@@ -3347,8 +3346,8 @@ function oaWorkRow(c,k,type){
  let done=(c.frequency!=="anytime")&&(c.exclusive?sharedApproved(c):approved(c,k.id));
  let q=type==="job"?autoChorePreview(c):null;
  let value=type==="job"?(moneyEnabled()&&c.paid&&q?.gross?money(q.gross):`${c.points||3} pts`):`${c.points||2} pts`;
- let state=liveTask?.status==="pending"?`<span class="oaState pending">${oaIcon("pending","inline")} Waiting for Mom or Dad</span>`:owner?`<span class="oaState">${oaIcon("lock","inline")} ${kidById(owner.kidId)?.name||"Claimed"}</span>`:done?`<span class="oaState">${oaIcon("check-circle","inline")} Done</span>`:allowed?`<span class="oaState ready">${timerMinutesFor(c)?`${oaIcon("timer","inline")} ${timerMinutesFor(c)} min`:`${oaIcon("check","inline")} I Did It`}</span>`:`<span class="oaState">Not now</span>`;
- return `<button class="oaListRow" data-c="${c.id}" ${allowed?"":"disabled"}><span class="oaListIcon">${oaIcon(oaTaskIcon(c,type))}</span><span><span class="oaListName">${c.name}</span><span class="oaListMeta">${frequencyLabel(c)}${timerRequirementLabel(c)}</span></span><span><span class="oaListValue">${value}</span><br>${state}</span></button>`;
+ let state=liveTask?.status==="pending"?`<span class="oaState pending">${oaIcon("pending","inline")} Waiting for Mom or Dad</span>`:owner?`<span class="oaState">${oaIcon("lock","inline")} ${kidById(owner.kidId)?.name||"Claimed"}</span>`:done?`<span class="oaState">${oaIcon("check-circle","inline")} Done</span>`:allowed?`<span class="oaState ready">${oaIcon("check","inline")} I Did It</span>`:`<span class="oaState">Not now</span>`;
+ return `<button class="oaListRow" data-c="${c.id}" ${allowed?"":"disabled"}><span class="oaListIcon">${oaIcon(oaTaskIcon(c,type))}</span><span><span class="oaListName">${c.name}</span><span class="oaListMeta">${frequencyLabel(c)}</span></span><span><span class="oaListValue">${value}</span><br>${state}</span></button>`;
 }
 function journey(){
  let k=data.kids[kid],l=xpLevel(k),ps=rewardPointStats(k.id),r=reliability(k),milestones=oaMilestones(k);
@@ -3420,7 +3419,7 @@ function level(){
    ${oaTodoSubnav("growth")}
    <div class="oaJourneyHero" style="margin-bottom:12px"><div class="row between"><div><div class="tiny">THIS WEEK</div><b style="font-size:24px">${lp.earned}/${lp.goal} Growth wins</b></div><div style="text-align:right"><div class="tiny">ADVENTURE LEVEL</div><b>${xpLevel(k).cur.name}</b></div></div><div class="oaProgressBar"><div class="oaProgressFill" style="width:${lp.goal?Math.min(100,lp.earned/lp.goal*100):0}%"></div></div></div>
    <div class="oaGrowthGrid">${cs.map(c=>{
-     let hits=weeklyHits(k.id,c.id),pend=challengePending(k.id,c.id),open=challengeOpen(k.id,c.id),available=challengeAvailable(c,k.id),mins=timerMinutesFor(c);
+     let hits=weeklyHits(k.id,c.id),pend=challengePending(k.id,c.id),available=challengeAvailable(c,k.id);
      if(c.id==="pushups"){
        let todayLog=challengeLogs().find(x=>x.kidId===k.id&&x.challengeId==="pushups"&&x.date===todayKey()&&["pending","approved"].includes(x.status));
        return `<div class="oaMission"><div class="oaMissionHead"><div class="oaMissionIcon">${oaIcon("dumbbell")}</div><div><div class="oaMissionName">Pushup Power</div><div class="oaMissionMeta">Build strength · Growth Mission</div></div></div>
@@ -3429,7 +3428,7 @@ function level(){
      }
      return `<div class="oaMission"><div class="oaMissionHead"><div class="oaMissionIcon">${oaIcon(oaTaskIcon(c,"growth"))}</div><div><div class="oaMissionName">${c.name}</div><div class="oaMissionMeta">${c.desc}<br>${challengeAvailabilityLabel(c)}${mins?` · ⏱ ${mins} min`:""} · ${c.xp||0} XP</div></div></div>
        ${c.target?`<div class="oaMissionMeta" style="margin-top:8px">${hits}/${c.target} this week</div>`:""}
-       <div class="oaMissionAction">${open?`<div class="v5037GrowthTimer"><div class="v5037BigTimer" data-timer-end="${timerEndMs(open)}">${timerReady(open)?"0:00":formatTimer(timerRemainingMs(open))}</div><div class="oaMissionMeta">${timerReady(open)?"Time complete!":"Timer keeps running if you leave this page."}</div><button class="btn small" data-challenge-done="${open.id}" ${timerReady(open)?"":"disabled"}>${timerReady(open)?"I Did It":"Timer Running"}</button></div>`:pend?`<span class="oaState pending">Waiting for parent</span>`:available?`<button class="btn small" data-challenge="${c.id}">${mins?"Start Timer":"I Did It"}</button>`:`<span class="oaState">Done for now</span>`}</div>
+       <div class="oaMissionAction">${pend?`<span class="oaState pending">Waiting for parent</span>`:available?`<button class="btn small" data-challenge="${c.id}">I Did It</button>`:`<span class="oaState">Done for now</span>`}</div>
      </div>`;
    }).join("")}</div>
  `,"oaGrowth");
@@ -3666,7 +3665,6 @@ function settings(){
        <div data-interval-wrap="${i}" style="${c.frequency==="everyx"?"":"display:none"}"><label>Available every</label><input data-interval="${i}" type="number" min="1" max="365" value="${Math.max(1,+c.intervalDays||7)}"><div class="tiny muted">days</div></div>
        <div><label>Can more than one kid do it?</label><select data-exclusive="${i}"><option value="0" ${!c.exclusive?"selected":""}>Yes — each kid</option><option value="1" ${c.exclusive?"selected":""}>No — first kid only</option></select></div>
        <div><label>School / Summer</label><select data-summeroff="${i}"><option value="0" ${!shutsOffInSummer(c)?"selected":""}>Keep available in Summer</option><option value="1" ${shutsOffInSummer(c)?"selected":""}>Pause in Summer Mode</option></select></div>
-       <div><label>Minimum time</label><input data-timer-minutes="${i}" type="number" min="0" max="180" step="5" value="${timerMinutesFor(c)}"><div class="tiny muted">minutes · 0 = no timer</div></div>
        <div data-miss-wrap="${i}" style="${c.required?"":"display:none"}"><label>If they miss it…</label><div class="tiny muted oaAsNeededNote" style="${c.frequency==="needed"?"":"display:none"}">As Needed responsibilities never create automatic setbacks.</div><select data-miss="${i}" ${c.frequency==="needed"?"disabled":""}><option value="0" ${+c.missXp===0?"selected":""}>No level impact</option><option value="5" ${+c.missXp===5?"selected":""}>Small level setback</option><option value="10" ${+c.missXp===10?"selected":""}>Bigger level setback</option></select></div>
      </div></details>${c.custom?`<button data-delete="${i}" class="btn red small" style="margin-top:8px">Delete Custom Item</button>`:""}
    </div></details>`).join("")}</div>
@@ -3702,7 +3700,6 @@ function settings(){
            <div data-chours-wrap="${i}" style="${c.frequency==="everyhours"?"":"display:none"}"><label>Hours</label><input data-chours="${i}" type="number" min="1" max="168" value="${Math.max(1,+c.intervalHours||4)}"></div>
            <div data-cdays-wrap="${i}" style="${c.frequency==="everyx"?"":"display:none"}"><label>Days</label><input data-cdays="${i}" type="number" min="1" max="365" value="${Math.max(1,+c.intervalDays||1)}"></div>
            <div><label>Who can complete?</label><select data-cclaim="${i}"><option value="each" ${c.claimType!=="shared"?"selected":""}>Each kid</option><option value="shared" ${c.claimType==="shared"?"selected":""}>First kid only</option></select></div>
-           <div><label>⏱ Required minutes</label><input data-ctimer="${i}" type="number" min="0" max="180" step="5" value="${timerMinutesFor(c)}"><div class="tiny muted">0 = no timer</div></div>
            <input data-cpoints="${i}" type="hidden" value="${c.id==="pushups"?pushupPoints(20):Math.max(0,+c.rewardPoints||defaultLevelPoints(c.id))}">
          </div>
          <button class="btn red small" style="margin-top:10px" data-growth-remove="${c.id}">Remove Mission</button>
@@ -3720,7 +3717,6 @@ function settings(){
          <div style="grid-column:1/-1"><label>What should they do?</label><input id="newGrowthDesc" placeholder="Practice for at least 20 minutes"></div>
          <div><label>XP earned</label><input id="newGrowthXp" type="number" min="0" max="100" value="10"></div>
          <div><label>Schedule</label><select id="newGrowthFreq"><option value="daily">Every Day</option><option value="weekdays">Certain Days</option><option value="weekly">Weekly</option><option value="anytime">Anytime</option></select></div>
-         <div><label>⏱ Required minutes</label><input id="newGrowthTimer" type="number" min="0" max="180" step="5" value="0"><div class="tiny muted">0 = no timer</div></div>
        </div>
        <button id="addGrowthMission" class="btn secondary" style="margin-top:10px">Add Growth Mission</button>
      </div>
@@ -3950,7 +3946,6 @@ function oaScrubParentEmoji(root=document.getElementById("app")){
 function render(){
 try{document.body.classList.toggle("parentMode",!!user && !isKidSession() && !isKidExperienceView())}catch(e){}
 
- if(timerUiInterval){clearInterval(timerUiInterval);timerUiInterval=null}
  if(!user){$("#app").innerHTML=login();bind();return}
  if(data===null){$("#app").innerHTML=`<div class="login card">Loading family…</div>`;return}
  if(data===false){$("#app").innerHTML=setup();bind();return}
@@ -3973,7 +3968,6 @@ try{document.body.classList.toggle("parentMode",!!user && !isKidSession() && !is
    (isKidSession()?kidsLanding():parent());
  oaScrubParentEmoji();
  bind();
- startTimerUi();
 }
 async function patch(p){await updateDoc(familyRef,p)}
 
@@ -4055,7 +4049,6 @@ $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCoun
  $$("[data-c]").forEach(b=>b.onclick=()=>{
    const choreId=b.dataset.c,k=data.kids[kid],c=library().find(x=>x.id===choreId);
    if(!k||!c||!canClaim(c,k.id))return;
-   const mins=timerMinutesFor(c);
    const finish=async()=>{
      const now=Date.now(),q=autoChorePreview(c);
      const task={id:newId(),choreId:c.id,kidId:k.id,name:c.name,required:!!c.required,paid:!!c.paid,points:+c.points||0,xp:+c.xp||10,
@@ -4068,10 +4061,6 @@ $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCoun
        alert("Ask Mom or Dad to open Parent Mode on this device, then try again.");
      }
    };
-   if(mins){
-     alert(`${c.name} has a ${mins}-minute timer. Open it from the full list to start the timer.`);
-     return;
-   }
    askConfirm(`Did you finish ${c.name}?`,`We'll tell Mom or Dad you're done.`,`Yes, I Did It`,finish);
  });
 
@@ -4262,8 +4251,7 @@ $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCoun
  $$("[data-cdays]").forEach(e=>e.addEventListener("change",()=>{let c=challengeDraft[+e.dataset.cdays];if(c)c.intervalDays=Math.max(1,+e.value||1)}));
  $$("[data-cpoints]").forEach(e=>e.addEventListener("change",()=>{let c=challengeDraft[+e.dataset.cpoints];if(c&&c.id!=="pushups")c.rewardPoints=Math.max(0,Math.min(100,+e.value||0))}));
  $$("[data-cclaim]").forEach(e=>e.addEventListener("change",()=>{let c=challengeDraft[+e.dataset.cclaim];if(c)c.claimType=e.value}));
- $$("[data-ctimer]").forEach(e=>e.addEventListener("input",()=>{let c=challengeDraft[+e.dataset.ctimer];if(c)c.timerMinutes=Math.max(0,Math.min(180,+e.value||0))}));
- $("#saveLevelAvailability")?.addEventListener("click",async()=>{
+ $("#saveLevelAvailability")?.addEventListener("click",async()=>{challengeDraft.forEach(c=>{if("timerMinutes" in c)delete c.timerMinutes});
    try{
      $$("[data-cname]").forEach(e=>{let c=challengeDraft[+e.dataset.cname];if(c)c.name=e.value});
      $$("[data-cicon]").forEach(e=>{let c=challengeDraft[+e.dataset.cicon];if(c)c.icon=e.value||"growth"});
@@ -4293,7 +4281,7 @@ ${err?.message||"Please try again."}`);
    let name=$("#newGrowthName")?.value.trim();
    if(!name)return alert("Give the Growth Mission a name.");
    const icon=oaIconFor($("#newGrowthIcon")?.value||"growth","growth");
-   let mission={id:"growth_"+newId(),icon,name,desc:$("#newGrowthDesc")?.value.trim()||"",target:0,xp:Math.max(0,Math.min(100,+$("#newGrowthXp")?.value||10)),weekdaysOnly:false,parentOnly:false,frequency:$("#newGrowthFreq")?.value||"daily",days:($("#newGrowthFreq")?.value==="weekdays"?[1,2,3,4,5]:[]),intervalHours:4,intervalDays:1,claimType:"each",rewardPoints:5,timerMinutes:Math.max(0,Math.min(180,+$("#newGrowthTimer")?.value||0)),active:true,custom:true};
+   let mission={id:"growth_"+newId(),icon,name,desc:$("#newGrowthDesc")?.value.trim()||"",target:0,xp:Math.max(0,Math.min(100,+$("#newGrowthXp")?.value||10)),weekdaysOnly:false,parentOnly:false,frequency:$("#newGrowthFreq")?.value||"daily",days:($("#newGrowthFreq")?.value==="weekdays"?[1,2,3,4,5]:[]),intervalHours:4,intervalDays:1,claimType:"each",rewardPoints:5,active:true,custom:true};
    try{
      const next=[...challengeLibrary().map(c=>({...c,icon:oaIconFor(c.icon,"growth")})),mission];
      await patch({challenges:next});
@@ -4400,7 +4388,7 @@ ${err?.message||"Please try again."}`);
  }));
 
  $$("[data-frequency]").forEach(e=>e.addEventListener("change",()=>{let i=e.dataset.frequency,w=document.querySelector(`[data-interval-wrap="${i}"]`),h=document.querySelector(`[data-hours-wrap="${i}"]`),days=document.querySelector(`[data-days-wrap="chore-${i}"]`);if(w)w.style.display=e.value==="everyx"?"block":"none";if(h)h.style.display=e.value==="everyhours"?"block":"none";if(days)days.style.display=e.value==="weekdays"?"block":"none"}));
- $("#createCustom")?.addEventListener("click",async()=>{let name=$("#newName").value.trim();if(!name)return;let required=$("#newRequired").value==="1",paid=$("#newPaid").value==="1";let c={id:"custom_"+newId(),name,icon:$("#newIcon").value||"⭐",category:"Custom",frequency:"anytime",intervalDays:7,intervalHours:1,required,paid,points:Math.max(0,+$("#newPoints").value||0),xp:10,missXp:required?5:0,assignedTo:data.kids.map(k=>k.id),active:true,custom:true,createdAt:Date.now(),effortLevel:$("#newEffort")?.value||"helping",useCustomAmount:!!$("#newCustomToggle")?.checked,customAmount:Math.max(0,+$("#newCustomAmount")?.value||0),timerMinutes:0};await patch({choreLibrary:[...library(),c]})});
+ $("#createCustom")?.addEventListener("click",async()=>{let name=$("#newName").value.trim();if(!name)return;let required=$("#newRequired").value==="1",paid=$("#newPaid").value==="1";let c={id:"custom_"+newId(),name,icon:$("#newIcon").value||"⭐",category:"Custom",frequency:"anytime",intervalDays:7,intervalHours:1,required,paid,points:Math.max(0,+$("#newPoints").value||0),xp:10,missXp:required?5:0,assignedTo:data.kids.map(k=>k.id),active:true,custom:true,createdAt:Date.now(),effortLevel:$("#newEffort")?.value||"helping",useCustomAmount:!!$("#newCustomToggle")?.checked,customAmount:Math.max(0,+$("#newCustomAmount")?.value||0)};await patch({choreLibrary:[...library(),c]})});
 function refreshNewChoreMoney(){let required=$("#newRequired")?.value==="1",area=$("#newMoneyArea"),ov=$("#requiredMoneyOverride"),pay=$("#newPaid"),fields=$("#newPayFields");if(!area)return;if(required&&area.dataset.override!=="1"){area.style.display="none";ov.style.display="block";pay.value="0"}else{area.style.display="block";ov.style.display="none"}fields.style.display=pay.value==="1"?"block":"none";let gross=$("#newCustomToggle")?.checked?Math.max(0,+$("#newCustomAmount")?.value||0):autoBaseReward()*effortMultiplier($("#newEffort")?.value||"helping"),cash=+(gross*cashPct()/100).toFixed(2),future=+(gross-cash).toFixed(2);$("#newAutoPreview").innerHTML=`<b>This job can earn ${money(gross)}</b><br>💵 ${money(cash)} Spend Now · 🌱 ${money(future)} Future Fund`;$("#newCustomWrap").style.display=$("#newCustomToggle")?.checked?"block":"none"}
 $("#newRequired")?.addEventListener("change",()=>{$("#newMoneyArea").dataset.override="";refreshNewChoreMoney()});$("#allowRequiredPay")?.addEventListener("click",()=>{$("#newMoneyArea").dataset.override="1";refreshNewChoreMoney()});["newPaid","newEffort","newCustomToggle"].forEach(id=>$(`#${id}`)?.addEventListener("change",refreshNewChoreMoney));$("#newCustomAmount")?.addEventListener("input",refreshNewChoreMoney);refreshNewChoreMoney();
  $$("[data-frequency]").forEach(sel=>sel.addEventListener("change",()=>{
@@ -4423,7 +4411,8 @@ $("#newRequired")?.addEventListener("change",()=>{$("#newMoneyArea").dataset.ove
    $$("[data-points]").forEach(e=>lib[+e.dataset.points].points=Math.max(0,Math.min(100,+e.value||0)));
    $$("[data-paid]").forEach(e=>{let i=+e.dataset.paid;lib[i].paid=!lib[i].required&&e.value==="1"});
    $$("[data-effort]").forEach(e=>{let i=+e.dataset.effort;if(!lib[i].required)lib[i].effortLevel=e.value});
-   $$("[data-exclusive]").forEach(e=>lib[+e.dataset.exclusive].exclusive=e.value==="1");    $$("[data-summeroff]").forEach(e=>lib[+e.dataset.summeroff].summerOff=e.value==="1");    $$("[data-timer-minutes]").forEach(e=>lib[+e.dataset.timerMinutes].timerMinutes=Math.max(0,Math.min(180,+e.value||0)));
+   $$("[data-exclusive]").forEach(e=>lib[+e.dataset.exclusive].exclusive=e.value==="1");    $$("[data-summeroff]").forEach(e=>lib[+e.dataset.summeroff].summerOff=e.value==="1");
+   lib.forEach(c=>{if("timerMinutes" in c)delete c.timerMinutes});
    $$("[data-miss]").forEach(e=>lib[+e.dataset.miss].missXp=+e.value);
    // Product standard: As Needed responsibilities always save with zero missed-task setback.
    lib.forEach(c=>{if(c.frequency==="needed")c.missXp=0});
@@ -4540,8 +4529,7 @@ $("#bulkBasics")?.addEventListener("click",async()=>{let basics=pending().filter
    pushupCount=0;
    render();
  });
- $$("[data-challenge]").forEach(b=>b.onclick=()=>{let cid=b.dataset.challenge,k=data.kids[kid],c=challengeLibrary().find(x=>x.id===cid);if(!c||!challengeAvailable(c,k.id))return;let mins=timerMinutesFor(c);if(mins){askConfirm(`Start ${c.name}?`,`Your ${mins}-minute timer will keep running even if you leave this screen. You can't submit the Mission until it reaches zero.`,`Start ${mins}-Minute Timer`,async()=>{let now=Date.now(),log={id:newId(),kidId:k.id,challengeId:cid,date:todayKey(),status:"open",timerMinutes:mins,timerStartedAt:now,createdAt:now};await patch({challengeLogs:arrayUnion(log)});render()})}else{askConfirm(`Finished ${c.name}?`,`Send this Growth Mission to a parent for approval?`,`Yes, I Did It`,async()=>{let log={id:newId(),kidId:k.id,challengeId:cid,date:todayKey(),status:"pending",createdAt:Date.now()};await patch({challengeLogs:arrayUnion(log)});render()})}});
- $$("[data-challenge-done]").forEach(b=>b.onclick=async()=>{let id=b.dataset.challengeDone,log=challengeLogs().find(x=>x.id===id&&x.status==="open");if(!log)return;if(!timerReady(log))return alert(`Keep going! ${formatTimer(timerRemainingMs(log))} left.`);let logs=challengeLogs().map(x=>x.id===id?{...x,status:"pending",submittedAt:Date.now()}:x);await patch({challengeLogs:logs});render()});
+ $$("[data-challenge]").forEach(b=>b.onclick=()=>{let cid=b.dataset.challenge,k=data.kids[kid],c=challengeLibrary().find(x=>x.id===cid);if(!c||!challengeAvailable(c,k.id))return;askConfirm(`Finished ${c.name}?`,`Send this Growth Mission to a parent for approval?`,`Yes, I Did It`,async()=>{let log={id:newId(),kidId:k.id,challengeId:cid,date:todayKey(),status:"pending",createdAt:Date.now()};await patch({challengeLogs:arrayUnion(log)});render()})});
  $$("[data-chapp]").forEach(b=>b.onclick=async()=>{let id=b.dataset.chapp;await runTransaction(db,async tr=>{let s=await tr.get(familyRef),d=s.data(),logs=d.challengeLogs||[],log=logs.find(x=>x.id===id);if(!log||log.status!=="pending")return;
  let base=DEFAULT_CHALLENGES.find(x=>x.id===log.challengeId);
  let saved=(d.challenges||[]).find(x=>x.id===log.challengeId);
