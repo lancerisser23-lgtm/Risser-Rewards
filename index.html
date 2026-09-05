@@ -2488,6 +2488,16 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
 </style>
 
 <!-- V56.2 full audit hardening: kid styling, school visibility persistence, accurate availability counts, Sunday settlement restoration -->
+
+<style>
+/* V60.11.1 — durable Vacation Mode status icon */
+.vacationModeIcon{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:1.35em;height:1.35em;margin-right:.35em;
+  font-size:1.05em;line-height:1;vertical-align:-.12em;
+}
+</style>
+
 </head>
 <body><div id="app" class="app"></div>
 <script type="module">
@@ -3382,7 +3392,8 @@ function oaTheme(k){
 }
 function oaEmblem(k){return oaTheme(k).emblem||"assets/oak-arrow-mark.png"}
 function oaAvatar(k){return oaTheme(k).avatar||`assets/avatars/${k.id}.png`}
-function oaIcon(name,cls=""){return `<img class="oaIcon ${cls}" src="assets/icons/${name}.svg" alt="" aria-hidden="true">`}
+function oaIcon(name,cls=""){
+  if(name==="vacation") return `<span class="vacationModeIcon" aria-hidden="true">🏕️</span>`;return `<img class="oaIcon ${cls}" src="assets/icons/${name}.svg" alt="" aria-hidden="true">`}
 const OA_ICON_MAP={
  "🛏️":"bed","🛏":"bed","🐾":"paw","📚":"book","📖":"book","🧹":"broom","🌱":"plant","🪴":"plant","🗑️":"trash","🧺":"laundry","🍽️":"dishes",
  "🚗":"car","🌿":"leaf","👨‍🍳":"chef","👩‍🍳":"chef","📦":"box","💪":"dumbbell","⚛️":"atom","🤝":"heart-hands",
@@ -3471,13 +3482,12 @@ function oaRows(items,k,type,limit=4){
    let fallback=type==="job"?"jobs":type==="growth"?"growth":"responsibilities";
    let value=type==="job"?(moneyEnabled()&&c.paid?money(autoChoreGross(c)):`${c.points||3} pts`):type==="growth"?`${c.xp||0} XP`:`${c.points||2} pts`;
    let attr=type==="growth"?`data-ch="${c.id}"`:`data-c="${c.id}"`;
-   return `<div class="oaRow" ${attr}><span class="ico">${oaIcon(oaTaskIcon(c,type))}</span><span class="nm">${c.name}</span><span class="val">${value}</span></div>`
+   let paused=(type!=="growth"&&!!c.vacationPaused);    return `<div class="oaRow ${paused?"oaVacationPaused":""}" ${attr}><span class="ico">${oaIcon(oaTaskIcon(c,type))}</span><span class="nm">${c.name}${paused?`<small style="display:block">Paused for Vacation</small>`:""}</span><span class="val">${paused?oaIcon("vacation","inline"):value}</span></div>`
  }).join("")}</div>`
 }
 function oaDashboard(k){
  let t=oaTheme(k),level=xpLevel(k),goal=rewardGoal(k),rp=visibleRewardProgress(k,goal);
- let resp=library().filter(c=>isResponsibility(c)&&eligible(c,k.id)&&canClaim(c,k.id));
- let jobs=library().filter(c=>isJob(c)&&eligible(c,k.id)&&canClaim(c,k.id));
+ let respLib=library().filter(c=>isResponsibility(c)&&eligible(c,k.id));  let jobsLib=library().filter(c=>isJob(c)&&eligible(c,k.id));  let resp=vacationMode()?respLib:respLib.filter(c=>canClaim(c,k.id));  let jobs=vacationMode()?jobsLib:jobsLib.filter(c=>canClaim(c,k.id));
  let growth=challengeLibrary().filter(c=>!c.parentOnly&&c.active!==false&&challengeAvailable(c,k.id));
  let v=weeklyVerse(), streak=Math.max(0,+k.streak||0);
  return `<div class="oaKidShell" data-world="${oaWorldId(k)}" style="--oa-hero:url('${t.hero}')">
@@ -3505,8 +3515,8 @@ function oaDashboard(k){
      </div>
    </div>
    <div class="oaBoard">
-     <div class="oaPanel"><div class="oaPanelHead"><b>${oaIcon("responsibilities","inline")} RESPONSIBILITIES</b><button data-v="responsibilities">See More</button></div>${oaRows(resp,k,"resp")}<div class="oaPanelFoot">${resp.length?`${resp.length} ready today`:"All caught up today"}</div></div>
-     <div class="oaPanel jobs"><div class="oaPanelHead"><b>${oaIcon("jobs","inline")} JOBS</b><button data-v="pick">See More</button></div>${oaRows(jobs,k,"job")}<div class="oaPanelFoot">${jobs.length} available now</div></div>
+     <div class="oaPanel"><div class="oaPanelHead"><b>${oaIcon("responsibilities","inline")} RESPONSIBILITIES</b><button data-v="responsibilities">See More</button></div>${oaRows(resp,k,"resp")}<div class="oaPanelFoot">${vacationMode()?`${resp.length} paused for vacation`:resp.length?`${resp.length} ready today`:"All caught up today"}</div></div>
+     <div class="oaPanel jobs"><div class="oaPanelHead"><b>${oaIcon("jobs","inline")} JOBS</b><button data-v="pick">See More</button></div>${oaRows(jobs,k,"job")}<div class="oaPanelFoot">${vacationMode()?`${jobs.length} paused for vacation`:`${jobs.length} available now`}</div></div>
      <div class="oaPanel growth"><div class="oaPanelHead"><b>${oaIcon("growth","inline")} GROWTH MISSIONS</b><button data-v="level">See More</button></div>${oaRows(growth,k,"growth")}<div class="oaPanelFoot">${growth.length} available now</div></div>
    </div>
    <div class="oaMotivation">
@@ -3542,16 +3552,16 @@ function verseBanner(){const v=weeklyVerse();return `<div class="verseBanner"><d
 function kidVerseBanner(){return isKidSession()?verseBanner():""}
 function header(){
  if(isKidExperience()){
-   return `<div class="v50KidTop">${oaBrand()}${view!=="kids"?`<button class="v50Back" data-v="kids" aria-label="Switch kid">← Switch Kid</button>`:""}</div>${summerMode()?`<div class="notice" style="margin-bottom:10px"><b>${oaIcon("summer","inline")} Summer Mode</b> — School responsibilities are taking a break.</div>`:""}${vacationMode()?`<div class="notice" style="margin-bottom:10px"><b>${oaIcon("vacation","inline")} Chores Paused</b> — Responsibilities and Jobs are paused. Growth Missions are still open.</div>`:""}`;
+   return `<div class="v50KidTop">${oaBrand()}${view!=="kids"?`<button class="v50Back" data-v="kids" aria-label="Switch kid">← Switch Kid</button>`:""}</div>${summerMode()?`<div class="notice" style="margin-bottom:10px"><b>${oaIcon("summer","inline")} Summer Mode</b> — School responsibilities are taking a break.</div>`:""}${vacationMode()?`<div class="notice" style="margin-bottom:10px"><b>${oaIcon("vacation","inline")} Vacation Mode</b> — Responsibilities and Jobs are paused. Growth Missions are still open.</div>`:""}`;
  }
  if(isKidExperienceView()){
-   return `<div class="oaParentPreviewBar">${oaBrand()}<div class="actions"><button class="btn secondary small" data-v="kids">← Switch Kid</button><button class="btn small" data-v="parent">${oaIcon("lock")}<span>Parent HQ</span></button></div></div>${summerMode()?`<div class="notice" style="margin-bottom:8px"><b>${oaIcon("summer","inline")} Summer Mode</b> — School responsibilities are hidden.</div>`:""}${vacationMode()?`<div class="notice" style="margin-bottom:8px"><b>${oaIcon("vacation","inline")} Chores Paused</b> — Responsibilities and Jobs are paused.</div>`:""}`;
+   return `<div class="oaParentPreviewBar">${oaBrand()}<div class="actions"><button class="btn secondary small" data-v="kids">← Switch Kid</button><button class="btn small" data-v="parent">${oaIcon("lock")}<span>Parent HQ</span></button></div></div>${summerMode()?`<div class="notice" style="margin-bottom:8px"><b>${oaIcon("summer","inline")} Summer Mode</b> — School responsibilities are hidden.</div>`:""}${vacationMode()?`<div class="notice" style="margin-bottom:8px"><b>${oaIcon("vacation","inline")} Vacation Mode</b> — Responsibilities and Jobs are paused.</div>`:""}`;
  }
  return `<div class="top">
    <div>${oaBrand()}</div>
    <div class="actions"><span class="badge">${modeLabel()}</span><span class="tiny muted">${user?.email||""}</span><button id="logout" class="btn secondary">Sign out</button></div>
  </div>
- ${verseBanner()}${summerMode()?`<div class="notice" style="margin-top:8px"><b>${oaIcon("summer","inline")} Summer Mode</b> — School responsibilities are hidden.</div>`:""}${vacationMode()?`<div class="notice" style="margin-top:8px"><b>${oaIcon("vacation","inline")} Chores Paused</b> — Responsibilities and Jobs are paused. Growth Missions remain open.</div>`:""}
+ ${verseBanner()}${summerMode()?`<div class="notice" style="margin-top:8px"><b>${oaIcon("summer","inline")} Summer Mode</b> — School responsibilities are hidden.</div>`:""}${vacationMode()?`<div class="notice" style="margin-top:8px"><b>${oaIcon("vacation","inline")} Vacation Mode</b> — Responsibilities and Jobs are paused. Growth Missions remain open.</div>`:""}
  <div class="tabs v50ParentTabs">
    <button data-v="kids" class="tab ${view==="kids"?"on":""}">${oaIcon("home")}<span>Kids</span></button>
    <button data-v="parent" class="tab ${view==="parent"?"on":""}">${oaIcon("lock")}<span>Parent HQ</span>${waitingApprovalCount()?` (${waitingApprovalCount()})`:""}</button>
@@ -3671,7 +3681,7 @@ function oaWorkRow(c,k,type){
  let done=(c.frequency!=="anytime")&&(c.exclusive?sharedApproved(c):approved(c,k.id));
  let q=type==="job"?autoChorePreview(c):null;
  let value=type==="job"?(moneyEnabled()&&c.paid&&q?.gross?money(q.gross):`${c.points||3} pts`):`${c.points||2} pts`;
- let state=paused?`<span class="oaState">${oaIcon("vacation","inline")} Chores Paused</span>`:liveTask?.status==="pending"?`<span class="oaState pending">${oaIcon("pending","inline")} Waiting for Mom or Dad</span>`:owner?`<span class="oaState">${oaIcon("lock","inline")} ${kidById(owner.kidId)?.name||"Claimed"}</span>`:done?`<span class="oaState">${oaIcon("check-circle","inline")} Done</span>`:allowed?`<span class="oaState ready">${oaIcon("check","inline")} I Did It</span>`:`<span class="oaState">Not now</span>`;
+ let state=paused?`<span class="oaState">${oaIcon("vacation","inline")} Paused for Vacation</span>`:liveTask?.status==="pending"?`<span class="oaState pending">${oaIcon("pending","inline")} Waiting for Mom or Dad</span>`:owner?`<span class="oaState">${oaIcon("lock","inline")} ${kidById(owner.kidId)?.name||"Claimed"}</span>`:done?`<span class="oaState">${oaIcon("check-circle","inline")} Done</span>`:allowed?`<span class="oaState ready">${oaIcon("check","inline")} I Did It</span>`:`<span class="oaState">Not now</span>`;
  return `<button class="oaListRow ${paused?"oaVacationPaused":""}" data-c="${c.id}" ${(allowed||paused)?"":"disabled"}><span class="oaListIcon">${oaIcon(oaTaskIcon(c,type))}</span><span><span class="oaListName">${c.name}</span><span class="oaListMeta">${paused?"Vacation Mode · ":""}${frequencyLabel(c)}</span></span><span><span class="oaListValue">${value}</span><br>${state}</span></button>`;
 }
 function journey(){
