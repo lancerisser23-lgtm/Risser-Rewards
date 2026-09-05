@@ -2238,6 +2238,189 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
 /* ===== OAK & ARROW V60.6 — TIMER-FREE TASKS & MISSIONS =====
    Responsibilities, Jobs and Growth Missions now use the same simple
    "I Did It" -> parent approval flow. Legacy timer values are ignored. */
+
+/* ===== OAK & ARROW V60.7 — MODERN SHIELD ENTRY SCREEN ===== */
+.oaEntryScreen{
+  min-height:100dvh;
+  position:relative;
+  overflow:hidden;
+  display:grid;
+  place-items:center;
+  padding:28px 18px;
+  background:#102f24;
+}
+.oaEntryBackdrop{
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(180deg,rgba(10,37,27,.18),rgba(10,37,27,.66)),
+    linear-gradient(90deg,rgba(12,43,31,.82),rgba(12,43,31,.26)),
+    url("assets/hero-mountains.png") center/cover no-repeat;
+}
+.oaEntryBackdrop:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:radial-gradient(circle at 50% 18%,rgba(205,172,91,.18),transparent 31%);
+  pointer-events:none;
+}
+.oaEntryCard{
+  position:relative;
+  z-index:2;
+  width:min(680px,100%);
+  padding:38px 42px 34px;
+  border:1px solid rgba(213,180,95,.58);
+  border-radius:30px;
+  background:rgba(250,246,234,.96);
+  box-shadow:0 28px 70px rgba(0,0,0,.33);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+.oaEntryBrand{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  margin-bottom:34px;
+}
+.oaEntryMark{
+  width:62px;
+  height:62px;
+  object-fit:contain;
+  filter:drop-shadow(0 5px 12px rgba(0,0,0,.12));
+}
+.oaEntryBrandName{
+  color:#173f2e;
+  font-size:18px;
+  font-weight:900;
+  letter-spacing:.22em;
+}
+.oaEntryCopy{
+  text-align:center;
+  margin-bottom:30px;
+}
+.oaEntryEyebrow{
+  color:#9b7a2f;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.18em;
+  margin-bottom:10px;
+}
+.oaEntryCopy h1{
+  margin:0;
+  color:#173f2e;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:clamp(42px,6vw,64px);
+  line-height:.98;
+  letter-spacing:-.035em;
+}
+.oaEntryCopy p{
+  margin:13px 0 0;
+  color:#5d685f;
+  font-size:16px;
+  font-weight:650;
+}
+.oaEntryActions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+.oaEntryChoice{
+  appearance:none;
+  border-radius:19px;
+  min-height:112px;
+  padding:18px 18px;
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  gap:13px;
+  align-items:center;
+  text-align:left;
+  cursor:pointer;
+  transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease;
+}
+.oaEntryChoice:hover{
+  transform:translateY(-2px);
+}
+.oaEntryFamily{
+  background:#173f2e;
+  border:1px solid #173f2e;
+  color:#fffaf0;
+  box-shadow:0 10px 24px rgba(23,63,46,.18);
+}
+.oaEntryParent{
+  background:#fffaf0;
+  border:1px solid #c9ae68;
+  color:#173f2e;
+  box-shadow:0 8px 20px rgba(23,63,46,.08);
+}
+.oaEntryChoiceIcon{
+  width:46px;
+  height:46px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  flex:none;
+}
+.oaEntryFamily .oaEntryChoiceIcon{
+  background:rgba(255,250,240,.12);
+  border:1px solid rgba(213,180,95,.48);
+}
+.oaEntryParent .oaEntryChoiceIcon{
+  background:#f3ead5;
+  border:1px solid #d8c084;
+}
+.oaEntryChoiceIcon .oaIcon{
+  width:24px;
+  height:24px;
+}
+.oaEntryFamily .oaEntryChoiceIcon .oaIcon{
+  filter:brightness(0) invert(1);
+}
+.oaEntryChoiceText{
+  display:block;
+  min-width:0;
+}
+.oaEntryChoiceText b{
+  display:block;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:22px;
+  line-height:1.05;
+}
+.oaEntryChoiceText small{
+  display:block;
+  margin-top:6px;
+  font-size:11px;
+  line-height:1.3;
+  font-weight:650;
+  opacity:.74;
+}
+.oaEntryArrow{
+  font-size:24px;
+  font-weight:700;
+  color:#caa95d;
+}
+.oaEntryTagline{
+  margin-top:30px;
+  padding-top:20px;
+  border-top:1px solid rgba(23,63,46,.13);
+  text-align:center;
+  color:#173f2e;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:18px;
+  font-style:italic;
+  font-weight:700;
+}
+@media(max-width:650px){
+  .oaEntryScreen{padding:18px 13px}
+  .oaEntryCard{padding:28px 20px 26px;border-radius:24px}
+  .oaEntryBrand{margin-bottom:26px}
+  .oaEntryMark{width:54px;height:54px}
+  .oaEntryBrandName{font-size:15px;letter-spacing:.18em}
+  .oaEntryActions{grid-template-columns:1fr}
+  .oaEntryChoice{min-height:94px}
+  .oaEntryCopy h1{font-size:43px}
+  .oaEntryTagline{margin-top:24px}
+}
 </style>
 
 <!-- V56.2 full audit hardening: kid styling, school visibility persistence, accurate availability counts, Sunday settlement restoration -->
@@ -3265,15 +3448,43 @@ function header(){
  </div>`;
 }
 function login(){
- return `<div class="login card">
-   <div style="font-size:68px">🐺 🦁 🐍 🦄</div>
-   <h1>Oak &amp; Arrow</h1>
-   <p class="muted">Kids can jump in fast. Parents unlock the controls.</p>
-   <div class="actions" style="justify-content:center;margin-top:16px">
-     <button id="kidLogin" class="btn">🏠 Kid Mode</button>
-     <button id="google" class="btn google">G&nbsp; Parent Sign In</button>
+ return `<section class="oaEntryScreen">
+   <div class="oaEntryBackdrop"></div>
+   <div class="oaEntryCard">
+     <div class="oaEntryBrand">
+       <img src="assets/oak-arrow-mark.png" alt="Oak & Arrow" class="oaEntryMark">
+       <div class="oaEntryBrandName">OAK &amp; ARROW</div>
+     </div>
+
+     <div class="oaEntryCopy">
+       <div class="oaEntryEyebrow">YOUR FAMILY ADVENTURE STARTS HERE</div>
+       <h1>Ready for an adventure?</h1>
+       <p>Choose where you want to go.</p>
+     </div>
+
+     <div class="oaEntryActions">
+       <button id="kidLogin" class="oaEntryChoice oaEntryFamily">
+         <span class="oaEntryChoiceIcon">${oaIcon("family")}</span>
+         <span class="oaEntryChoiceText">
+           <b>Family Board</b>
+           <small>Kids, chores, jobs &amp; adventures</small>
+         </span>
+         <span class="oaEntryArrow">→</span>
+       </button>
+
+       <button id="google" class="oaEntryChoice oaEntryParent">
+         <span class="oaEntryChoiceIcon">${oaIcon("shield")}</span>
+         <span class="oaEntryChoiceText">
+           <b>Parent HQ</b>
+           <small>Manage the family adventure</small>
+         </span>
+         <span class="oaEntryArrow">→</span>
+       </button>
+     </div>
+
+     <div class="oaEntryTagline">Less scrolling. More childhood.</div>
    </div>
- </div>`;
+ </section>`;
 }
 function setup(){return `<div class="login card"><h2>🏡 Create Your Family</h2><button id="createFamily" class="btn">Create Family</button></div>`}
 
