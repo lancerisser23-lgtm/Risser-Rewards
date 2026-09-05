@@ -13,7 +13,7 @@
 <link rel="shortcut icon" href="./oak-arrow-icon-192.png?v=513">
 <link rel="apple-touch-icon" sizes="180x180" href="./oak-arrow-touch.png?v=513">
 <title>Oak &amp; Arrow</title>
-<meta name="application-version" content="50.3.8">
+<meta name="application-version" content="50.3.9">
 <style>
 :root{--g:#1f6848;--bg:#f5f5ef;--ink:#182019;--muted:#68736b;--line:#e0e6de;--gold:#d6a62f;--red:#b64e45;--amber:#986a14;--shadow:0 10px 28px rgba(28,64,41,.10)}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-family:ui-rounded,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
@@ -2480,6 +2480,11 @@ body:not(.parentMode) #app{max-width:1500px;margin:0 auto}
   object-fit:cover!important;object-position:center center!important;transform:none!important;
   filter:none!important;image-rendering:auto!important;background:transparent!important;
 }
+
+/* ===== V60.11 — Smart Job Balance + Vacation Guard ===== */
+.oaVacationPaused{opacity:.78!important;cursor:pointer!important;background:linear-gradient(90deg,#fff9e8,#fffdf8)!important}
+.oaVacationPaused .oaListIcon{background:#fff0c7!important}
+.oaVacationPaused .oaState{color:#8a6818!important;font-weight:800!important}
 </style>
 
 <!-- V56.2 full audit hardening: kid styling, school visibility persistence, accurate availability counts, Sunday settlement restoration -->
@@ -2706,7 +2711,8 @@ function shutsOffInSummer(c){return c?.summerOff!=null?!!c.summerOff:isSchoolCho
 function library(){
   return rawLibrary().map(c=>{
     if(summerMode()&&shutsOffInSummer(c))return {...c,active:false,summerPaused:true};
-    if(vacationMode()&&c.required)return {...c,active:false,vacationPaused:true};
+    // Vacation Mode pauses all Responsibilities + Jobs without hiding them.
+    if(vacationMode())return {...c,vacationPaused:true};
     return c;
   });
 }
@@ -2728,6 +2734,13 @@ async function applyYesterdayMisses(){
   await runTransaction(db,async tr=>{
     let s=await tr.get(familyRef),d=s.data();
     if(d.vacationMode||vacationDay(date,d))return;
+    const hadWorkActivity=(d.tasks||[]).some(t=>{let completedMs=+t.submittedAt||+t.approvedAt||0;return completedMs&&dateKeyFromMs(completedMs)===date&&["pending","approved"].includes(t.status)});
+    if(!hadWorkActivity){
+      let dayStart=new Date(date+"T00:00:00").getTime(),now=Date.now(),history=[...(d.vacationHistory||[])];
+      history.push({start:dayStart,end:null,auto:true,reason:"no_work_activity",detectedAt:now,forDate:date});
+      tr.update(familyRef,{vacationMode:true,vacationHistory:history.slice(-50),autoVacationNotice:{forDate:date,detectedAt:now,reason:"no_work_activity"}});
+      return;
+    }
     let kids=(d.kids||[]).map(k=>({...k})),ledger=[...(d.ledger||[])],changed=false;
     let saved=Array.isArray(d.choreLibrary)&&d.choreLibrary.length?d.choreLibrary:DEFAULTS;
     let lib=saved.map(c=>{
@@ -2799,10 +2812,12 @@ function weeklyTotalCap(){return Math.max(0,+data.weeklyTotalCap||25)}
 function weeklyCashCap(){return Math.max(0,+data.weeklyCashCap||15)}
 function cashPct(){return Math.min(100,Math.max(0,+data.cashSplitPct||60))}
 function futurePct(){return 100-cashPct()}
-function effortMultiplier(x){return x==="big"?3:x==="hard"?2:1}
-function autoBaseReward(){return Math.max(.5,Math.round((weeklyTotalCap()*.08)*2)/2)}
-function autoChoreGross(c){if(!moneyEnabled()||!c?.paid)return 0;if(c.useCustomAmount)return Math.max(0,+c.customAmount||0);return +(autoBaseReward()*effortMultiplier(c.effortLevel||"helping")).toFixed(2)}
+function effortMultiplier(x){return x==="easy"?.6:x==="hard"?1.5:x==="big"?2.25:1}
+function effortLabel(x){return x==="easy"?"Easy":x==="hard"?"Hard":x==="big"?"Big Job":"Standard"}
+function autoBaseReward(){return Math.max(.5,Math.round((weeklyTotalCap()/5)*4)/4)}
+function autoChoreGross(c){if(!moneyEnabled()||!c?.paid)return 0;if(c.useCustomAmount)return Math.max(0,+c.customAmount||0);return +(Math.round(autoBaseReward()*effortMultiplier(c.effortLevel||"standard")*4)/4).toFixed(2)}
 function autoChorePreview(c){let gross=autoChoreGross(c),cash=+(gross*cashPct()/100).toFixed(2);return {gross,cash,future:+(gross-cash).toFixed(2)}}
+function jobBalancePreview(){let base=autoBaseReward();return {easy:+(Math.round(base*effortMultiplier("easy")*4)/4).toFixed(2),standard:+base.toFixed(2),hard:+(Math.round(base*effortMultiplier("hard")*4)/4).toFixed(2),big:+(Math.round(base*effortMultiplier("big")*4)/4).toFixed(2)}}
 function weekStartMs(){
  let d=new Date(),day=(d.getDay()+6)%7;d.setHours(0,0,0,0);d.setDate(d.getDate()-day);return d.getTime()
 }
@@ -2940,6 +2955,7 @@ function rewardedClaimsToday(c){
   return (data.tasks||[]).filter(t=>t.choreId===c.id&&t.status==="approved"&&(t.approvedAt||0)>=start.getTime()).length;
 }
 function canClaim(c,kidId){
+  if(c?.vacationPaused)return false;
   if(!eligible(c,kidId))return false;
 
   if(c.frequency==="everyhours"){
@@ -3526,16 +3542,16 @@ function verseBanner(){const v=weeklyVerse();return `<div class="verseBanner"><d
 function kidVerseBanner(){return isKidSession()?verseBanner():""}
 function header(){
  if(isKidExperience()){
-   return `<div class="v50KidTop">${oaBrand()}${view!=="kids"?`<button class="v50Back" data-v="kids" aria-label="Switch kid">← Switch Kid</button>`:""}</div>${summerMode()?`<div class="notice" style="margin-bottom:10px"><b>${oaIcon("summer","inline")} Summer Mode</b> — School responsibilities are taking a break.</div>`:""}${vacationMode()?`<div class="notice" style="margin-bottom:10px"><b>${oaIcon("vacation","inline")} Vacation Mode</b> — Responsibilities are paused. Growth is still open.</div>`:""}`;
+   return `<div class="v50KidTop">${oaBrand()}${view!=="kids"?`<button class="v50Back" data-v="kids" aria-label="Switch kid">← Switch Kid</button>`:""}</div>${summerMode()?`<div class="notice" style="margin-bottom:10px"><b>${oaIcon("summer","inline")} Summer Mode</b> — School responsibilities are taking a break.</div>`:""}${vacationMode()?`<div class="notice" style="margin-bottom:10px"><b>${oaIcon("vacation","inline")} Chores Paused</b> — Responsibilities and Jobs are paused. Growth Missions are still open.</div>`:""}`;
  }
  if(isKidExperienceView()){
-   return `<div class="oaParentPreviewBar">${oaBrand()}<div class="actions"><button class="btn secondary small" data-v="kids">← Switch Kid</button><button class="btn small" data-v="parent">${oaIcon("lock")}<span>Parent HQ</span></button></div></div>${summerMode()?`<div class="notice" style="margin-bottom:8px"><b>${oaIcon("summer","inline")} Summer Mode</b> — School responsibilities are hidden.</div>`:""}${vacationMode()?`<div class="notice" style="margin-bottom:8px"><b>${oaIcon("vacation","inline")} Vacation Mode</b> — Responsibilities are paused.</div>`:""}`;
+   return `<div class="oaParentPreviewBar">${oaBrand()}<div class="actions"><button class="btn secondary small" data-v="kids">← Switch Kid</button><button class="btn small" data-v="parent">${oaIcon("lock")}<span>Parent HQ</span></button></div></div>${summerMode()?`<div class="notice" style="margin-bottom:8px"><b>${oaIcon("summer","inline")} Summer Mode</b> — School responsibilities are hidden.</div>`:""}${vacationMode()?`<div class="notice" style="margin-bottom:8px"><b>${oaIcon("vacation","inline")} Chores Paused</b> — Responsibilities and Jobs are paused.</div>`:""}`;
  }
  return `<div class="top">
    <div>${oaBrand()}</div>
    <div class="actions"><span class="badge">${modeLabel()}</span><span class="tiny muted">${user?.email||""}</span><button id="logout" class="btn secondary">Sign out</button></div>
  </div>
- ${verseBanner()}${summerMode()?`<div class="notice" style="margin-top:8px"><b>${oaIcon("summer","inline")} Summer Mode</b> — School responsibilities are hidden.</div>`:""}${vacationMode()?`<div class="notice" style="margin-top:8px"><b>${oaIcon("vacation","inline")} Vacation Mode</b> — Required responsibilities are paused. Growth Missions remain open.</div>`:""}
+ ${verseBanner()}${summerMode()?`<div class="notice" style="margin-top:8px"><b>${oaIcon("summer","inline")} Summer Mode</b> — School responsibilities are hidden.</div>`:""}${vacationMode()?`<div class="notice" style="margin-top:8px"><b>${oaIcon("vacation","inline")} Chores Paused</b> — Responsibilities and Jobs are paused. Growth Missions remain open.</div>`:""}
  <div class="tabs v50ParentTabs">
    <button data-v="kids" class="tab ${view==="kids"?"on":""}">${oaIcon("home")}<span>Kids</span></button>
    <button data-v="parent" class="tab ${view==="parent"?"on":""}">${oaIcon("lock")}<span>Parent HQ</span>${waitingApprovalCount()?` (${waitingApprovalCount()})`:""}</button>
@@ -3651,12 +3667,12 @@ function oaKidPage(k,title,subtitle,active,body,extraClass=""){
  </section>`;
 }
 function oaWorkRow(c,k,type){
- let allowed=canClaim(c,k.id), owner=c.exclusive?sharedLive(c):null, liveTask=live(c,k.id);
+ let paused=!!c.vacationPaused,allowed=canClaim(c,k.id), owner=c.exclusive?sharedLive(c):null, liveTask=live(c,k.id);
  let done=(c.frequency!=="anytime")&&(c.exclusive?sharedApproved(c):approved(c,k.id));
  let q=type==="job"?autoChorePreview(c):null;
  let value=type==="job"?(moneyEnabled()&&c.paid&&q?.gross?money(q.gross):`${c.points||3} pts`):`${c.points||2} pts`;
- let state=liveTask?.status==="pending"?`<span class="oaState pending">${oaIcon("pending","inline")} Waiting for Mom or Dad</span>`:owner?`<span class="oaState">${oaIcon("lock","inline")} ${kidById(owner.kidId)?.name||"Claimed"}</span>`:done?`<span class="oaState">${oaIcon("check-circle","inline")} Done</span>`:allowed?`<span class="oaState ready">${oaIcon("check","inline")} I Did It</span>`:`<span class="oaState">Not now</span>`;
- return `<button class="oaListRow" data-c="${c.id}" ${allowed?"":"disabled"}><span class="oaListIcon">${oaIcon(oaTaskIcon(c,type))}</span><span><span class="oaListName">${c.name}</span><span class="oaListMeta">${frequencyLabel(c)}</span></span><span><span class="oaListValue">${value}</span><br>${state}</span></button>`;
+ let state=paused?`<span class="oaState">${oaIcon("vacation","inline")} Chores Paused</span>`:liveTask?.status==="pending"?`<span class="oaState pending">${oaIcon("pending","inline")} Waiting for Mom or Dad</span>`:owner?`<span class="oaState">${oaIcon("lock","inline")} ${kidById(owner.kidId)?.name||"Claimed"}</span>`:done?`<span class="oaState">${oaIcon("check-circle","inline")} Done</span>`:allowed?`<span class="oaState ready">${oaIcon("check","inline")} I Did It</span>`:`<span class="oaState">Not now</span>`;
+ return `<button class="oaListRow ${paused?"oaVacationPaused":""}" data-c="${c.id}" ${(allowed||paused)?"":"disabled"}><span class="oaListIcon">${oaIcon(oaTaskIcon(c,type))}</span><span><span class="oaListName">${c.name}</span><span class="oaListMeta">${paused?"Vacation Mode · ":""}${frequencyLabel(c)}</span></span><span><span class="oaListValue">${value}</span><br>${state}</span></button>`;
 }
 function journey(){
  let k=data.kids[kid],l=xpLevel(k),ps=rewardPointStats(k.id),r=reliability(k),milestones=oaMilestones(k);
@@ -3706,7 +3722,7 @@ function oaTodoSubnav(active){
 }
 function responsibilityView(){
  let k=data.kids[kid],lib=library().filter(c=>isResponsibility(c)&&eligible(c,k.id));
- let ready=lib.filter(c=>canClaim(c,k.id)), other=lib.filter(c=>!canClaim(c,k.id));
+ let ready=vacationMode()?lib:lib.filter(c=>canClaim(c,k.id)), other=vacationMode()?[]:lib.filter(c=>!canClaim(c,k.id));
  return oaKidPage(k,"Responsibilities","The things that are yours to handle. Build the habit, then keep moving.","responsibilities",`
    ${oaTodoSubnav("responsibilities")}
    <div class="oaContentCard"><div class="oaList">${ready.map(c=>oaWorkRow(c,k,"resp")).join("")||`<div style="padding:18px;text-align:center">✅ You're caught up right now.</div>`}</div>
@@ -3715,7 +3731,7 @@ function responsibilityView(){
 }
 function pick(){
  let k=data.kids[kid],lib=library().filter(c=>isJob(c)&&eligible(c,k.id));
- let ready=lib.filter(c=>canClaim(c,k.id)), other=lib.filter(c=>!canClaim(c,k.id));
+ let ready=vacationMode()?lib:lib.filter(c=>canClaim(c,k.id)), other=vacationMode()?[]:lib.filter(c=>!canClaim(c,k.id));
  return oaKidPage(k,"Jobs",moneyEnabled()?"Extra work. Real earning. Pick something available and get after it.":"Extra ways to pitch in and help the family.","jobs",`
    ${oaTodoSubnav("jobs")}
    <div class="oaContentCard oaJobs"><div class="oaList">${ready.map(c=>oaWorkRow(c,k,"job")).join("")||`<div style="padding:18px;text-align:center">No jobs available right now.</div>`}</div>
@@ -3925,7 +3941,7 @@ function settings(){
    </div>
  </div>
  ${summerMode()?`<div class="v5035ModeNote">${oaIcon("summer","inline")} <b>Summer Mode is on.</b> School responsibilities are hidden.</div>`:""}
- ${vacationMode()?`<div class="v5035ModeNote">${oaIcon("vacation","inline")} <b>Vacation Mode is on.</b> Required responsibilities and missed-chore penalties are paused.</div>`:""}
+ ${vacationMode()?`<div class="v5035ModeNote">${oaIcon("vacation","inline")} <b>Vacation Mode is on.</b> Responsibilities, Jobs and missed-chore penalties are paused.</div>`:""} ${data.autoVacationNotice?`<div class="notice warn" style="margin:8px 0 12px"><b>${oaIcon("vacation","inline")} Vacation Mode turned on automatically.</b><div class="muted" style="margin-top:4px">No Responsibilities or Jobs were completed on ${new Date(data.autoVacationNotice.forDate+"T12:00:00").toLocaleDateString()}. Oak & Arrow paused chores to protect the kids from missed-task penalties.</div></div>`:""}
 
  
  <div class="card oaParentWorldSettings">
@@ -3958,6 +3974,7 @@ function settings(){
 
  <div class="card" id="workSettingsV50">
    <div class="v50SectionTitle"><div><h2 style="margin:0">${oaIcon("responsibilities","inline")} Responsibilities & Jobs</h2><div class="muted">Keep it simple: choose who does it, whether it's a Responsibility or Job, and when it happens. Open More Options only when you need them.</div></div></div>
+   ${(()=>{let b=jobBalancePreview();return `<div class="notice" style="margin-bottom:12px"><b>${oaIcon("money","inline")} Smart Job Balance</b><div class="muted" style="margin-top:4px">Your ${money(weeklyTotalCap())} weekly earning max is balanced around about <b>5 Standard jobs/week</b>. Suggested values: Easy ${money(b.easy)} · Standard ${money(b.standard)} · Hard ${money(b.hard)} · Big Job ${money(b.big)}. Custom-priced jobs stay exactly what you set, and the weekly cap still protects the total.</div></div>`})()}
    <div style="display:grid;gap:10px">${lib.map((c,i)=>`<details class="v50Advanced masterCard"><summary>${oaIcon(oaTaskIcon(c,c.required?"resp":"job"),"inline")} ${c.name} <span class="tiny muted" data-work-type="${i}">· ${c.required?"Responsibility":"Job"} · ${frequencyLabel(c)}</span></summary><div class="v50AdvancedBody">
      <div class="tiny muted" style="margin-bottom:6px"><b>Who does this?</b></div><div class="assignments">${data.kids.map(k=>`<label><input data-assign="${i}|${k.id}" type="checkbox" ${(c.assignedTo||[]).includes(k.id)?"checked":""}> ${k.name}</label>`).join("")}</div>
      <div class="settingsGrid v505SimpleWork">
@@ -3965,12 +3982,14 @@ function settings(){
        <div><label>Oak & Arrow Icon</label>${oaVisualIconPicker(oaTaskIcon(c,c.required?"resp":"job"),"data-chore-icon",i)}</div>
        <div><label>What is it?</label><select data-required="${i}"><option value="1" ${c.required?"selected":""}>Responsibility — expected</option><option value="0" ${!c.required?"selected":""}>Job — optional earning</option></select></div>
        <div><label>When?</label><select data-frequency="${i}">${v50FreqOptions(c)}</select></div>${v502DayPicker(c,"chore",i)}
-       <div data-effort-wrap="${i}" style="${!c.required&&c.paid?"":"display:none"}"><label>Job size</label><select data-effort="${i}"><option value="helping" ${(c.effortLevel||"helping")==="helping"?"selected":""}>Small</option><option value="hard" ${c.effortLevel==="hard"?"selected":""}>Medium</option><option value="big" ${c.effortLevel==="big"?"selected":""}>Big</option></select></div>
+       <div data-effort-wrap="${i}" style="${!c.required&&c.paid?"":"display:none"}"><label>Job size</label><select data-effort="${i}"><option value="easy" ${c.effortLevel==="easy"?"selected":""}>Easy</option><option value="standard" ${!["easy","hard","big"].includes(c.effortLevel||"")?"selected":""}>Standard</option><option value="hard" ${c.effortLevel==="hard"?"selected":""}>Hard</option><option value="big" ${c.effortLevel==="big"?"selected":""}>Big Job</option></select><div class="tiny muted" style="margin-top:4px">Auto: ${money(autoChoreGross({...c,paid:true,useCustomAmount:false}))}</div></div>
        <input data-points="${i}" type="hidden" value="${Math.max(0,c.points!=null?+c.points:(c.required?2:3))}">
      </div>
      <details class="v505MoreOptions"><summary>More Options</summary><div class="settingsGrid v505MoreGrid">
        <div><label>Active?</label><select data-active-select="${i}"><option value="1" ${c.active!==false?"selected":""}>Yes</option><option value="0" ${c.active===false?"selected":""}>No</option></select><input data-active="${i}" type="checkbox" ${c.active!==false?"checked":""} style="display:none"></div>
        <div data-paid-wrap="${i}" style="${c.required?"display:none":""}"><label>Earn real money?</label><select data-paid="${i}"><option value="0" ${!c.paid?"selected":""}>No</option><option value="1" ${c.paid?"selected":""}>Yes</option></select></div>
+       <div data-custom-wrap="${i}" style="${!c.required&&c.paid?"":"display:none"}"><label>Earning amount</label><select data-custom-toggle="${i}"><option value="0" ${!c.useCustomAmount?"selected":""}>Automatic — based on job size</option><option value="1" ${c.useCustomAmount?"selected":""}>Custom amount</option></select></div>
+       <div data-custom-amount-wrap="${i}" style="${!c.required&&c.paid&&c.useCustomAmount?"":"display:none"}"><label>Custom total</label><input data-custom-amount="${i}" type="number" min="0" step="0.25" value="${Math.max(0,+c.customAmount||0)}"></div>
        <div data-hours-wrap="${i}" style="${c.frequency==="everyhours"?"":"display:none"}"><label>Available again after</label><input data-hours="${i}" type="number" min="1" max="24" value="${Math.max(1,+c.intervalHours||1)}"><div class="tiny muted">hours</div></div>
        <div data-interval-wrap="${i}" style="${c.frequency==="everyx"?"":"display:none"}"><label>Available every</label><input data-interval="${i}" type="number" min="1" max="365" value="${Math.max(1,+c.intervalDays||7)}"><div class="tiny muted">days</div></div>
        <div><label>Can more than one kid do it?</label><select data-exclusive="${i}"><option value="0" ${!c.exclusive?"selected":""}>Yes — each kid</option><option value="1" ${c.exclusive?"selected":""}>No — first kid only</option></select></div>
@@ -3986,8 +4005,8 @@ function settings(){
        <div><label>Type</label><select id="newRequired"><option value="1">Responsibility</option><option value="0" selected>Job</option></select></div>
        <div><label>Earn money?</label><select id="newPaid"><option value="0">No</option><option value="1">Yes</option></select></div>
      </div>
-     <input id="newPoints" type="hidden" value="3"><input id="newEffort" type="hidden" value="helping"><input id="newCustomAmount" type="hidden" value="0"><input id="newCustomToggle" type="checkbox" style="display:none">
-     <div id="newMoneyArea" style="display:none"><div id="newPayFields"><div id="newAutoPreview"></div><div id="newCustomWrap"></div></div></div><div id="requiredMoneyOverride" style="display:none"><button id="allowRequiredPay" class="btn secondary small">Allow Money</button></div>
+     <input id="newPoints" type="hidden" value="3">
+     <div id="newMoneyArea" style="display:none;margin-top:10px"><div id="newPayFields" class="settingsGrid"><div><label>Job size</label><select id="newEffort"><option value="easy">Easy</option><option value="standard" selected>Standard</option><option value="hard">Hard</option><option value="big">Big Job</option></select></div><div><label>Earning amount</label><select id="newCustomToggle"><option value="0" selected>Automatic</option><option value="1">Custom</option></select></div><div id="newCustomWrap" style="display:none"><label>Custom total</label><input id="newCustomAmount" type="number" min="0" step="0.25" value="0"></div><div id="newAutoPreview" class="notice"></div></div></div><div id="requiredMoneyOverride" style="display:none"><button id="allowRequiredPay" class="btn secondary small">Allow Money</button></div>
      <button id="createCustom" class="btn secondary" style="margin-top:10px">Add</button>
    </div></details>
  </div>
@@ -4318,8 +4337,8 @@ function bind(){
   $("#vacationToggleTop")?.addEventListener("click",async()=>{
     let on=!vacationMode(),h=[...(data.vacationHistory||[])],now=Date.now();
     if(on)h.push({start:now,end:null});else{for(let i=h.length-1;i>=0;i--){if(!h[i].end){h[i]={...h[i],end:now};break}}}
-    h=h.slice(-50);data={...data,vacationMode:on,vacationHistory:h};render();
-    try{await patch({vacationMode:on,vacationHistory:h})}catch(err){console.error("Could not update Vacation Mode",err);alert("Could not update Vacation Mode. Please try again.")}
+    h=h.slice(-50);data={...data,vacationMode:on,vacationHistory:h,autoVacationNotice:null};render();
+    try{await patch({vacationMode:on,vacationHistory:h,autoVacationNotice:null})}catch(err){console.error("Could not update Vacation Mode",err);alert("Could not update Vacation Mode. Please try again.")}
   });
   $("#google")?.addEventListener("click",async()=>{try{await signInWithPopup(auth,provider)}catch(e){if(/popup|blocked|cancelled/i.test(e.code||""))await signInWithRedirect(auth,provider);else alert(e.message)}});
  $("#kidLogin")?.addEventListener("click",async()=>{try{await signInAnonymously(auth)}catch(e){alert("Kid Mode needs Anonymous sign-in enabled in Firebase first.")}});
@@ -4356,22 +4375,23 @@ $("#futureFundSimple")?.addEventListener("change",e=>{let w=$("#futureFundSimple
  $$("[data-active-select]").forEach(e=>e.onchange=()=>{let box=$(`[data-active="${e.dataset.activeSelect}"]`);if(box)box.checked=e.value==="1"});
 $$("[data-kidpick]").forEach(b=>b.onclick=()=>{kid=+b.dataset.kidpick;pushupCount=0;view="week";oaWatchSelectedKidProfile(data.kids[kid]?.id);render()});
 
- $$("[data-c]").forEach(b=>b.onclick=()=>{
+ $$('[data-c]').forEach(b=>b.onclick=()=>{
    const choreId=b.dataset.c,k=data.kids[kid],c=library().find(x=>x.id===choreId);
-   if(!k||!c||!canClaim(c,k.id))return;
-   const finish=async()=>{
-     const now=Date.now(),q=autoChorePreview(c);
-     const task={id:newId(),choreId:c.id,kidId:k.id,name:c.name,required:!!c.required,paid:!!c.paid,points:+c.points||0,xp:+c.xp||10,
-       cash:q?.cash||0,car:q?.future||0,status:"pending",periodKey:periodKey(c),createdAt:now,submittedAt:now};
-     try{
-       await patch({tasks:arrayUnion(task)});
-       render();
-     }catch(err){
-       console.error("Could not submit task",err);
-       alert("Ask Mom or Dad to open Parent Mode on this device, then try again.");
-     }
+   if(!k||!c)return;
+   const submitFinished=async(chore)=>{
+     const now=Date.now(),q=autoChorePreview(chore);
+     const task={id:newId(),choreId:chore.id,kidId:k.id,name:chore.name,required:!!chore.required,paid:!!chore.paid,points:+chore.points||0,xp:+chore.xp||10,cash:q?.cash||0,car:q?.future||0,status:"pending",periodKey:periodKey(chore),createdAt:now,submittedAt:now};
+     try{await patch({tasks:arrayUnion(task)});render()}catch(err){console.error("Could not submit task",err);alert("Ask Mom or Dad to open Parent Mode on this device, then try again.")}
    };
-   askConfirm(`Did you finish ${c.name}?`,`We'll tell Mom or Dad you're done.`,`Yes, I Did It`,finish);
+   if(c.vacationPaused){
+     askConfirm("You're back?",`If you're home again, Oak & Arrow will turn Vacation Mode off and send ${c.name} to Mom or Dad.`,"Yes, We're Back",async()=>{
+       let h=[...(data.vacationHistory||[])],now=Date.now();for(let i=h.length-1;i>=0;i--){if(!h[i].end){h[i]={...h[i],end:now,endedByKid:k.id};break}}h=h.slice(-50);
+       data={...data,vacationMode:false,vacationHistory:h,autoVacationNotice:null};
+       try{await patch({vacationMode:false,vacationHistory:h,autoVacationNotice:null});let liveChore=rawLibrary().find(x=>x.id===choreId)||c;if(canClaim(liveChore,k.id))await submitFinished(liveChore);else render()}catch(err){console.error("Could not end Vacation Mode",err);alert("Could not turn Vacation Mode off. Ask Mom or Dad to open Parent Mode and try again.")}
+     });return;
+   }
+   if(!canClaim(c,k.id))return;
+   askConfirm(`Did you finish ${c.name}?`,`We'll tell Mom or Dad you're done.`,`Yes, I Did It`,()=>submitFinished(c));
  });
 
  $$("[data-unlock-keep]").forEach(b=>b.onclick=()=>{let k=data.kids[kid];if(!k)return;localStorage.setItem(oaUnlockSeenKey(k.id),b.dataset.unlockKeep);render()});
@@ -4695,14 +4715,16 @@ ${err?.message||"Please try again."}`);
    if(isResp){if(paid)paid.value="0";if(effort)effort.value="helping";if(wrap)wrap.style.display="none";if(paidWrap)paidWrap.style.display="none";if(missWrap)missWrap.style.display="block";if(miss&&miss.value==="0")miss.value="5"}
    else{if(paidWrap)paidWrap.style.display="block";if(missWrap)missWrap.style.display="none";if(wrap)wrap.style.display=paid?.value==="1"?"block":"none"}
  }));
- $$("[data-paid]").forEach(sel=>sel.addEventListener("change",()=>{
-   let i=+sel.dataset.paid,isResp=$(`[data-required="${i}"]`)?.value==="1",wrap=$(`[data-effort-wrap="${i}"]`);
-   if(isResp){sel.value="0";if(wrap)wrap.style.display="none"}else if(wrap)wrap.style.display=sel.value==="1"?"block":"none";
+ $$('[data-paid]').forEach(sel=>sel.addEventListener("change",()=>{
+   let i=+sel.dataset.paid,isResp=$(`[data-required="${i}"]`)?.value==="1",wrap=$(`[data-effort-wrap="${i}"]`),cw=$(`[data-custom-wrap="${i}"]`),ca=$(`[data-custom-amount-wrap="${i}"]`);
+   if(isResp){sel.value="0";if(wrap)wrap.style.display="none";if(cw)cw.style.display="none";if(ca)ca.style.display="none"}
+   else{let on=sel.value==="1";if(wrap)wrap.style.display=on?"block":"none";if(cw)cw.style.display=on?"block":"none";if(ca)ca.style.display=on&&$(`[data-custom-toggle="${i}"]`)?.value==="1"?"block":"none"}
  }));
+ $$('[data-custom-toggle]').forEach(sel=>sel.addEventListener("change",()=>{let i=+sel.dataset.customToggle,w=$(`[data-custom-amount-wrap="${i}"]`);if(w)w.style.display=sel.value==="1"?"block":"none"}));
 
  $$("[data-frequency]").forEach(e=>e.addEventListener("change",()=>{let i=e.dataset.frequency,w=document.querySelector(`[data-interval-wrap="${i}"]`),h=document.querySelector(`[data-hours-wrap="${i}"]`),days=document.querySelector(`[data-days-wrap="chore-${i}"]`);if(w)w.style.display=e.value==="everyx"?"block":"none";if(h)h.style.display=e.value==="everyhours"?"block":"none";if(days)days.style.display=e.value==="weekdays"?"block":"none"}));
- $("#createCustom")?.addEventListener("click",async()=>{let name=$("#newName").value.trim();if(!name)return;let required=$("#newRequired").value==="1",paid=$("#newPaid").value==="1";let c={id:"custom_"+newId(),name,icon:$("#newIcon").value||"⭐",category:"Custom",frequency:"anytime",intervalDays:7,intervalHours:1,required,paid,points:Math.max(0,+$("#newPoints").value||0),xp:10,missXp:required?5:0,assignedTo:data.kids.map(k=>k.id),active:true,custom:true,createdAt:Date.now(),effortLevel:$("#newEffort")?.value||"helping",useCustomAmount:!!$("#newCustomToggle")?.checked,customAmount:Math.max(0,+$("#newCustomAmount")?.value||0)};await patch({choreLibrary:[...library(),c]})});
-function refreshNewChoreMoney(){let required=$("#newRequired")?.value==="1",area=$("#newMoneyArea"),ov=$("#requiredMoneyOverride"),pay=$("#newPaid"),fields=$("#newPayFields");if(!area)return;if(required&&area.dataset.override!=="1"){area.style.display="none";ov.style.display="block";pay.value="0"}else{area.style.display="block";ov.style.display="none"}fields.style.display=pay.value==="1"?"block":"none";let gross=$("#newCustomToggle")?.checked?Math.max(0,+$("#newCustomAmount")?.value||0):autoBaseReward()*effortMultiplier($("#newEffort")?.value||"helping"),cash=+(gross*cashPct()/100).toFixed(2),future=+(gross-cash).toFixed(2);$("#newAutoPreview").innerHTML=`<b>This job can earn ${money(gross)}</b><br>💵 ${money(cash)} Spend Now · 🌱 ${money(future)} Future Fund`;$("#newCustomWrap").style.display=$("#newCustomToggle")?.checked?"block":"none"}
+ $("#createCustom")?.addEventListener("click",async()=>{let name=$("#newName").value.trim();if(!name)return;let required=$("#newRequired").value==="1",paid=$("#newPaid").value==="1";let c={id:"custom_"+newId(),name,icon:$("#newIcon").value||"⭐",category:"Custom",frequency:"anytime",intervalDays:7,intervalHours:1,required,paid,points:Math.max(0,+$("#newPoints").value||0),xp:10,missXp:required?5:0,assignedTo:data.kids.map(k=>k.id),active:true,custom:true,createdAt:Date.now(),effortLevel:$("#newEffort")?.value||"standard",useCustomAmount:$("#newCustomToggle")?.value==="1",customAmount:Math.max(0,+$("#newCustomAmount")?.value||0)};await patch({choreLibrary:[...library(),c]})});
+function refreshNewChoreMoney(){let required=$("#newRequired")?.value==="1",area=$("#newMoneyArea"),ov=$("#requiredMoneyOverride"),pay=$("#newPaid"),fields=$("#newPayFields");if(!area)return;if(required&&area.dataset.override!=="1"){area.style.display="none";ov.style.display="block";pay.value="0"}else{area.style.display="block";ov.style.display="none"}fields.style.display=pay.value==="1"?"grid":"none";let isCustom=$("#newCustomToggle")?.value==="1",gross=isCustom?Math.max(0,+$("#newCustomAmount")?.value||0):autoBaseReward()*effortMultiplier($("#newEffort")?.value||"standard"),cash=+(gross*cashPct()/100).toFixed(2),future=+(gross-cash).toFixed(2);$("#newAutoPreview").innerHTML=`<b>This job can earn ${money(gross)}</b><br>💵 ${money(cash)} Spend Now · 🌱 ${money(future)} Future Fund`;$("#newCustomWrap").style.display=isCustom?"block":"none"}
 $("#newRequired")?.addEventListener("change",()=>{$("#newMoneyArea").dataset.override="";refreshNewChoreMoney()});$("#allowRequiredPay")?.addEventListener("click",()=>{$("#newMoneyArea").dataset.override="1";refreshNewChoreMoney()});["newPaid","newEffort","newCustomToggle"].forEach(id=>$(`#${id}`)?.addEventListener("change",refreshNewChoreMoney));$("#newCustomAmount")?.addEventListener("input",refreshNewChoreMoney);refreshNewChoreMoney();
  $$("[data-frequency]").forEach(sel=>sel.addEventListener("change",()=>{
    const i=+sel.dataset.frequency, miss=$(`[data-miss="${i}"]`);
@@ -4724,6 +4746,8 @@ $("#newRequired")?.addEventListener("change",()=>{$("#newMoneyArea").dataset.ove
    $$("[data-points]").forEach(e=>lib[+e.dataset.points].points=Math.max(0,Math.min(100,+e.value||0)));
    $$("[data-paid]").forEach(e=>{let i=+e.dataset.paid;lib[i].paid=!lib[i].required&&e.value==="1"});
    $$("[data-effort]").forEach(e=>{let i=+e.dataset.effort;if(!lib[i].required)lib[i].effortLevel=e.value});
+   $$('[data-custom-toggle]').forEach(e=>{let i=+e.dataset.customToggle;if(!lib[i].required)lib[i].useCustomAmount=e.value==="1"});
+   $$('[data-custom-amount]').forEach(e=>{let i=+e.dataset.customAmount;if(!lib[i].required)lib[i].customAmount=Math.max(0,+e.value||0)});
    $$("[data-exclusive]").forEach(e=>lib[+e.dataset.exclusive].exclusive=e.value==="1");    $$("[data-summeroff]").forEach(e=>lib[+e.dataset.summeroff].summerOff=e.value==="1");
    lib.forEach(c=>{if("timerMinutes" in c)delete c.timerMinutes});
    $$("[data-miss]").forEach(e=>lib[+e.dataset.miss].missXp=+e.value);
@@ -4769,13 +4793,13 @@ $("#newRequired")?.addEventListener("change",()=>{$("#newMoneyArea").dataset.ove
        if(!chore)throw new Error(`Unknown chore: ${task.choreId}`);
 
        const moneyOn=(d.moneyEnabled??true);
-       const rawGross=!moneyOn?0:chore.required?0:
-         (task.type==="golf"
-           ?Math.max(0,Math.min(100,+task.count||0))*((d.golfCash||.05)+(d.golfCar||.10))
-           :(chore.paid?(+chore.cash||0)+(+chore.car||0):0));
-
        const totalCap=Math.max(0,+d.weeklyTotalCap||25);
        const cashCap=Math.max(0,+d.weeklyCashCap||15);
+       const effort=chore.effortLevel||"standard",mult=effort==="easy"?.6:effort==="hard"?1.5:effort==="big"?2.25:1;
+       const autoBase=Math.max(.5,Math.round((totalCap/5)*4)/4);
+       const jobGross=chore.useCustomAmount?Math.max(0,+chore.customAmount||0):+(Math.round(autoBase*mult*4)/4).toFixed(2);
+       const rawGross=!moneyOn?0:chore.required?0:(task.type==="golf"?Math.max(0,Math.min(100,+task.count||0))*((d.golfCash||.05)+(d.golfCar||.10)):(chore.paid?jobGross:0));
+
        const now=Date.now(),dd=new Date(),day=(dd.getDay()+6)%7;
        dd.setHours(0,0,0,0);
        dd.setDate(dd.getDate()-day);
